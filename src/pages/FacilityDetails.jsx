@@ -1,169 +1,236 @@
 import { Link, useParams } from "react-router-dom";
 import useFacility from "../hooks/useFacility";
+import {
+  ArrowLeft,
+  Building2,
+  Phone,
+  MapPin,
+  Navigation,
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  Activity,
+  Calendar,
+  Share2,
+  Stethoscope
+} from "lucide-react";
 
 function FacilityDetails() {
   const { id } = useParams();
-
-  const {
-    facility,
-    loading,
-    error
-  } = useFacility(id);
+  const { facility, loading, error } = useFacility(id);
 
   if (loading) {
     return (
-      <div className="facility-details">
-        <div className="records-state">
-          <div className="records-loader" />
-          <p>Loading facility...</p>
-        </div>
+      <div className="state-container-card">
+        <Activity className="w-10 h-10 text-primary-color animate-spin" />
+        <h3 className="state-title">Loading Healthcare Facility Profile...</h3>
+        <p className="state-subtitle">
+          Retrieving clinic operational hours, doctors on duty, and ABDM registry details.
+        </p>
       </div>
     );
   }
 
   if (error || !facility) {
     return (
-      <div className="facility-details">
-        <div className="records-state records-error">
-          <span>⚠️</span>
-
-          <h3>Facility not found</h3>
-
-          <p>
-            The healthcare facility could not be found.
-          </p>
-
-          <Link
-            to="/facilities"
-            className="record-back-button"
-          >
-            ← Back to Facilities
-          </Link>
-        </div>
+      <div className="state-container-card" style={{ borderColor: "var(--error-color)" }}>
+        <AlertCircle className="w-10 h-10 text-rose-600" />
+        <h3 className="state-title" style={{ color: "var(--error-color)" }}>
+          Healthcare Facility Not Found
+        </h3>
+        <p className="state-subtitle">
+          The requested health center ID ({id}) could not be located in the district registry.
+        </p>
+        <Link to="/facilities" className="btn-secondary-action" style={{ marginTop: "12px" }}>
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Facilities</span>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="facility-details">
-
-      <section className="page-header">
-
+    <div className="record-details-container">
+      {/* 1. Header Navigation */}
+      <div className="record-details-header">
         <Link
           to="/facilities"
-          className="record-back-link"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "14px",
+            fontWeight: "700",
+            color: "var(--primary-color)",
+          }}
         >
-          ← Find a Facility
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Facility Directory</span>
         </Link>
 
-        <p className="page-eyebrow">
-          Healthcare Facility
-        </p>
+        <span
+          style={{
+            fontSize: "12px",
+            fontWeight: "700",
+            color: "var(--surface-tint)",
+            background: "var(--surface-container-low)",
+            padding: "6px 12px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-color)",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px"
+          }}
+        >
+          <ShieldCheck className="w-4 h-4 text-primary-color" />
+          <span>ABDM Verified Facility Registry</span>
+        </span>
+      </div>
 
-        <h2>{facility.name}</h2>
-
-        <p>
-          {facility.type}
-        </p>
-
-      </section>
-
-      <section className="facility-details-card">
-
-        <div className="facility-details-header">
-
-          <div className="facility-details-icon">
-            🏥
+      {/* 2. Facility Details Main Card */}
+      <section className="record-details-main-card">
+        <div className="record-profile-row">
+          <div
+            style={{
+              width: "64px",
+              height: "64px",
+              borderRadius: "var(--radius-lg)",
+              background: "var(--surface-container-low)",
+              color: "var(--primary-color)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0
+            }}
+          >
+            <Building2 className="w-8 h-8" />
           </div>
 
-          <div>
-            <span
-              className={
-                facility.openNow
-                  ? "facility-status open"
-                  : "facility-status closed"
-              }
-            >
-              <span className="status-dot" />
-
-              {facility.openNow
-                ? "Open now"
-                : "Currently closed"}
-            </span>
-
-            <h3>{facility.name}</h3>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "6px" }}>
+              <span className="record-type-pill">
+                {facility.type}
+              </span>
+              <span className={`facility-status-pill ${facility.openNow ? "open" : "closed"}`}>
+                <span className="sync-pulse-dot" style={{ background: facility.openNow ? "var(--surface-tint)" : "var(--muted-color)" }} />
+                <span>{facility.openNow ? "Open Now (24x7 Services)" : "Currently Closed"}</span>
+              </span>
+            </div>
+            <h1 style={{ fontSize: "24px", fontWeight: "800", color: "var(--text-color)" }}>
+              {facility.name}
+            </h1>
+            <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginTop: "4px" }}>
+              Public Health Network Node · Pune District Health Grid
+            </p>
           </div>
-
         </div>
 
-        <div className="facility-details-grid">
-
-          <div className="facility-detail-item">
-            <span>Facility Type</span>
-            <strong>{facility.type}</strong>
+        {/* 4-Key Metrics Grid */}
+        <div className="details-meta-grid">
+          <div className="details-meta-item">
+            <span className="meta-label">Facility Category</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+              <Building2 className="w-4 h-4 text-primary-color" />
+              <span className="meta-val">{facility.type}</span>
+            </div>
           </div>
 
-          <div className="facility-detail-item">
-            <span>Distance</span>
-            <strong>{facility.distance}</strong>
+          <div className="details-meta-item">
+            <span className="meta-label">Approximate Distance</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+              <Navigation className="w-4 h-4 text-secondary-color" />
+              <span className="meta-val">{facility.distance} from your location</span>
+            </div>
           </div>
 
-          <div className="facility-detail-item">
-            <span>Location</span>
-            <strong>{facility.district}</strong>
+          <div className="details-meta-item">
+            <span className="meta-label">District / Administrative Region</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+              <MapPin className="w-4 h-4 text-primary-color" />
+              <span className="meta-val">{facility.district}</span>
+            </div>
           </div>
 
-          <div className="facility-detail-item">
-            <span>Phone</span>
-            <strong>{facility.phone}</strong>
+          <div className="details-meta-item">
+            <span className="meta-label">Direct Contact Phone</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+              <Phone className="w-4 h-4 text-secondary-color" />
+              <span className="meta-val">{facility.phone}</span>
+            </div>
           </div>
-
         </div>
 
-        <div className="facility-address-section">
-
-          <h4>Address</h4>
-
-          <p>
-            📍 {facility.address}
+        {/* Address & Direction Section */}
+        <div style={{ padding: "18px 20px", borderRadius: "var(--radius-lg)", background: "var(--surface-container-low)", border: "1px solid var(--border-color)" }}>
+          <h4 style={{ fontSize: "14px", fontWeight: "700", color: "var(--text-color)", marginBottom: "6px" }}>
+            Physical Address
+          </h4>
+          <p style={{ fontSize: "14px", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <MapPin className="w-4 h-4 text-primary-color shrink-0" />
+            <span>{facility.address}, {facility.district}</span>
           </p>
-
         </div>
 
-        <div className="facility-services-section">
-
-          <h4>Available Services</h4>
-
-          <div className="facility-service-list">
+        {/* Available Services Section */}
+        <div>
+          <h4 style={{ fontSize: "15px", fontWeight: "800", color: "var(--text-color)", marginBottom: "12px" }}>
+            Available Clinical Services & Schemes
+          </h4>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             {facility.services.map((service) => (
-              <span key={service}>
-                ✓ {service}
+              <span
+                key={service}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--surface-container-low)",
+                  border: "1px solid var(--border-color)",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  color: "var(--text-color)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}
+              >
+                <CheckCircle2 className="w-4 h-4 text-surface-tint" />
+                <span>{service}</span>
               </span>
             ))}
           </div>
-
         </div>
 
-        <div className="facility-actions">
-
+        {/* Action Buttons Footer */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            paddingTop: "18px",
+            borderTop: "1px solid var(--border-color)",
+            flexWrap: "wrap"
+          }}
+        >
           <a
             href={`tel:${facility.phone}`}
-            className="facility-action-primary"
+            className="btn-primary-action"
+            style={{ padding: "12px 24px" }}
           >
-            📞 Call Facility
+            <Phone className="w-4 h-4" />
+            <span>Call Facility ({facility.phone})</span>
           </a>
 
-          <button
-            className="facility-action-secondary"
-            disabled
+          <Link
+            to="/appointments"
+            className="btn-secondary-action"
+            style={{ padding: "12px 20px" }}
           >
-            📍 Get Directions
-          </button>
-
+            <Calendar className="w-4 h-4" />
+            <span>Request OPD Appointment</span>
+          </Link>
         </div>
-
       </section>
-
     </div>
   );
 }

@@ -1,16 +1,29 @@
 import { Link } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
+import logo from "../Assests/logo.svg";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 
 function Landing() {
   return (
     <div className="landing-page">
-
-      <ThemeToggle />
+      {/* Top Navigation Bar with Theme Toggle */}
+      <div className="landing-top-bar">
+        <ThemeToggle />
+      </div>
 
       <div className="landing-content">
+        <div className="landing-brand">
+          <div className="brand-emblem-hero">
+            <img src={logo} alt="SwasthyaSetu Logo" className="brand-logo-img" />
+          </div>
+          <span className="landing-brand-name">
+            SwasthyaSetu
+          </span>
+        </div>
 
         <div className="landing-badge">
-          Healthcare • Connected
+          <ShieldCheck className="w-4 h-4 inline mr-1 text-primary-color" />
+          SwasthyaSetu • ABDM Citizen Network
         </div>
 
         <h1>
@@ -19,29 +32,26 @@ function Landing() {
         </h1>
 
         <p>
-          Access your medical records, find healthcare
-          facilities, manage appointments, and stay
-          connected with your care journey.
+          Access your longitudinal ABHA medical records, find verified public health facilities,
+          schedule outpatient consultations, and stay connected with your care continuum.
         </p>
 
         <div className="landing-actions">
-
           <Link
             to="/login"
-            className="primary-button"
+            className="btn-primary-action"
           >
-            Sign In
+            <span>Sign In to Portal</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
 
           <Link
             to="/register"
-            className="secondary-button"
+            className="btn-secondary-action"
           >
-            Create Account
+            <span>Create ABHA Account</span>
           </Link>
-
         </div>
-
       </div>
     </div>
   );

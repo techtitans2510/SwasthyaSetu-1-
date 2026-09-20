@@ -1,10 +1,31 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-
 import useMedicalRecords from "../hooks/useMedicalRecords";
+import useAuth from "../hooks/useAuth";
+import {
+  FileText,
+  Search,
+  CheckCircle2,
+  Calendar,
+  Building2,
+  User,
+  FlaskConical,
+  Pill,
+  Stethoscope,
+  Scan,
+  ShieldCheck,
+  Cloud,
+  Check,
+  ArrowRight,
+  Activity,
+  AlertCircle,
+  Clock,
+  FolderOpen
+} from "lucide-react";
 
 function MedicalRecords() {
   const { records, loading, error } = useMedicalRecords();
+  const { user } = useAuth();
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -42,134 +63,199 @@ function MedicalRecords() {
     });
   };
 
+  const getRecordIcon = (type) => {
+    switch (type) {
+      case "Lab Report":
+        return <FlaskConical className="w-5 h-5 text-emerald-600" />;
+      case "Prescription":
+        return <Pill className="w-5 h-5 text-sky-600" />;
+      case "Diagnosis":
+        return <Stethoscope className="w-5 h-5 text-primary-color" />;
+      case "Imaging":
+        return <Scan className="w-5 h-5 text-amber-600" />;
+      default:
+        return <FileText className="w-5 h-5 text-primary-color" />;
+    }
+  };
+
   return (
-    <div className="medical-records">
-      {/* Header */}
-      <section className="page-header">
-        <div>
-          <p className="page-eyebrow">Healthcare Records</p>
+    <div className="records-page-container">
+      {/* 1. Patient Profile & ABDM Health Continuity Banner */}
+      <section className="records-patient-banner">
+        <div className="patient-identity-row">
+          <div className="patient-identity-left">
+            <div className="patient-avatar-large">
+              {user?.name ? user.name[0].toUpperCase() : "P"}
+            </div>
+            <div className="patient-name-block">
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                <h2>{user?.name || "Ramesh Patil"}</h2>
+                <span className="tag-badge">62 Y • MALE</span>
+                <span className="tag-badge" style={{ background: "var(--surface-container-low)", color: "var(--surface-tint)" }}>
+                  <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
+                  ABDM Verified
+                </span>
+              </div>
+              <div className="patient-tags-block">
+                <span className="tag-badge abha-id">
+                  ABHA ID: 91-4029-1823-0192
+                </span>
+                <span style={{ color: "var(--text-secondary)" }}>•</span>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  ABHA Address: <strong>{user?.email || "patient@example.com"}</strong>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <h2>Medical Records</h2>
+        {/* Cadre & PHC Linkage Quick Metrics */}
+        <div className="patient-quick-metrics">
+          <div className="metric-strip-card">
+            <User className="w-5 h-5 text-primary-color shrink-0" />
+            <div className="metric-strip-text">
+              <span className="metric-strip-label">Assigned ASHA Worker</span>
+              <span className="metric-strip-value">Sunita More (Talwade Sub-Centre)</span>
+            </div>
+          </div>
 
-          <p>
-            View and manage your medical history, reports, prescriptions, and
-            diagnoses.
-          </p>
+          <div className="metric-strip-card">
+            <Building2 className="w-5 h-5 text-secondary-color shrink-0" />
+            <div className="metric-strip-text">
+              <span className="metric-strip-label">Primary Health Center</span>
+              <span className="metric-strip-value">Shirur 24x7 PHC (Pune Grid)</span>
+            </div>
+          </div>
+
+          <div className="metric-strip-card">
+            <ShieldCheck className="w-5 h-5 text-surface-tint shrink-0" />
+            <div className="metric-strip-text">
+              <span className="metric-strip-label">ABDM Consent Artifact</span>
+              <span className="metric-strip-value">Longitudinal Care Active</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Search + Filter */}
-      <section className="records-toolbar">
-        <div className="records-search">
-          <span>🔍</span>
-
+      {/* 2. Search and Category Filter Toolbar */}
+      <section className="records-toolbar-card">
+        <div className="search-input-wrapper">
+          <Search className="w-5 h-5 search-input-icon" />
           <input
             type="search"
-            placeholder="Search medical records..."
+            placeholder="Search medical records, diagnoses, prescriptions, doctors, or facilities..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
         </div>
 
-        <div className="records-filters">
+        <div className="category-pills-row">
           {categories.map((item) => (
             <button
               key={item}
-              className={
-                category === item ? "record-filter active" : "record-filter"
-              }
+              type="button"
+              className={`category-pill-btn ${category === item ? "active" : ""}`}
               onClick={() => setCategory(item)}
             >
-              {item}
+              {item === "All" ? "All Records" : item}
             </button>
           ))}
         </div>
       </section>
 
-      {/* Loading */}
+      {/* 3. Loading State */}
       {loading && (
-        <div className="records-state">
-          <div className="records-loader" />
-          <p>Loading medical records...</p>
+        <div className="state-container-card">
+          <Activity className="w-10 h-10 text-primary-color animate-spin" />
+          <h3 className="state-title">Loading Medical Records...</h3>
+          <p className="state-subtitle">
+            Synchronizing longitudinal diagnostic reports, prescriptions, and lab data.
+          </p>
         </div>
       )}
 
-      {/* Error */}
+      {/* 4. Error State */}
       {!loading && error && (
-        <div className="records-state records-error">
-          <span>⚠️</span>
-
-          <h3>Unable to load records</h3>
-
-          <p>Please try again later.</p>
+        <div className="state-container-card" style={{ borderColor: "var(--error-color)" }}>
+          <AlertCircle className="w-10 h-10 text-rose-600" />
+          <h3 className="state-title" style={{ color: "var(--error-color)" }}>Unable to Load Records</h3>
+          <p className="state-subtitle">
+            An error occurred while fetching medical records. Please try again.
+          </p>
         </div>
       )}
 
-      {/* Empty */}
+      {/* 5. Empty State */}
       {!loading && !error && filteredRecords.length === 0 && (
-        <div className="records-state">
-          <span>📂</span>
-
-          <h3>No records found</h3>
-
-          <p>Try changing your search or filter.</p>
+        <div className="state-container-card">
+          <FolderOpen className="w-10 h-10 text-muted-color" />
+          <h3 className="state-title">No Records Found</h3>
+          <p className="state-subtitle">
+            No matching medical records found for "{search || category}". Try resetting your filter.
+          </p>
         </div>
       )}
 
-      {/* Records */}
+      {/* 6. Medical Records Grid */}
       {!loading && !error && filteredRecords.length > 0 && (
-        <section className="records-grid">
+        <section className="records-cards-grid">
           {filteredRecords.map((record) => (
-            <article className="record-card" key={record.id}>
-              <div className="record-card-top">
-                <div
-                  className={`record-icon ${record.type
-                    .toLowerCase()
-                    .replace(" ", "-")}`}
-                >
-                  {record.type === "Lab Report" && "🧪"}
-
-                  {record.type === "Prescription" && "💊"}
-
-                  {record.type === "Diagnosis" && "🩺"}
-
-                  {record.type === "Imaging" && "🩻"}
+            <article className="record-item-card" key={record.id}>
+              <div>
+                <div className="record-top-badge-row">
+                  <div className="record-type-pill">
+                    {getRecordIcon(record.type)}
+                    <span>{record.type}</span>
+                  </div>
+                  <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-secondary)" }}>
+                    ID: {record.id}
+                  </span>
                 </div>
 
-                <span className="record-type">{record.type}</span>
-              </div>
+                <h3 className="record-title-heading">{record.title}</h3>
+                <p className="record-desc-text">{record.description}</p>
 
-              <div className="record-content">
-                <h3>{record.title}</h3>
-
-                <p>{record.description}</p>
-
-                <div className="record-meta">
-                  <span>👨‍⚕️ {record.doctor}</span>
-
-                  <span>🏥 {record.facility}</span>
-
-                  <span>📅 {formatDate(record.recordDate)}</span>
+                <div className="record-meta-info-grid">
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <User className="w-3.5 h-3.5 text-primary-color" />
+                    <span>Doctor: <strong>{record.doctor}</strong></span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Building2 className="w-3.5 h-3.5 text-secondary-color" />
+                    <span>Facility: <strong>{record.facility}</strong></span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Calendar className="w-3.5 h-3.5 text-muted-color" />
+                    <span>Date: <strong>{formatDate(record.recordDate)}</strong></span>
+                  </div>
                 </div>
               </div>
 
-              <div className="record-footer">
+              <div className="record-card-bottom-actions">
                 <span
-                  className={
-                    record.offlineAvailable
-                      ? "offline-status available"
-                      : "offline-status online-only"
-                  }
+                  className={`offline-availability-indicator ${
+                    record.offlineAvailable ? "available" : "online-only"
+                  }`}
                 >
-                  {record.offlineAvailable
-                    ? "✓ Available offline"
-                    : "☁ Online only"}
+                  {record.offlineAvailable ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Available Offline</span>
+                    </>
+                  ) : (
+                    <>
+                      <Cloud className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Cloud Synced</span>
+                    </>
+                  )}
                 </span>
+
                 <Link
                   to={`/medical-records/${record.id}`}
-                  className="record-view-button"
+                  className="view-record-link"
                 >
-                  View →
+                  <span>View Details</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </article>

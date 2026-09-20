@@ -1,197 +1,247 @@
+import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import useMedicalRecord from "../hooks/useMedicalRecords";
+import useMedicalRecords from "../hooks/useMedicalRecords";
+import {
+  ArrowLeft,
+  Calendar,
+  Building2,
+  User,
+  FlaskConical,
+  Pill,
+  Stethoscope,
+  Scan,
+  ShieldCheck,
+  Check,
+  Cloud,
+  FileText,
+  Download,
+  AlertCircle,
+  Activity,
+  Printer
+} from "lucide-react";
 
 function MedicalRecordDetails() {
   const { id } = useParams();
+  const { records, loading, error } = useMedicalRecords();
 
-  const {
-    record,
-    loading,
-    error
-  } = useMedicalRecord(id);
+  const record = useMemo(() => {
+    return (records || []).find((item) => item.id === id);
+  }, [records, id]);
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
-      }
-    );
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString("en-IN", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const getRecordIcon = (type) => {
+    switch (type) {
+      case "Lab Report":
+        return <FlaskConical className="w-7 h-7 text-emerald-600" />;
+      case "Prescription":
+        return <Pill className="w-7 h-7 text-sky-600" />;
+      case "Diagnosis":
+        return <Stethoscope className="w-7 h-7 text-primary-color" />;
+      case "Imaging":
+        return <Scan className="w-7 h-7 text-amber-600" />;
+      default:
+        return <FileText className="w-7 h-7 text-primary-color" />;
+    }
   };
 
   if (loading) {
     return (
-      <div className="record-details">
-        <div className="records-state">
-          <div className="records-loader" />
-          <p>Loading medical record...</p>
-        </div>
+      <div className="state-container-card">
+        <Activity className="w-10 h-10 text-primary-color animate-spin" />
+        <h3 className="state-title">Loading Medical Record...</h3>
+        <p className="state-subtitle">
+          Retrieving encrypted clinical record artifact from ABDM health repository.
+        </p>
       </div>
     );
   }
 
   if (error || !record) {
     return (
-      <div className="record-details">
-        <div className="records-state records-error">
-          <span>⚠️</span>
-
-          <h3>
-            Record not found
-          </h3>
-
-          <p>
-            The medical record you're looking
-            for could not be found.
-          </p>
-
-          <Link
-            to="/medical-records"
-            className="record-back-button"
-          >
-            ← Back to Medical Records
-          </Link>
-        </div>
+      <div className="state-container-card" style={{ borderColor: "var(--error-color)" }}>
+        <AlertCircle className="w-10 h-10 text-rose-600" />
+        <h3 className="state-title" style={{ color: "var(--error-color)" }}>
+          Record Not Found
+        </h3>
+        <p className="state-subtitle">
+          The requested medical record ID ({id}) could not be located in your health records.
+        </p>
+        <Link to="/medical-records" className="btn-secondary-action" style={{ marginTop: "12px" }}>
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Medical Records</span>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="record-details">
-
-      {/* Page header */}
-      <section className="page-header">
+    <div className="record-details-container">
+      {/* 1. Header Navigation and Breadcrumb */}
+      <div className="record-details-header">
         <Link
           to="/medical-records"
-          className="record-back-link"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "14px",
+            fontWeight: "700",
+            color: "var(--primary-color)",
+          }}
         >
-          ← Medical Records
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to All Records</span>
         </Link>
 
-        <p className="page-eyebrow">
-          Medical Record
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            type="button"
+            className="btn-secondary-action"
+            onClick={() => window.print()}
+            style={{ padding: "8px 14px", fontSize: "13px" }}
+          >
+            <Printer className="w-4 h-4" />
+            <span>Print Artifact</span>
+          </button>
+        </div>
+      </div>
 
-        <h2>{record.title}</h2>
-
-        <p>
-          {record.description}
-        </p>
-      </section>
-
-      {/* Main record */}
-      <section className="record-details-card">
-
-        <div className="record-details-top">
-
-          <div className="record-details-icon">
-            {record.type === "Lab Report" && "🧪"}
-            {record.type === "Prescription" && "💊"}
-            {record.type === "Diagnosis" && "🩺"}
-            {record.type === "Imaging" && "🩻"}
+      {/* 2. Main Clinical Record Card */}
+      <section className="record-details-main-card">
+        <div className="record-profile-row">
+          <div className="record-type-avatar">
+            {getRecordIcon(record.type)}
           </div>
-
-          <div>
-            <span className="record-details-type">
-              {record.type}
-            </span>
-
-            <h3>{record.title}</h3>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
+              <span className="record-type-pill">
+                {record.type}
+              </span>
+              <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--surface-tint)" }}>
+                <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
+                NHA / ABDM Verified
+              </span>
+            </div>
+            <h1 style={{ fontSize: "24px", fontWeight: "800", color: "var(--text-color)" }}>
+              {record.title}
+            </h1>
+            <p style={{ fontSize: "15px", color: "var(--text-secondary)", marginTop: "6px", lineHeight: "1.6" }}>
+              {record.description}
+            </p>
           </div>
-
         </div>
 
-        {/* Information */}
-        <div className="record-information">
-
-          <div className="record-information-item">
-            <span>Record Date</span>
-            <strong>
-              {formatDate(record.recordDate)}
-            </strong>
+        {/* Clinical Metadata 2-Column Grid */}
+        <div className="details-meta-grid">
+          <div className="details-meta-item">
+            <span className="meta-label">Recording Date</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+              <Calendar className="w-4 h-4 text-primary-color" />
+              <span className="meta-val">{formatDate(record.recordDate)}</span>
+            </div>
           </div>
 
-          <div className="record-information-item">
-            <span>Doctor</span>
-            <strong>{record.doctor}</strong>
+          <div className="details-meta-item">
+            <span className="meta-label">Attending Doctor</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+              <User className="w-4 h-4 text-primary-color" />
+              <span className="meta-val">{record.doctor}</span>
+            </div>
           </div>
 
-          <div className="record-information-item">
-            <span>Healthcare Facility</span>
-            <strong>{record.facility}</strong>
+          <div className="details-meta-item">
+            <span className="meta-label">Healthcare Facility</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+              <Building2 className="w-4 h-4 text-secondary-color" />
+              <span className="meta-val">{record.facility}</span>
+            </div>
           </div>
 
-          <div className="record-information-item">
-            <span>Record ID</span>
-            <strong>{record.id}</strong>
+          <div className="details-meta-item">
+            <span className="meta-label">ABDM Record ID</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+              <FileText className="w-4 h-4 text-secondary-color" />
+              <span className="meta-val">{record.id}</span>
+            </div>
           </div>
-
         </div>
 
-        {/* Offline status */}
-        <div className="record-details-offline">
+        {/* Offline Cache Status */}
+        <div className="offline-banner-box">
           {record.offlineAvailable ? (
             <>
-              <span>✓</span>
-
+              <Check className="w-6 h-6 text-emerald-600 shrink-0" />
               <div>
-                <strong>
-                  Available offline
+                <strong style={{ fontSize: "14px", color: "var(--text-color)" }}>
+                  Cached for Offline Access
                 </strong>
-
-                <p>
-                  This record is available on
-                  your device for offline access.
+                <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                  This medical record is securely stored on this device. You can view it without active cellular data.
                 </p>
               </div>
             </>
           ) : (
             <>
-              <span>☁</span>
-
+              <Cloud className="w-6 h-6 text-sky-600 shrink-0" />
               <div>
-                <strong>
-                  Online access required
+                <strong style={{ fontSize: "14px", color: "var(--text-color)" }}>
+                  Online Cloud Synchronized
                 </strong>
-
-                <p>
-                  Connect to the internet to
-                  access this record.
+                <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                  This record is stored in your ABDM repository and requires a network connection to load fresh attachments.
                 </p>
               </div>
             </>
           )}
         </div>
 
-        {/* Future document area */}
-        <div className="record-document">
-
-          <div className="record-document-icon">
-            📄
-          </div>
-
-          <div>
-            <h4>Medical Document</h4>
-
-            <p>
-              The actual report or document
-              viewer will be connected here.
-            </p>
+        {/* Document Attachment / PDF Viewer Box */}
+        <div className="document-attachment-box">
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <div
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "var(--radius-md)",
+                background: "var(--surface-container-low)",
+                color: "var(--primary-color)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <div style={{ fontSize: "14px", fontWeight: "700", color: "var(--text-color)" }}>
+                Official Clinical Document ({record.type})
+              </div>
+              <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                Signed PDF artifact verified by {record.doctor}
+              </div>
+            </div>
           </div>
 
           <button
-            className="record-document-button"
-            disabled
+            type="button"
+            className="btn-primary-action"
+            style={{ padding: "10px 18px", fontSize: "13px" }}
+            onClick={() => alert(`Downloading verified record artifact: ${record.title} (${record.id})`)}
           >
-            View Document
+            <Download className="w-4 h-4" />
+            <span>Download PDF Report</span>
           </button>
-
         </div>
-
       </section>
-
     </div>
   );
 }
