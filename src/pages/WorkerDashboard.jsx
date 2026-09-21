@@ -110,7 +110,6 @@ function WorkerDashboard() {
           </p>
         </div>
 
-
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
           <div className="worker-location-badge">
             <MapPin />
@@ -122,11 +121,11 @@ function WorkerDashboard() {
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              padding: "4px 12px",
-              borderRadius: "999px",
+              padding: "5px 12px",
+              borderRadius: "var(--radius-full)",
               background: "var(--bg-secondary)",
               border: "1px solid var(--border-color)",
-              fontSize: "11px",
+              fontSize: "var(--text-xs)",
               color: "var(--text-secondary)"
             }}
           >
@@ -147,9 +146,9 @@ function WorkerDashboard() {
             className="worker-stat-card"
             style={{
               textDecoration: "none",
-              color: "inherit",
-              cursor: "pointer"
+              color: "inherit"
             }}
+            aria-label={`${label}: ${value}, ${subtext}`}
           >
             <div className="worker-stat-icon">
               <Icon />
@@ -162,13 +161,15 @@ function WorkerDashboard() {
                 style={{
                   display: "block",
                   marginTop: "3px",
-                  fontSize: "10px",
+                  fontSize: "var(--text-xs)",
                   color: "var(--text-secondary)"
                 }}
               >
                 {subtext}
               </small>
             </div>
+
+            <ArrowRight className="stat-card-arrow" aria-hidden="true" />
           </NavLink>
         ))}
       </section>
@@ -185,15 +186,15 @@ function WorkerDashboard() {
               <h2>{t("worker.scheduledFieldVisitsTitle", { count: todayVisits.length }, `Scheduled Field Visits (${todayVisits.length})`)}</h2>
             </div>
 
-            <NavLink to="/worker/visits">
-              {t("worker.viewAllVisits", "View all visits")}
+            <NavLink to="/worker/visits" className="btn-header-link">
+              <span>{t("worker.viewAllVisits", "View all visits")}</span>
               <ArrowRight />
             </NavLink>
           </div>
 
           <div className="worker-visit-list">
             {todayVisits.length === 0 ? (
-              <p style={{ color: "var(--text-secondary)", padding: "20px 0" }}>
+              <p style={{ color: "var(--text-secondary)", padding: "20px 0", fontSize: "var(--text-sm)" }}>
                 {t("worker.noMoreVisitsToday", "No more visits scheduled for today.")}
               </p>
             ) : (
@@ -212,8 +213,8 @@ function WorkerDashboard() {
                         style={{
                           display: "block",
                           marginTop: "3px",
-                          fontSize: "10px",
-                          fontWeight: "normal",
+                          fontSize: "var(--text-xs)",
+                          fontWeight: 500,
                           color: "var(--text-secondary)"
                         }}
                       >
@@ -229,9 +230,9 @@ function WorkerDashboard() {
 
                         <span
                           style={{
-                            fontSize: "11px",
-                            padding: "1px 6px",
-                            borderRadius: "4px",
+                            fontSize: "var(--text-xs)",
+                            padding: "2px 6px",
+                            borderRadius: "var(--radius-sm)",
                             background: "var(--bg-secondary)",
                             border: "1px solid var(--border-color)",
                             fontFamily: "monospace",
@@ -243,10 +244,10 @@ function WorkerDashboard() {
 
                         <span
                           style={{
-                            fontSize: "10px",
+                            fontSize: "var(--text-xs)",
                             fontWeight: 600,
-                            padding: "2px 6px",
-                            borderRadius: "999px",
+                            padding: "2px 8px",
+                            borderRadius: "var(--radius-full)",
                             background: isHighRisk
                               ? "rgba(220, 38, 38, 0.12)"
                               : isMaternal
@@ -274,15 +275,16 @@ function WorkerDashboard() {
                     <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
                       <Link
                         to={`/worker/patients/${visit.patientId}`}
+                        aria-label={`View patient profile for ${visit.patientName}`}
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "4px",
-                          padding: "7px 11px",
+                          padding: "8px 14px",
                           border: "1px solid var(--border-color)",
-                          borderRadius: "8px",
+                          borderRadius: "var(--radius-md)",
                           color: "var(--text-primary)",
-                          fontSize: "11px",
+                          fontSize: "var(--text-xs)",
                           fontWeight: 600,
                           textDecoration: "none",
                           background: "var(--card-bg)"
@@ -293,16 +295,17 @@ function WorkerDashboard() {
 
                       <Link
                         to={`/worker/visits/new?patientId=${visit.patientId}`}
+                        aria-label={`Start visit for ${visit.patientName}`}
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "4px",
-                          padding: "7px 11px",
+                          padding: "8px 14px",
                           background: "var(--primary-color)",
                           color: "white",
                           border: "1px solid var(--primary-color)",
-                          borderRadius: "8px",
-                          fontSize: "11px",
+                          borderRadius: "var(--radius-md)",
+                          fontSize: "var(--text-xs)",
                           fontWeight: 600,
                           textDecoration: "none"
                         }}
@@ -327,19 +330,14 @@ function WorkerDashboard() {
                 <h2>{t("worker.careAlertsTasksTitle", { count: alerts.length }, `Care Alerts & Tasks (${alerts.length})`)}</h2>
               </div>
 
-              <AlertTriangle style={{ color: "#d97706" }} />
+              <AlertTriangle style={{ color: "var(--tertiary-color)", width: "19px", height: "19px" }} />
             </div>
 
             <div className="worker-alert-list">
               {alerts.map((alert) => (
                 <article
-                  className={`worker-alert ${alert.type}`}
+                  className={`worker-alert ${alert.type || "info"}`}
                   key={alert.id || alert.title}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "8px"
-                  }}
                 >
                   <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
                     {alert.type === "warning" ? (
@@ -362,7 +360,7 @@ function WorkerDashboard() {
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "4px",
-                          fontSize: "11px",
+                          fontSize: "var(--text-xs)",
                           fontWeight: 600,
                           color: "var(--primary-color)",
                           textDecoration: "none"
@@ -377,8 +375,8 @@ function WorkerDashboard() {
               ))}
             </div>
 
-            {/* CARE CONTINUITY PRINCIPLE */}
-            <div className="worker-care-loop">
+            {/* CARE CONTINUITY PRINCIPLE (INFORMATIONAL CALLOUT) */}
+            <aside className="worker-info-callout" role="note" aria-label="Care Continuity Principle">
               <CheckCircle2 />
               <div>
                 <strong>{t("worker.careContinuityTitle", "Care Continuity Principle")}</strong>
@@ -386,7 +384,7 @@ function WorkerDashboard() {
                   {t("worker.careContinuityDesc", "Every patient referral stays visible on your dashboard until clinical outcome closure is confirmed by the facility.")}
                 </span>
               </div>
-            </div>
+            </aside>
           </div>
 
           {/* 5. RECENT ACTIVITY */}
@@ -400,7 +398,7 @@ function WorkerDashboard() {
               <Activity style={{ width: "17px", height: "17px", color: "var(--text-secondary)" }} />
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {recentActivity.map((activity) => (
                 <div
                   key={activity.id}
@@ -408,19 +406,19 @@ function WorkerDashboard() {
                     display: "flex",
                     alignItems: "flex-start",
                     gap: "10px",
-                    padding: "10px",
-                    borderRadius: "8px",
+                    padding: "12px",
+                    borderRadius: "var(--radius-md)",
                     background: "var(--bg-secondary)",
-                    fontSize: "12px"
+                    fontSize: "var(--text-xs)"
                   }}
                 >
                   <Clock style={{ width: "14px", height: "14px", color: "var(--text-secondary)", marginTop: "2px", flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "6px" }}>
-                      <strong style={{ fontSize: "12px" }}>{activity.title}</strong>
-                      <span style={{ fontSize: "10px", color: "var(--text-secondary)", flexShrink: 0 }}>{activity.timeAgo}</span>
+                      <strong style={{ fontSize: "var(--text-xs)", fontWeight: 600 }}>{activity.title}</strong>
+                      <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", flexShrink: 0 }}>{activity.timeAgo}</span>
                     </div>
-                    <p style={{ margin: "2px 0 0", color: "var(--text-secondary)", fontSize: "11px", lineHeight: 1.4 }}>
+                    <p style={{ margin: "3px 0 0", color: "var(--text-secondary)", fontSize: "var(--text-xs)", lineHeight: 1.4 }}>
                       {activity.description}
                     </p>
                   </div>

@@ -75,7 +75,7 @@ function WorkerSidebar() {
 
           <div className="brand-text">
             <span className="brand-title">{t("appName", "SwasthyaSetu")}</span>
-            <span className="brand-subtitle">{t("taglineWorker", "FIELD CARE PORTAL")}</span>
+            <span className="brand-subtitle">{t("taglineWorker", "Field Care Portal")}</span>
           </div>
         </div>
 

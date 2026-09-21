@@ -247,13 +247,17 @@ function Dashboard() {
           <section className="dashboard-card-section">
             <div className="section-header-row">
               <div>
-                <h2 className="section-heading-title">{t("patientDashboard.todayMedicineSchedule", "Today's Medicine Schedule")}</h2>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <h2 className="section-heading-title" style={{ margin: 0 }}>
+                    {t("patientDashboard.todayMedicineSchedule", "Today's Medicine Schedule")}
+                  </h2>
+                  <span className="appointment-chip-secondary" style={{ color: "var(--primary-color)", fontWeight: "700" }}>
+                    <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
+                    {medTaken ? t("patientDashboard.medTakenCount2", "2 of 3 taken") : t("patientDashboard.medTakenCount1", "1 of 3 taken")}
+                  </span>
+                </div>
                 <p className="section-heading-sub">{t("patientDashboard.medicineScheduleSub", "Take prescribed medicines on time with warm water.")}</p>
               </div>
-              <span className="appointment-chip-secondary" style={{ color: "var(--primary-color)", fontWeight: "700" }}>
-                <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" />
-                {medTaken ? t("patientDashboard.medTakenCount2", "2 of 3 taken") : t("patientDashboard.medTakenCount1", "1 of 3 taken")}
-              </span>
             </div>
 
             <div className="medicine-list">
@@ -372,7 +376,7 @@ function Dashboard() {
                   <span>{t("patientDashboard.activity1Type", "Recent Consultation")}</span>
                   <span>{t("patientDashboard.activity1Facility", "Primary Health Centre")}</span>
                 </div>
-                <h4 className="timeline-title">{t("patientDashboard.activity1Title", "Routine Blood Pressure Assessment")}</h4>
+                <h3 className="timeline-title">{t("patientDashboard.activity1Title", "Routine Blood Pressure Assessment")}</h3>
                 <p className="timeline-desc">
                   {t("patientDashboard.activity1Desc", "Recorded: 138 / 88 mmHg (Pulse 74 bpm). Classified as Stable. Doctor advised regular morning walk and low sodium diet.")}
                 </p>
@@ -383,7 +387,7 @@ function Dashboard() {
                   <span>{t("patientDashboard.activity2Type", "Diagnostic Report")}</span>
                   <span>{t("patientDashboard.activity2Facility", "District Hospital Laboratory")}</span>
                 </div>
-                <h4 className="timeline-title">{t("patientDashboard.activity2Title", "Complete Blood Count & Glucose Profile")}</h4>
+                <h3 className="timeline-title">{t("patientDashboard.activity2Title", "Complete Blood Count & Glucose Profile")}</h3>
                 <p className="timeline-desc">
                   {t("patientDashboard.activity2Desc", "Fasting Blood Glucose: 98 mg/dL (Normal). Report approved by Medical Officer.")}
                 </p>
@@ -394,7 +398,7 @@ function Dashboard() {
                   <span>{t("patientDashboard.activity3Type", "Prescription Dispensed")}</span>
                   <span>{t("patientDashboard.activity3Facility", "Government Health Sub-Centre")}</span>
                 </div>
-                <h4 className="timeline-title">{t("patientDashboard.activity3Title", "Chronic Care Prescription Renewed (30 Days)")}</h4>
+                <h3 className="timeline-title">{t("patientDashboard.activity3Title", "Chronic Care Prescription Renewed (30 Days)")}</h3>
                 <p className="timeline-desc">
                   {t("patientDashboard.activity3Desc", "Course issued under Free Medicine Distribution Scheme (Telmisartan & Atorvastatin).")}
                 </p>
@@ -480,16 +484,21 @@ function Dashboard() {
                 <span style={{ fontSize: "16px", fontWeight: "800" }}>108</span>
               </a>
 
-              <div style={{ padding: "12px", borderRadius: "var(--radius-md)", background: "var(--primary-color)", color: "var(--on-primary)", display: "flex", flexDirection: "column", gap: "4px", marginTop: "4px" }}>
+              <div style={{ padding: "14px", borderRadius: "var(--radius-md)", background: "var(--surface-container-low)", border: "1px solid var(--border-color)", color: "var(--text-color)", display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "var(--primary-fixed)" }}>{t("patientDashboard.primaryHealthCentreLabel", "Primary Health Centre")}</span>
-                  <span style={{ fontSize: "10px", padding: "1px 6px", borderRadius: "4px", background: "var(--surface-tint)", color: "white", fontWeight: "700" }}>{t("patientDashboard.openNowLabel", "Open Now")}</span>
+                  <span style={{ fontSize: "var(--text-xs)", fontWeight: "700", textTransform: "uppercase", color: "var(--primary-color)" }}>{t("patientDashboard.primaryHealthCentreLabel", "Primary Health Centre")}</span>
+                  <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "var(--radius-full)", background: "var(--surface-tint)", color: "white", fontWeight: "700" }}>{t("patientDashboard.openNowLabel", "Open Now")}</span>
                 </div>
-                <span style={{ fontSize: "14px", fontWeight: "700" }}>{upcomingAppointment.facility}</span>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "4px" }}>
-                  <span style={{ fontSize: "11px", opacity: 0.85 }}>{t("patientDashboard.puneDistrictGrid", "Pune District Grid")}</span>
-                  <a href="tel:+912137252100" style={{ fontSize: "12px", fontWeight: "700", textDecoration: "underline", color: "var(--on-primary)" }}>
-                    {t("patientDashboard.callDesk", "Call Desk")}
+                <span style={{ fontSize: "var(--text-sm)", fontWeight: "700", color: "var(--text-color)" }}>{upcomingAppointment.facility}</span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginTop: "2px" }}>
+                  <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>{t("patientDashboard.puneDistrictGrid", "Pune District Grid")}</span>
+                  <a
+                    href="tel:+912137252100"
+                    className="btn-call-desk"
+                    aria-label={`${t("patientDashboard.callDesk", "Call Desk")} - ${upcomingAppointment.facility}`}
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span>{t("patientDashboard.callDesk", "Call Desk")}</span>
                   </a>
                 </div>
               </div>
