@@ -2,6 +2,8 @@ import { useState } from "react";
 import SideDrawer from "./SideDrawer";
 import useAuth from "../hooks/useAuth";
 import { useTheme } from "../context/ThemeContext";
+import useLanguage from "../hooks/useLanguage";
+import LanguageSelector from "./LanguageSelector";
 import logo from "../Assests/logo.svg";
 import {
   Menu,
@@ -18,6 +20,7 @@ function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <>
@@ -41,21 +44,21 @@ function Header() {
                 className="brand-logo-img"
               />
             </div>
-            <span className="brand-title-sm">SwasthyaSetu</span>
+            <span className="brand-title-sm">{t("appName", "SwasthyaSetu")}</span>
           </div>
 
           {/* Desktop Badges */}
           <div className="header-badges">
             <div className="header-badge-abdm">
               <ShieldCheck className="w-4 h-4 text-primary-color" />
-              <span className="badge-text-bold">Citizen Health Portal</span>
+              <span className="badge-text-bold">{t("portalTitle", "Citizen Health Portal")}</span>
               <span className="badge-dot">•</span>
-              <span className="badge-text-sub">ABDM Compliant</span>
+              <span className="badge-text-sub">{t("abdmCompliant", "ABDM Compliant")}</span>
             </div>
 
             <div className="header-badge-sync">
               <span className="sync-pulse-dot" />
-              <span className="sync-text">Online · Synced</span>
+              <span className="sync-text">{t("onlineSynced", "Online · Synced")}</span>
               <RefreshCw className="w-3.5 h-3.5 text-muted-color" />
             </div>
           </div>
@@ -67,19 +70,22 @@ function Header() {
           <a
             href="tel:108"
             className="emergency-btn"
-            title="Call 108 Emergency Ambulance"
+            title={t("call108Title", "Call 108 Emergency Ambulance")}
           >
             <PhoneCall className="w-4 h-4 text-rose-600 animate-bounce" />
-            <span className="emergency-text">Emergency 108</span>
+            <span className="emergency-text">{t("emergency108", "Emergency 108")}</span>
           </a>
+
+          {/* Language Selector */}
+          <LanguageSelector />
 
           {/* Theme Switcher Button */}
           <button
             type="button"
             className="header-icon-btn"
             onClick={toggleTheme}
-            aria-label={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            aria-label={darkMode ? t("lightMode", "Switch to Light Mode") : t("darkMode", "Switch to Dark Mode")}
+            title={darkMode ? t("lightMode", "Switch to Light Mode") : t("darkMode", "Switch to Dark Mode")}
           >
             {darkMode ? (
               <Sun className="w-4 h-4 text-amber-400" />
@@ -106,7 +112,7 @@ function Header() {
             </div>
             <div className="profile-info">
               <div className="profile-name-row">
-                <span className="profile-name">{user?.name || "Patient"}</span>
+                <span className="profile-name">{user?.name || t("patient", "Patient")}</span>
                 <span className="profile-badge">Citizen</span>
               </div>
               <span className="profile-id">{user?.email || "91-4029-1823-0192"}</span>

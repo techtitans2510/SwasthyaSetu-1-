@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useTheme } from "../context/ThemeContext";
+import useLanguage from "../hooks/useLanguage";
+import LanguageSelector from "./LanguageSelector";
 import logo from "../Assests/logo.svg";
 import {
   Home,
@@ -18,6 +20,7 @@ import {
 function SideDrawer({ isOpen, onClose }) {
   const { logout, user } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <>
@@ -41,8 +44,8 @@ function SideDrawer({ isOpen, onClose }) {
               />
             </div>
             <div>
-              <h2 className="drawer-title">SwasthyaSetu</h2>
-              <p className="drawer-subtitle">Citizen Health Portal</p>
+              <h2 className="drawer-title">{t("appName", "SwasthyaSetu")}</h2>
+              <p className="drawer-subtitle">{t("portalTitle", "Citizen Health Portal")}</p>
             </div>
           </div>
 
@@ -61,7 +64,7 @@ function SideDrawer({ isOpen, onClose }) {
             {user?.name ? user.name[0].toUpperCase() : "P"}
           </div>
           <div className="drawer-user-meta">
-            <span className="drawer-user-name">{user?.name || "Patient"}</span>
+            <span className="drawer-user-name">{user?.name || t("patient", "Patient")}</span>
             <span className="drawer-user-role">ABHA ID: 91-4029-1823-0192</span>
           </div>
         </div>
@@ -76,7 +79,7 @@ function SideDrawer({ isOpen, onClose }) {
             }
           >
             <Home className="w-5 h-5" />
-            <span>Home</span>
+            <span>{t("home", "Home")}</span>
           </NavLink>
 
           <NavLink
@@ -87,7 +90,7 @@ function SideDrawer({ isOpen, onClose }) {
             }
           >
             <Search className="w-5 h-5" />
-            <span>Find Facility / Doctor</span>
+            <span>{t("findFacility", "Find Facility / Doctor")}</span>
           </NavLink>
 
           <NavLink
@@ -98,7 +101,7 @@ function SideDrawer({ isOpen, onClose }) {
             }
           >
             <Calendar className="w-5 h-5" />
-            <span>Appointments</span>
+            <span>{t("appointments", "Appointments")}</span>
           </NavLink>
 
           <NavLink
@@ -109,19 +112,22 @@ function SideDrawer({ isOpen, onClose }) {
             }
           >
             <FileText className="w-5 h-5" />
-            <span>Medical Records</span>
+            <span>{t("medicalRecords", "Medical Records")}</span>
           </NavLink>
         </nav>
 
         {/* Bottom section */}
         <div className="drawer-bottom">
+          {/* Language Selector */}
+          <LanguageSelector variant="sidebar-row" />
+
           {/* Helpline */}
           <div className="helpline-card-drawer">
             <div className="helpline-header">
               <PhoneCall className="w-3.5 h-3.5 text-secondary-color" />
-              <span className="helpline-tag">Citizen Health Line</span>
+              <span className="helpline-tag">{t("citizenHealthLine", "Citizen Health Line")}</span>
             </div>
-            <div className="helpline-number-sm">104 / 14416 (24x7)</div>
+            <div className="helpline-number-sm">{t("helplineNumber", "104 / 14416 (24x7)")}</div>
           </div>
 
           {/* Theme Toggle */}
@@ -132,7 +138,7 @@ function SideDrawer({ isOpen, onClose }) {
               ) : (
                 <Sun className="w-4 h-4 text-amber-500" />
               )}
-              <span>{darkMode ? "Dark Mode" : "Light Mode"}</span>
+              <span>{darkMode ? t("darkMode", "Dark Mode") : t("lightMode", "Light Mode")}</span>
             </div>
 
             <button
@@ -149,7 +155,7 @@ function SideDrawer({ isOpen, onClose }) {
           {/* ABDM Badge */}
           <div className="abdm-drawer-badge">
             <ShieldCheck className="w-3.5 h-3.5 text-primary-color" />
-            <span>ABDM National Health Network</span>
+            <span>{t("abdmNetwork", "ABDM National Health Network")}</span>
           </div>
 
           {/* Logout */}
@@ -162,7 +168,7 @@ function SideDrawer({ isOpen, onClose }) {
             }}
           >
             <LogOut className="w-5 h-5" />
-            <span>Sign Out</span>
+            <span>{t("signOut", "Sign Out")}</span>
           </button>
         </div>
       </aside>
@@ -171,3 +177,4 @@ function SideDrawer({ isOpen, onClose }) {
 }
 
 export default SideDrawer;
+

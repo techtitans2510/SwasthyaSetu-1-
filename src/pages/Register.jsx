@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import useLanguage from "../hooks/useLanguage";
 import ThemeToggle from "../components/ThemeToggle";
+import LanguageSelector from "../components/LanguageSelector";
 import logo from "../Assests/logo.svg";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 
 function Register() {
   const { register, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   const navigate = useNavigate();
 
@@ -39,12 +42,12 @@ function Register() {
     setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("auth.errPasswordMismatch", "Passwords do not match."));
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+      setError(t("auth.errPasswordLength", "Password must be at least 6 characters long."));
       return;
     }
 
@@ -59,7 +62,7 @@ function Register() {
 
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message || "Unable to create your account.");
+      setError(err.message || t("auth.errUnableToCreate", "Unable to create your account."));
     } finally {
       setLoading(false);
     }
@@ -69,11 +72,14 @@ function Register() {
     <div className="auth-page">
       {/* Top Floating Controls */}
       <div className="auth-top-bar">
-        <Link to="/" className="auth-back-btn" title="Back to Home">
+        <Link to="/" className="auth-back-btn" title={t("home", "Back to Home")}>
           <ArrowLeft className="w-4 h-4" />
-          <span>Home</span>
+          <span>{t("home", "Home")}</span>
         </Link>
-        <ThemeToggle />
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <LanguageSelector variant="auth" />
+          <ThemeToggle />
+        </div>
       </div>
 
       <div className="auth-card">
@@ -88,17 +94,17 @@ function Register() {
           </div>
 
           <div>
-            <h1>SwasthyaSetu</h1>
+            <h1>{t("appName", "SwasthyaSetu")}</h1>
             <span style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "var(--secondary-color)" }}>
-              Citizen Health Portal
+              {t("portalTitle", "Citizen Health Portal")}
             </span>
           </div>
         </div>
 
         {/* Heading */}
         <div className="auth-heading">
-          <h2>Create ABHA Account</h2>
-          <p>Register to connect your health records across public clinics & hospitals.</p>
+          <h2>{t("auth.registerTitle", "Create ABHA Account")}</h2>
+          <p>{t("auth.registerSubtitle", "Register to connect your health records across public clinics & hospitals.")}</p>
         </div>
 
         {/* Error */}
@@ -111,56 +117,56 @@ function Register() {
         {/* Form */}
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="name">Full Name (As per Aadhaar / ABHA)</label>
+            <label htmlFor="name">{t("auth.fullNameLabel", "Full Name (As per Aadhaar / ABHA)")}</label>
             <input
               id="name"
               name="name"
               type="text"
               value={formData.name}
               onChange={handleChange}
-              placeholder="e.g. Ramesh Patil"
+              placeholder={t("auth.fullNamePlaceholder", "e.g. Ramesh Patil")}
               autoComplete="name"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="register-email">Email Address</label>
+            <label htmlFor="register-email">{t("auth.registerEmailLabel", "Email Address")}</label>
             <input
               id="register-email"
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="e.g. ramesh@example.com"
+              placeholder={t("auth.registerEmailPlaceholder", "e.g. ramesh@example.com")}
               autoComplete="email"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="register-password">Create Security Password</label>
+            <label htmlFor="register-password">{t("auth.createPasswordLabel", "Create Security Password")}</label>
             <input
               id="register-password"
               name="password"
               type="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Minimum 6 characters"
+              placeholder={t("auth.createPasswordPlaceholder", "Minimum 6 characters")}
               autoComplete="new-password"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">{t("auth.confirmPasswordLabel", "Confirm Password")}</label>
             <input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              placeholder="Re-enter your password"
+              placeholder={t("auth.confirmPasswordPlaceholder", "Re-enter your password")}
               autoComplete="new-password"
               required
             />
@@ -171,16 +177,16 @@ function Register() {
             className="auth-submit"
             disabled={loading}
           >
-            {loading ? "Creating ABHA Account..." : "Create Account"}
+            {loading ? t("auth.creatingAccountBtn", "Creating ABHA Account...") : t("auth.registerSubmitBtn", "Create Account")}
           </button>
         </form>
 
         {/* Footer */}
         <div className="auth-footer">
           <p className="auth-register-prompt">
-            Already have an account?{" "}
+            {t("auth.alreadyHaveAccount", "Already have an account?")}{" "}
             <Link to="/login" className="auth-link-bold">
-              Sign In to Portal
+              {t("auth.signInToPortal", "Sign In to Portal")}
             </Link>
           </p>
         </div>
@@ -189,11 +195,11 @@ function Register() {
         <div className="auth-trust-strip">
           <div className="trust-item">
             <ShieldCheck className="w-3.5 h-3.5 text-primary-color" />
-            <span>ABDM Compliant</span>
+            <span>{t("abdmCompliant", "ABDM Compliant")}</span>
           </div>
           <span className="trust-dot">•</span>
           <div className="trust-item">
-            <span>24x7 Helpline: 104 / 14416</span>
+            <span>{t("auth.nationalHelpline", "24x7 Helpline:")} 104 / 14416</span>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import useDashboard from "../hooks/useDashboard";
+import useLanguage from "../hooks/useLanguage";
 import {
   HeartPulse,
   Calendar,
@@ -24,13 +25,13 @@ import {
   AlertCircle,
   Activity,
   Ambulance,
-  TrendingUp,
-  Share2
+  TrendingUp
 } from "lucide-react";
 
 function Dashboard() {
   const { user } = useAuth();
   const { dashboard, loading, error } = useDashboard();
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [medTaken, setMedTaken] = useState(false);
 
@@ -38,9 +39,9 @@ function Dashboard() {
     return (
       <div className="state-container-card">
         <Activity className="w-10 h-10 text-primary-color animate-spin" />
-        <h3 className="state-title">Loading Health Dashboard...</h3>
+        <h3 className="state-title">{t("patientDashboard.loadingDashboard", "Loading Health Dashboard...")}</h3>
         <p className="state-subtitle">
-          Retrieving your ABHA profile and synced healthcare records from the PHC network.
+          {t("patientDashboard.loadingSubtitle", "Retrieving your ABHA profile and synced healthcare records from the PHC network.")}
         </p>
       </div>
     );
@@ -51,10 +52,10 @@ function Dashboard() {
       <div className="state-container-card" style={{ borderColor: "var(--error-color)" }}>
         <AlertCircle className="w-10 h-10 text-rose-600" />
         <h3 className="state-title" style={{ color: "var(--error-color)" }}>
-          Unable to Load Dashboard
+          {t("patientDashboard.unableToLoad", "Unable to Load Dashboard")}
         </h3>
         <p className="state-subtitle">
-          Could not sync records from the local health server. Please check your connection.
+          {t("patientDashboard.errorSubtitle", "Could not sync records from the local health server. Please check your connection.")}
         </p>
       </div>
     );
@@ -62,16 +63,16 @@ function Dashboard() {
 
   const { patient, stats, upcomingAppointment } = dashboard;
 
-  const rawName = user?.name || patient?.name || "Patient";
+  const rawName = user?.name || patient?.name || t("patient", "Patient");
   const displayName = rawName.trim().split(/\s+/)[0] || rawName;
 
   const currentHour = new Date().getHours();
   const timeGreeting =
     currentHour < 12
-      ? "Good morning"
+      ? t("patientDashboard.morningGreeting", "Good morning")
       : currentHour < 17
-        ? "Good afternoon"
-        : "Good evening";
+        ? t("patientDashboard.afternoonGreeting", "Good afternoon")
+        : t("patientDashboard.eveningGreeting", "Good evening");
 
   const abhaNumber = patient?.id ? `91-4029-1823-${patient.id.replace(/\D/g, "").padStart(4, "0")}` : "91-4029-1823-0192";
 
@@ -99,8 +100,7 @@ function Dashboard() {
             {timeGreeting}, {displayName} 👋
           </h1>
           <p className="hero-greeting-desc">
-            Welcome back to your citizen health portal. Here is your longitudinal care schedule,
-            verified ABHA health ID, and clinic updates.
+            {t("patientDashboard.welcomeDesc", "Welcome back to your citizen health portal. Here is your longitudinal care schedule, verified ABHA health ID, and clinic updates.")}
           </p>
         </div>
 
@@ -110,9 +110,9 @@ function Dashboard() {
           </div>
           <div className="abha-info">
             <div className="abha-tag-row">
-              <span className="abha-tag">Ayushman Bharat ID</span>
+              <span className="abha-tag">{t("patientDashboard.abhaIdLabel", "Ayushman Bharat ID")}</span>
               <ShieldCheck className="w-3.5 h-3.5 text-surface-tint" />
-              <span className="abha-verified-text">ABDM Verified</span>
+              <span className="abha-verified-text">{t("patientDashboard.abhaVerified", "ABDM Verified")}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <span className="abha-id-number">{abhaNumber}</span>
@@ -120,7 +120,7 @@ function Dashboard() {
                 type="button"
                 onClick={handleCopyAbha}
                 className="p-1 rounded hover:bg-surface-container transition-colors"
-                title="Copy ABHA ID"
+                title={t("patientDashboard.copyAbha", "Copy ABHA ID")}
                 style={{ background: "transparent", border: "none", color: "var(--secondary-color)" }}
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
@@ -137,14 +137,14 @@ function Dashboard() {
             <div className="appointment-badge-group">
               <span className="appointment-chip-primary">
                 <Calendar className="w-3.5 h-3.5" />
-                Next Appointment · Confirmed
+                {t("patientDashboard.nextAppointmentConfirmed", "Next Appointment · Confirmed")}
               </span>
               <span className="appointment-chip-secondary">
-                In-Person OPD Consultation
+                {t("patientDashboard.inPersonOPD", "In-Person OPD Consultation")}
               </span>
             </div>
             <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--surface-tint)" }}>
-              Token #14 Assigned
+              {t("patientDashboard.tokenAssigned", "Token #14 Assigned")}
             </span>
           </div>
 
@@ -156,7 +156,7 @@ function Dashboard() {
               <div className="doctor-details">
                 <h2 className="doctor-name">{upcomingAppointment.doctor}</h2>
                 <p className="doctor-specialty">
-                  Senior Medical Officer · General & Preventive Care
+                  {t("patientDashboard.seniorMedicalOfficer", "Senior Medical Officer · General & Preventive Care")}
                 </p>
                 <div className="appointment-meta-row">
                   <span className="meta-item">
@@ -174,10 +174,10 @@ function Dashboard() {
             <div className="appointment-actions-group">
               <Link to="/appointments" className="btn-primary-action">
                 <MapPin className="w-4 h-4" />
-                <span>View OPD Details</span>
+                <span>{t("patientDashboard.viewOPDDetails", "View OPD Details")}</span>
               </Link>
               <Link to="/facilities" className="btn-secondary-action">
-                <span>Find Other Centers</span>
+                <span>{t("patientDashboard.findOtherCenters", "Find Other Centers")}</span>
               </Link>
             </div>
           </div>
@@ -194,8 +194,8 @@ function Dashboard() {
             <ArrowRight className="w-4 h-4 text-muted-color" />
           </div>
           <div>
-            <h3 className="quick-card-title">Find Facility</h3>
-            <p className="quick-card-desc">Nearby PHCs, CHCs, & Hospitals</p>
+            <h3 className="quick-card-title">{t("patientDashboard.findFacilityCardTitle", "Find Facility")}</h3>
+            <p className="quick-card-desc">{t("patientDashboard.findFacilityCardDesc", "Nearby PHCs, CHCs, & Hospitals")}</p>
           </div>
         </Link>
 
@@ -207,8 +207,8 @@ function Dashboard() {
             <ArrowRight className="w-4 h-4 text-muted-color" />
           </div>
           <div>
-            <h3 className="quick-card-title">Appointments ({stats.appointments})</h3>
-            <p className="quick-card-desc">Scheduled OPD visits & tokens</p>
+            <h3 className="quick-card-title">{t("patientDashboard.appointmentsCardTitle", "Appointments")} ({stats.appointments})</h3>
+            <p className="quick-card-desc">{t("patientDashboard.appointmentsCardDesc", "Scheduled OPD visits & tokens")}</p>
           </div>
         </Link>
 
@@ -220,8 +220,8 @@ function Dashboard() {
             <ArrowRight className="w-4 h-4 text-muted-color" />
           </div>
           <div>
-            <h3 className="quick-card-title">Medical Records ({stats.medicalRecords})</h3>
-            <p className="quick-card-desc">Prescriptions, labs & diagnostics</p>
+            <h3 className="quick-card-title">{t("patientDashboard.recordsCardTitle", "Medical Records")} ({stats.medicalRecords})</h3>
+            <p className="quick-card-desc">{t("patientDashboard.recordsCardDesc", "Prescriptions, labs & diagnostics")}</p>
           </div>
         </Link>
 
@@ -233,8 +233,8 @@ function Dashboard() {
             <ArrowRight className="w-4 h-4 text-muted-color" />
           </div>
           <div>
-            <h3 className="quick-card-title">Active Referrals ({stats.referrals})</h3>
-            <p className="quick-card-desc">7-Stage continuum track</p>
+            <h3 className="quick-card-title">{t("patientDashboard.referralsCardTitle", "Active Referrals")} ({stats.referrals})</h3>
+            <p className="quick-card-desc">{t("patientDashboard.referralsCardDesc", "7-Stage continuum track")}</p>
           </div>
         </Link>
       </section>
@@ -247,12 +247,12 @@ function Dashboard() {
           <section className="dashboard-card-section">
             <div className="section-header-row">
               <div>
-                <h2 className="section-heading-title">Today's Medicine Schedule</h2>
-                <p className="section-heading-sub">Take prescribed medicines on time with warm water.</p>
+                <h2 className="section-heading-title">{t("patientDashboard.todayMedicineSchedule", "Today's Medicine Schedule")}</h2>
+                <p className="section-heading-sub">{t("patientDashboard.medicineScheduleSub", "Take prescribed medicines on time with warm water.")}</p>
               </div>
               <span className="appointment-chip-secondary" style={{ color: "var(--primary-color)", fontWeight: "700" }}>
                 <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" />
-                {medTaken ? "2 of 3 taken" : "1 of 3 taken"}
+                {medTaken ? t("patientDashboard.medTakenCount2", "2 of 3 taken") : t("patientDashboard.medTakenCount1", "1 of 3 taken")}
               </span>
             </div>
 
@@ -265,18 +265,18 @@ function Dashboard() {
                   </div>
                   <div className="medicine-info">
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span className="medicine-timing-tag">Morning · 8:00 AM</span>
+                      <span className="medicine-timing-tag">{t("patientDashboard.morningTime", "Morning · 8:00 AM")}</span>
                       <span style={{ fontSize: "10px", fontWeight: "700", padding: "1px 6px", borderRadius: "4px", background: "var(--surface-container-high)", color: "var(--primary-color)" }}>
-                        After Breakfast
+                        {t("patientDashboard.afterBreakfast", "After Breakfast")}
                       </span>
                     </div>
                     <span className="medicine-name">Telmisartan 40mg</span>
-                    <span className="medicine-dosage">For Blood Pressure regulation · 1 tablet</span>
+                    <span className="medicine-dosage">{t("patientDashboard.med1Desc", "For Blood Pressure regulation · 1 tablet")}</span>
                   </div>
                 </div>
                 <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--surface-tint)", display: "flex", alignItems: "center", gap: "4px" }}>
                   <CheckCircle2 className="w-4 h-4" />
-                  Taken at 8:15 AM
+                  {t("patientDashboard.takenAtTime", "Taken at 8:15 AM")}
                 </span>
               </div>
 
@@ -288,19 +288,19 @@ function Dashboard() {
                   </div>
                   <div className="medicine-info">
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span className="medicine-timing-tag" style={{ color: "var(--secondary-color)" }}>Afternoon · 1:30 PM</span>
+                      <span className="medicine-timing-tag" style={{ color: "var(--secondary-color)" }}>{t("patientDashboard.afternoonTime", "Afternoon · 1:30 PM")}</span>
                       <span style={{ fontSize: "10px", fontWeight: "700", padding: "1px 6px", borderRadius: "4px", background: "var(--secondary-color)", color: "white" }}>
-                        Due Now
+                        {t("patientDashboard.dueNow", "Due Now")}
                       </span>
                     </div>
                     <span className="medicine-name">Ecosprin AV 75/20</span>
-                    <span className="medicine-dosage">Blood thinner & vessel protector · 1 capsule</span>
+                    <span className="medicine-dosage">{t("patientDashboard.med2Desc", "Blood thinner & vessel protector · 1 capsule")}</span>
                   </div>
                 </div>
                 {medTaken ? (
                   <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--surface-tint)", display: "flex", alignItems: "center", gap: "4px" }}>
                     <CheckCircle2 className="w-4 h-4" />
-                    Marked as Taken
+                    {t("patientDashboard.markedAsTaken", "Marked as Taken")}
                   </span>
                 ) : (
                   <button
@@ -310,7 +310,7 @@ function Dashboard() {
                     style={{ padding: "8px 14px", fontSize: "12px" }}
                   >
                     <Check className="w-4 h-4" />
-                    <span>Mark as Taken</span>
+                    <span>{t("patientDashboard.markAsTaken", "Mark as Taken")}</span>
                   </button>
                 )}
               </div>
@@ -323,17 +323,17 @@ function Dashboard() {
                   </div>
                   <div className="medicine-info">
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span className="medicine-timing-tag">Night · 9:00 PM</span>
+                      <span className="medicine-timing-tag">{t("patientDashboard.nightTime", "Night · 9:00 PM")}</span>
                       <span style={{ fontSize: "10px", fontWeight: "700", padding: "1px 6px", borderRadius: "4px", background: "var(--surface-container-high)" }}>
-                        After Dinner
+                        {t("patientDashboard.afterDinner", "After Dinner")}
                       </span>
                     </div>
                     <span className="medicine-name">Atorvastatin 40mg</span>
-                    <span className="medicine-dosage">For Cholesterol maintenance · 1 tablet</span>
+                    <span className="medicine-dosage">{t("patientDashboard.med3Desc", "For Cholesterol maintenance · 1 tablet")}</span>
                   </div>
                 </div>
                 <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
-                  Upcoming tonight
+                  {t("patientDashboard.upcomingTonight", "Upcoming tonight")}
                 </span>
               </div>
             </div>
@@ -343,12 +343,12 @@ function Dashboard() {
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <Pill className="w-5 h-5 text-primary-color" />
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>Jan Aushadhi Kendra Refill Status</div>
-                  <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>18 days of regular chronic medication remaining</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>{t("patientDashboard.janAushadhiTitle", "Jan Aushadhi Kendra Refill Status")}</div>
+                  <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>{t("patientDashboard.janAushadhiDesc", "18 days of regular chronic medication remaining")}</div>
                 </div>
               </div>
               <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--secondary-color)" }}>
-                Stock Available at PHC
+                {t("patientDashboard.stockAvailablePhc", "Stock Available at PHC")}
               </span>
             </div>
           </section>
@@ -357,11 +357,11 @@ function Dashboard() {
           <section className="dashboard-card-section">
             <div className="section-header-row">
               <div>
-                <h2 className="section-heading-title">Recent Healthcare Activity</h2>
-                <p className="section-heading-sub">Synced records from government primary health centre network.</p>
+                <h2 className="section-heading-title">{t("patientDashboard.recentActivityTitle", "Recent Healthcare Activity")}</h2>
+                <p className="section-heading-sub">{t("patientDashboard.recentActivitySub", "Synced records from government primary health centre network.")}</p>
               </div>
               <Link to="/medical-records" style={{ fontSize: "13px", fontWeight: "700", color: "var(--secondary-color)", display: "flex", alignItems: "center", gap: "4px" }}>
-                <span>View All</span>
+                <span>{t("patientDashboard.viewAll", "View All")}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -369,34 +369,34 @@ function Dashboard() {
             <div className="timeline-activity-list">
               <div className="timeline-item">
                 <div className="timeline-date-row">
-                  <span>Recent Consultation</span>
-                  <span>Primary Health Centre</span>
+                  <span>{t("patientDashboard.activity1Type", "Recent Consultation")}</span>
+                  <span>{t("patientDashboard.activity1Facility", "Primary Health Centre")}</span>
                 </div>
-                <h4 className="timeline-title">Routine Blood Pressure Assessment</h4>
+                <h4 className="timeline-title">{t("patientDashboard.activity1Title", "Routine Blood Pressure Assessment")}</h4>
                 <p className="timeline-desc">
-                  Recorded: <strong>138 / 88 mmHg</strong> (Pulse 74 bpm). Classified as Stable. Doctor advised regular morning walk and low sodium diet.
+                  {t("patientDashboard.activity1Desc", "Recorded: 138 / 88 mmHg (Pulse 74 bpm). Classified as Stable. Doctor advised regular morning walk and low sodium diet.")}
                 </p>
               </div>
 
               <div className="timeline-item">
                 <div className="timeline-date-row">
-                  <span>Diagnostic Report</span>
-                  <span>District Hospital Laboratory</span>
+                  <span>{t("patientDashboard.activity2Type", "Diagnostic Report")}</span>
+                  <span>{t("patientDashboard.activity2Facility", "District Hospital Laboratory")}</span>
                 </div>
-                <h4 className="timeline-title">Complete Blood Count & Glucose Profile</h4>
+                <h4 className="timeline-title">{t("patientDashboard.activity2Title", "Complete Blood Count & Glucose Profile")}</h4>
                 <p className="timeline-desc">
-                  Fasting Blood Glucose: 98 mg/dL (Normal). Report approved by Medical Officer.
+                  {t("patientDashboard.activity2Desc", "Fasting Blood Glucose: 98 mg/dL (Normal). Report approved by Medical Officer.")}
                 </p>
               </div>
 
               <div className="timeline-item">
                 <div className="timeline-date-row">
-                  <span>Prescription Dispensed</span>
-                  <span>Government Health Sub-Centre</span>
+                  <span>{t("patientDashboard.activity3Type", "Prescription Dispensed")}</span>
+                  <span>{t("patientDashboard.activity3Facility", "Government Health Sub-Centre")}</span>
                 </div>
-                <h4 className="timeline-title">Chronic Care Prescription Renewed (30 Days)</h4>
+                <h4 className="timeline-title">{t("patientDashboard.activity3Title", "Chronic Care Prescription Renewed (30 Days)")}</h4>
                 <p className="timeline-desc">
-                  Course issued under Free Medicine Distribution Scheme (Telmisartan & Atorvastatin).
+                  {t("patientDashboard.activity3Desc", "Course issued under Free Medicine Distribution Scheme (Telmisartan & Atorvastatin).")}
                 </p>
               </div>
             </div>
@@ -408,7 +408,7 @@ function Dashboard() {
           {/* Care Reminders */}
           <section className="dashboard-card-section">
             <div className="section-header-row">
-              <h2 className="section-heading-title" style={{ fontSize: "18px" }}>Care Reminders</h2>
+              <h2 className="section-heading-title" style={{ fontSize: "18px" }}>{t("patientDashboard.careRemindersTitle", "Care Reminders")}</h2>
               <span className="w-2 h-2 rounded-full bg-secondary-color" />
             </div>
 
@@ -416,9 +416,9 @@ function Dashboard() {
               <div style={{ padding: "12px", borderRadius: "var(--radius-md)", background: "var(--surface)", border: "1px solid var(--border-color)", display: "flex", gap: "10px" }}>
                 <CheckCircle2 className="w-5 h-5 text-secondary-color shrink-0 mt-0.5" />
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>Appointment Confirmed</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>{t("patientDashboard.reminder1Title", "Appointment Confirmed")}</div>
                   <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                    Token #14 assigned for {upcomingAppointment.doctor} for upcoming consultation.
+                    {t("patientDashboard.reminder1Desc", { doctor: upcomingAppointment.doctor })}
                   </div>
                 </div>
               </div>
@@ -426,9 +426,9 @@ function Dashboard() {
               <div style={{ padding: "12px", borderRadius: "var(--radius-md)", background: "var(--surface)", border: "1px solid var(--border-color)", display: "flex", gap: "10px" }}>
                 <Activity className="w-5 h-5 text-primary-color shrink-0 mt-0.5" />
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>Vitals Synchronized</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>{t("patientDashboard.reminder2Title", "Vitals Synchronized")}</div>
                   <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                    Recent vitals recorded by field cadre uploaded to ABDM cloud repository.
+                    {t("patientDashboard.reminder2Desc", "Recent vitals recorded by field cadre uploaded to ABDM cloud repository.")}
                   </div>
                 </div>
               </div>
@@ -436,9 +436,9 @@ function Dashboard() {
               <div style={{ padding: "12px", borderRadius: "var(--radius-md)", background: "var(--surface)", border: "1px solid var(--border-color)", display: "flex", gap: "10px" }}>
                 <HeartPulse className="w-5 h-5 text-surface-tint shrink-0 mt-0.5" />
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>Daily Health Tip</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>{t("patientDashboard.reminder3Title", "Daily Health Tip")}</div>
                   <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                    Drink 2 litres of water throughout the day. Take a gentle 20-minute walk after 5:30 PM.
+                    {t("patientDashboard.reminder3Desc", "Drink 2 litres of water throughout the day. Take a gentle 20-minute walk after 5:30 PM.")}
                   </div>
                 </div>
               </div>
@@ -450,11 +450,11 @@ function Dashboard() {
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <PhoneCall className="w-5 h-5" />
               <h3 style={{ fontSize: "17px", fontWeight: "800", color: "var(--on-primary)" }}>
-                Need Help or Advice?
+                {t("patientDashboard.needHelpTitle", "Need Help or Advice?")}
               </h3>
             </div>
             <p style={{ fontSize: "13px", opacity: 0.9, lineHeight: 1.5 }}>
-              Toll-free government numbers and your primary medical center are ready 24 hours a day.
+              {t("patientDashboard.needHelpDesc", "Toll-free government numbers and your primary medical center are ready 24 hours a day.")}
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -462,8 +462,8 @@ function Dashboard() {
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <PhoneCall className="w-4 h-4 text-primary-color" />
                   <div>
-                    <div style={{ fontSize: "13px", fontWeight: "700" }}>Citizen Health Line</div>
-                    <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>24x7 Doctor Advice & Queries</div>
+                    <div style={{ fontSize: "13px", fontWeight: "700" }}>{t("citizenHealthLine", "Citizen Health Line")}</div>
+                    <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>{t("patientDashboard.doctorAdviceQueries", "24x7 Doctor Advice & Queries")}</div>
                   </div>
                 </div>
                 <span style={{ fontSize: "16px", fontWeight: "800", color: "var(--primary-color)" }}>104</span>
@@ -473,8 +473,8 @@ function Dashboard() {
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <Ambulance className="w-4 h-4 text-rose-600" />
                   <div>
-                    <div style={{ fontSize: "13px", fontWeight: "700" }}>Free Emergency Ambulance</div>
-                    <div style={{ fontSize: "11px", opacity: 0.85 }}>Immediate ALS Dispatch</div>
+                    <div style={{ fontSize: "13px", fontWeight: "700" }}>{t("patientDashboard.freeEmergencyAmbulance", "Free Emergency Ambulance")}</div>
+                    <div style={{ fontSize: "11px", opacity: 0.85 }}>{t("patientDashboard.immediateAlsDispatch", "Immediate ALS Dispatch")}</div>
                   </div>
                 </div>
                 <span style={{ fontSize: "16px", fontWeight: "800" }}>108</span>
@@ -482,14 +482,14 @@ function Dashboard() {
 
               <div style={{ padding: "12px", borderRadius: "var(--radius-md)", background: "var(--primary-color)", color: "var(--on-primary)", display: "flex", flexDirection: "column", gap: "4px", marginTop: "4px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "var(--primary-fixed)" }}>Primary Health Centre</span>
-                  <span style={{ fontSize: "10px", padding: "1px 6px", borderRadius: "4px", background: "var(--surface-tint)", color: "white", fontWeight: "700" }}>Open Now</span>
+                  <span style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "var(--primary-fixed)" }}>{t("patientDashboard.primaryHealthCentreLabel", "Primary Health Centre")}</span>
+                  <span style={{ fontSize: "10px", padding: "1px 6px", borderRadius: "4px", background: "var(--surface-tint)", color: "white", fontWeight: "700" }}>{t("patientDashboard.openNowLabel", "Open Now")}</span>
                 </div>
                 <span style={{ fontSize: "14px", fontWeight: "700" }}>{upcomingAppointment.facility}</span>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "4px" }}>
-                  <span style={{ fontSize: "11px", opacity: 0.85 }}>Pune District Grid</span>
+                  <span style={{ fontSize: "11px", opacity: 0.85 }}>{t("patientDashboard.puneDistrictGrid", "Pune District Grid")}</span>
                   <a href="tel:+912137252100" style={{ fontSize: "12px", fontWeight: "700", textDecoration: "underline", color: "var(--on-primary)" }}>
-                    Call Desk
+                    {t("patientDashboard.callDesk", "Call Desk")}
                   </a>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import useFacility from "../hooks/useFacility";
+import useLanguage from "../hooks/useLanguage";
 import {
   ArrowLeft,
   Building2,
@@ -19,14 +20,15 @@ import {
 function FacilityDetails() {
   const { id } = useParams();
   const { facility, loading, error } = useFacility(id);
+  const { t } = useLanguage();
 
   if (loading) {
     return (
       <div className="state-container-card">
         <Activity className="w-10 h-10 text-primary-color animate-spin" />
-        <h3 className="state-title">Loading Healthcare Facility Profile...</h3>
+        <h3 className="state-title">{t("facilities.loadingProfileTitle", "Loading Healthcare Facility Profile...")}</h3>
         <p className="state-subtitle">
-          Retrieving clinic operational hours, doctors on duty, and ABDM registry details.
+          {t("facilities.loadingProfileSubtitle", "Retrieving clinic operational hours, doctors on duty, and ABDM registry details.")}
         </p>
       </div>
     );
@@ -37,14 +39,14 @@ function FacilityDetails() {
       <div className="state-container-card" style={{ borderColor: "var(--error-color)" }}>
         <AlertCircle className="w-10 h-10 text-rose-600" />
         <h3 className="state-title" style={{ color: "var(--error-color)" }}>
-          Healthcare Facility Not Found
+          {t("facilities.facilityNotFound", "Healthcare Facility Not Found")}
         </h3>
         <p className="state-subtitle">
-          The requested health center ID ({id}) could not be located in the district registry.
+          {t("facilities.facilityNotFoundDesc", { id }, `The requested health center ID (${id}) could not be located in the district registry.`)}
         </p>
         <Link to="/facilities" className="btn-secondary-action" style={{ marginTop: "12px" }}>
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Facilities</span>
+          <span>{t("facilities.backToFacilities", "Back to Facilities")}</span>
         </Link>
       </div>
     );
@@ -66,7 +68,7 @@ function FacilityDetails() {
           }}
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Facility Directory</span>
+          <span>{t("facilities.backToDirectory", "Back to Facility Directory")}</span>
         </Link>
 
         <span
@@ -84,7 +86,7 @@ function FacilityDetails() {
           }}
         >
           <ShieldCheck className="w-4 h-4 text-primary-color" />
-          <span>ABDM Verified Facility Registry</span>
+          <span>{t("facilities.abdmVerifiedRegistry", "ABDM Verified Facility Registry")}</span>
         </span>
       </div>
 
@@ -114,14 +116,14 @@ function FacilityDetails() {
               </span>
               <span className={`facility-status-pill ${facility.openNow ? "open" : "closed"}`}>
                 <span className="sync-pulse-dot" style={{ background: facility.openNow ? "var(--surface-tint)" : "var(--muted-color)" }} />
-                <span>{facility.openNow ? "Open Now (24x7 Services)" : "Currently Closed"}</span>
+                <span>{facility.openNow ? t("facilities.openNowServices", "Open Now (24x7 Services)") : t("facilities.currentlyClosed", "Currently Closed")}</span>
               </span>
             </div>
             <h1 style={{ fontSize: "24px", fontWeight: "800", color: "var(--text-color)" }}>
               {facility.name}
             </h1>
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginTop: "4px" }}>
-              Public Health Network Node · Pune District Health Grid
+              {t("facilities.publicHealthNode", "Public Health Network Node · Pune District Health Grid")}
             </p>
           </div>
         </div>
@@ -129,7 +131,7 @@ function FacilityDetails() {
         {/* 4-Key Metrics Grid */}
         <div className="details-meta-grid">
           <div className="details-meta-item">
-            <span className="meta-label">Facility Category</span>
+            <span className="meta-label">{t("facilities.facilityCategory", "Facility Category")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <Building2 className="w-4 h-4 text-primary-color" />
               <span className="meta-val">{facility.type}</span>
@@ -137,15 +139,15 @@ function FacilityDetails() {
           </div>
 
           <div className="details-meta-item">
-            <span className="meta-label">Approximate Distance</span>
+            <span className="meta-label">{t("facilities.approxDistance", "Approximate Distance")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <Navigation className="w-4 h-4 text-secondary-color" />
-              <span className="meta-val">{facility.distance} from your location</span>
+              <span className="meta-val">{t("facilities.distanceFromLocation", { distance: facility.distance }, `${facility.distance} from your location`)}</span>
             </div>
           </div>
 
           <div className="details-meta-item">
-            <span className="meta-label">District / Administrative Region</span>
+            <span className="meta-label">{t("facilities.districtRegion", "District / Administrative Region")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <MapPin className="w-4 h-4 text-primary-color" />
               <span className="meta-val">{facility.district}</span>
@@ -153,7 +155,7 @@ function FacilityDetails() {
           </div>
 
           <div className="details-meta-item">
-            <span className="meta-label">Direct Contact Phone</span>
+            <span className="meta-label">{t("facilities.directPhone", "Direct Contact Phone")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <Phone className="w-4 h-4 text-secondary-color" />
               <span className="meta-val">{facility.phone}</span>
@@ -164,7 +166,7 @@ function FacilityDetails() {
         {/* Address & Direction Section */}
         <div style={{ padding: "18px 20px", borderRadius: "var(--radius-lg)", background: "var(--surface-container-low)", border: "1px solid var(--border-color)" }}>
           <h4 style={{ fontSize: "14px", fontWeight: "700", color: "var(--text-color)", marginBottom: "6px" }}>
-            Physical Address
+            {t("facilities.physicalAddress", "Physical Address")}
           </h4>
           <p style={{ fontSize: "14px", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "8px" }}>
             <MapPin className="w-4 h-4 text-primary-color shrink-0" />
@@ -175,7 +177,7 @@ function FacilityDetails() {
         {/* Available Services Section */}
         <div>
           <h4 style={{ fontSize: "15px", fontWeight: "800", color: "var(--text-color)", marginBottom: "12px" }}>
-            Available Clinical Services & Schemes
+            {t("facilities.availableServicesTitle", "Available Clinical Services & Schemes")}
           </h4>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             {facility.services.map((service) => (
@@ -218,7 +220,7 @@ function FacilityDetails() {
             style={{ padding: "12px 24px" }}
           >
             <Phone className="w-4 h-4" />
-            <span>Call Facility ({facility.phone})</span>
+            <span>{t("facilities.callFacilityBtn", { phone: facility.phone }, `Call Facility (${facility.phone})`)}</span>
           </a>
 
           <Link
@@ -227,7 +229,7 @@ function FacilityDetails() {
             style={{ padding: "12px 20px" }}
           >
             <Calendar className="w-4 h-4" />
-            <span>Request OPD Appointment</span>
+            <span>{t("facilities.requestOpdAppointment", "Request OPD Appointment")}</span>
           </Link>
         </div>
       </section>

@@ -12,6 +12,7 @@ import {
   ArrowRight,
   RefreshCw
 } from "lucide-react";
+import useLanguage from "../hooks/useLanguage";
 import {
   getWorkerReferrals,
   getWorkerReferralSummary,
@@ -19,17 +20,19 @@ import {
   REFERRAL_STATUS_CONFIG
 } from "../api/workerReferrals.api";
 
-const FILTER_TABS = [
-  { key: "ALL", label: "All Referrals" },
-  { key: CANONICAL_REFERRAL_STATUSES.PENDING, label: "Pending" },
-  { key: CANONICAL_REFERRAL_STATUSES.ACCEPTED, label: "Accepted" },
-  { key: CANONICAL_REFERRAL_STATUSES.SCHEDULED, label: "Scheduled" },
-  { key: CANONICAL_REFERRAL_STATUSES.IN_PROGRESS, label: "In Progress" },
-  { key: CANONICAL_REFERRAL_STATUSES.COMPLETED, label: "Completed" },
-  { key: CANONICAL_REFERRAL_STATUSES.CLOSED, label: "Closed" }
-];
-
 function WorkerReferrals() {
+  const { t } = useLanguage();
+
+  const FILTER_TABS = [
+    { key: "ALL", label: t("worker.tabAllReferrals") },
+    { key: CANONICAL_REFERRAL_STATUSES.PENDING, label: t("worker.tabPending") },
+    { key: CANONICAL_REFERRAL_STATUSES.ACCEPTED, label: t("worker.tabAccepted") },
+    { key: CANONICAL_REFERRAL_STATUSES.SCHEDULED, label: t("worker.tabScheduled") },
+    { key: CANONICAL_REFERRAL_STATUSES.IN_PROGRESS, label: t("worker.tabInProgress") },
+    { key: CANONICAL_REFERRAL_STATUSES.COMPLETED, label: t("worker.tabCompleted") },
+    { key: CANONICAL_REFERRAL_STATUSES.CLOSED, label: t("worker.tabClosed") }
+  ];
+
   const [referrals, setReferrals] = useState([]);
   const [summary, setSummary] = useState({
     openCount: 0,
@@ -141,11 +144,10 @@ function WorkerReferrals() {
       ============================================================== */}
       <header className="worker-page-header">
         <div>
-          <span className="worker-eyebrow">Care Continuity & Escalation</span>
-          <h1>Community Referrals Registry</h1>
+          <span className="worker-eyebrow">{t("worker.careContinuitySurveillanceEyebrow") || "Care Continuity & Escalation"}</span>
+          <h1>{t("worker.communityReferralsRegistryTitle")}</h1>
           <p>
-            Track community patients referred to Primary Health Centres, Community Health Centres,
-            and District Hospitals across their clinical lifecycle until closure.
+            {t("worker.communityReferralsRegistryDesc")}
           </p>
         </div>
 
@@ -166,7 +168,7 @@ function WorkerReferrals() {
             }}
           >
             <Plus style={{ width: "16px", height: "16px" }} />
-            Create New Referral
+            {t("worker.createNewReferralBtn")}
           </Link>
         </div>
       </header>
@@ -184,10 +186,10 @@ function WorkerReferrals() {
             <GitBranch />
           </div>
           <div>
-            <span>Open Referrals</span>
+            <span>{t("worker.openReferralsStat")}</span>
             <strong>{summary.openCount}</strong>
             <small style={{ display: "block", marginTop: "3px", fontSize: "10px", color: "var(--text-secondary)" }}>
-              Active in care loop
+              {t("worker.activeCareLoop")}
             </small>
           </div>
         </div>
@@ -201,10 +203,10 @@ function WorkerReferrals() {
             <Clock />
           </div>
           <div>
-            <span>Pending Review</span>
+            <span>{t("worker.pendingReviewStat")}</span>
             <strong>{summary.pendingCount}</strong>
             <small style={{ display: "block", marginTop: "3px", fontSize: "10px", color: "var(--text-secondary)" }}>
-              Awaiting facility review
+              {t("worker.awaitingFacilityReview")}
             </small>
           </div>
         </div>
@@ -218,10 +220,10 @@ function WorkerReferrals() {
             <RefreshCw />
           </div>
           <div>
-            <span>In Progress</span>
+            <span>{t("worker.inProgressStat")}</span>
             <strong>{summary.inProgressCount}</strong>
             <small style={{ display: "block", marginTop: "3px", fontSize: "10px", color: "var(--text-secondary)" }}>
-              Consultation / Triage
+              {t("worker.consultationTriage")}
             </small>
           </div>
         </div>
@@ -235,10 +237,10 @@ function WorkerReferrals() {
             <Building2 />
           </div>
           <div>
-            <span>Completed</span>
+            <span>{t("worker.completedStat")}</span>
             <strong>{summary.completedCount}</strong>
             <small style={{ display: "block", marginTop: "3px", fontSize: "10px", color: "var(--text-secondary)" }}>
-              Consultation finished
+              {t("worker.consultationFinished")}
             </small>
           </div>
         </div>
@@ -266,7 +268,7 @@ function WorkerReferrals() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by patient name, ID (e.g. PAT-1001), referral ID, destination facility, or clinical reason..."
+              placeholder={t("worker.searchReferralsPlaceholder")}
               style={{
                 width: "100%",
                 padding: "9px 12px 9px 36px",
@@ -324,27 +326,27 @@ function WorkerReferrals() {
       <div className="worker-panel">
         <div className="worker-panel-header">
           <div>
-            <span className="worker-section-label">Referral Registry</span>
+            <span className="worker-section-label">{t("worker.referralRegistry")}</span>
             <h2>
-              {activeFilter === "ALL" ? "All Referrals" : `${FILTER_TABS.find((t) => t.key === activeFilter)?.label || activeFilter}`} ({referrals.length})
+              {activeFilter === "ALL" ? t("worker.tabAllReferrals") : `${FILTER_TABS.find((t) => t.key === activeFilter)?.label || activeFilter}`} ({referrals.length})
             </h2>
           </div>
 
           <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
-            Showing {referrals.length} cases
+            {t("worker.showingCasesCount", { count: referrals.length })}
           </span>
         </div>
 
         {loading ? (
           <p style={{ color: "var(--text-secondary)", padding: "24px 0", textAlign: "center" }}>
-            Loading referral cases...
+            {t("worker.loadingReferrals")}
           </p>
         ) : referrals.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px 20px" }}>
             <GitBranch style={{ width: "40px", height: "40px", color: "var(--text-secondary)", margin: "0 auto 12px" }} />
-            <h3 style={{ fontSize: "15px" }}>No referrals match your criteria</h3>
+            <h3 style={{ fontSize: "15px" }}>{t("worker.noReferralsMatch")}</h3>
             <p style={{ color: "var(--text-secondary)", fontSize: "13px", marginTop: "4px" }}>
-              Try adjusting the status filter or search keywords.
+              {t("worker.adjustFilterSearch")}
             </p>
           </div>
         ) : (
@@ -392,11 +394,11 @@ function WorkerReferrals() {
                   >
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
                       <Calendar style={{ width: "12px", height: "12px" }} />
-                      Created: {ref.createdDate || ref.referralDate}
+                      {t("worker.createdDateLabel")} {ref.createdDate || ref.referralDate}
                     </span>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
                       <Clock style={{ width: "12px", height: "12px" }} />
-                      Updated: {ref.lastUpdate || "Recent"}
+                      {t("worker.updatedDateLabel")} {ref.lastUpdate || "Recent"}
                     </span>
                   </div>
                 </div>
@@ -416,7 +418,7 @@ function WorkerReferrals() {
                   {/* PATIENT INFO */}
                   <div>
                     <span style={{ fontSize: "10px", textTransform: "uppercase", color: "var(--text-secondary)", fontWeight: 600 }}>
-                      Referred Patient
+                      {t("worker.referredPatientLabel")}
                     </span>
                     <div style={{ marginTop: "3px" }}>
                       <Link
@@ -443,7 +445,7 @@ function WorkerReferrals() {
                   {/* DESTINATION FACILITY & SERVICE */}
                   <div>
                     <span style={{ fontSize: "10px", textTransform: "uppercase", color: "var(--text-secondary)", fontWeight: 600 }}>
-                      Destination Facility & Specialty
+                      {t("worker.destinationFacilitySpecialty")}
                     </span>
                     <div style={{ marginTop: "3px", fontSize: "12px" }}>
                       <strong style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
@@ -459,7 +461,7 @@ function WorkerReferrals() {
                   {/* REFERRING WORKER */}
                   <div>
                     <span style={{ fontSize: "10px", textTransform: "uppercase", color: "var(--text-secondary)", fontWeight: 600 }}>
-                      Referring Worker
+                      {t("worker.referringWorkerLabel")}
                     </span>
                     <div style={{ marginTop: "3px", fontSize: "12px" }}>
                       <strong>{ref.referringWorker || "Ananya Sharma (ASHA-001)"}</strong>
@@ -472,16 +474,16 @@ function WorkerReferrals() {
 
                 {/* ROW 3: REASON & OUTCOME */}
                 <div style={{ fontSize: "12px" }}>
-                  <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>Clinical Reason: </span>
+                  <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{t("worker.clinicalReasonLabel")} </span>
                   <span>{ref.reason}</span>
                   {ref.outcome && (
                     <div style={{ marginTop: "4px", color: "#16a34a", fontSize: "11px" }}>
-                      <strong>Outcome: </strong> {ref.outcome}
+                      <strong>{t("worker.outcomeLabel")} </strong> {ref.outcome}
                     </div>
                   )}
                   {ref.notes && (
                     <div style={{ marginTop: "3px", color: "var(--text-secondary)", fontSize: "11px" }}>
-                      <strong>ASHA Notes: </strong> {ref.notes}
+                      <strong>{t("worker.ashaNotesLabel")} </strong> {ref.notes}
                     </div>
                   )}
                 </div>
@@ -510,7 +512,7 @@ function WorkerReferrals() {
                       textDecoration: "none"
                     }}
                   >
-                    View Patient
+                    {t("worker.viewPatientBtn")}
                   </Link>
 
                   <Link
@@ -528,7 +530,7 @@ function WorkerReferrals() {
                       textDecoration: "none"
                     }}
                   >
-                    View Referral Details
+                    {t("worker.viewReferralDetailsBtn")}
                     <ArrowRight style={{ width: "13px", height: "13px" }} />
                   </Link>
                 </div>
@@ -542,3 +544,4 @@ function WorkerReferrals() {
 }
 
 export default WorkerReferrals;
+

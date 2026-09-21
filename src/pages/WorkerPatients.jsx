@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
+import useLanguage from "../hooks/useLanguage";
 import {
   Search,
   MapPin,
@@ -10,19 +11,20 @@ import {
 } from "lucide-react";
 import { getWorkerPatients } from "../api/workerPatients.api";
 
-const FILTER_TABS = [
-  { id: "all", label: "All Patients" },
-  { id: "high_risk", label: "High Risk" },
-  { id: "follow_up", label: "Follow-up Due" },
-  { id: "pregnant", label: "Pregnant / ANC" },
-  { id: "chronic", label: "Chronic (NCD)" }
-];
-
 function WorkerPatients() {
+  const { t } = useLanguage();
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+
+  const filterTabs = [
+    { id: "all", label: t("worker.categoryAll", "All Beneficiaries") },
+    { id: "high_risk", label: t("worker.urgencyUrgent", "High Risk") },
+    { id: "follow_up", label: t("worker.followUpsDue", "Follow-up Due") },
+    { id: "pregnant", label: t("worker.categoryMaternal", "Maternal Care") },
+    { id: "chronic", label: t("worker.categoryChronic", "Chronic (NCD)") }
+  ];
 
   useEffect(() => {
     let isMounted = true;
@@ -61,11 +63,10 @@ function WorkerPatients() {
       ============================================================== */}
       <header className="worker-page-header">
         <div>
-          <span className="worker-eyebrow">Community Cohort Registry</span>
-          <h1>My Assigned Patients</h1>
+          <span className="worker-eyebrow">{t("worker.patientRegistryTitle", "Community Patient Registry")}</span>
+          <h1>{t("worker.myPatients", "My Patients")}</h1>
           <p>
-            Manage individual patient profiles, triage high-risk maternal and
-            chronic care cases, and initiate field screening visits.
+            {t("worker.workspaceDesc", "Manage individual patient profiles, triage high-risk maternal and chronic care cases, and initiate field screening visits.")}
           </p>
         </div>
 
@@ -86,7 +87,7 @@ function WorkerPatients() {
             }}
           >
             <Plus style={{ width: "16px", height: "16px" }} />
-            Record New Visit
+            {t("worker.scheduleFieldVisit", "Record Field Visit")}
           </Link>
         </div>
       </header>
@@ -132,7 +133,7 @@ function WorkerPatients() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by patient name, ID (e.g. PAT-1001), village, or ABHA..."
+              placeholder={t("worker.searchPatientsPlaceholder", "Search by patient name, ABHA ID, village, or condition...")}
               style={{
                 width: "100%",
                 padding: "10px 36px 10px 38px",
@@ -151,44 +152,42 @@ function WorkerPatients() {
                 onClick={handleClearSearch}
                 style={{
                   position: "absolute",
-                  right: "10px",
+                  right: "12px",
                   top: "50%",
                   transform: "translateY(-50%)",
                   background: "transparent",
                   border: "none",
-                  color: "var(--text-secondary)",
                   cursor: "pointer",
+                  color: "var(--text-secondary)",
                   display: "flex",
                   alignItems: "center"
                 }}
-                title="Clear search"
               >
                 <X style={{ width: "14px", height: "14px" }} />
               </button>
             )}
           </div>
 
-          {/* FILTER TABS */}
+          {/* TABS */}
           <div
+            className="worker-patient-filters"
             style={{
               display: "flex",
               gap: "8px",
               flexWrap: "wrap"
             }}
           >
-            {FILTER_TABS.map((tab) => {
+            {filterTabs.map((tab) => {
               const isActive = activeFilter === tab.id;
               return (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveFilter(tab.id)}
+                  className="worker-filter"
                   style={{
-                    padding: "7px 14px",
-                    borderRadius: "999px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    cursor: "pointer",
+                    padding: "6px 14px",
+                    borderRadius: "20px",
                     border: isActive
                       ? "1px solid var(--primary-color)"
                       : "1px solid var(--border-color)",
@@ -213,30 +212,21 @@ function WorkerPatients() {
       <div className="worker-panel">
         <div className="worker-panel-header">
           <div>
-            <span className="worker-section-label">Catchment Cohort</span>
+            <span className="worker-section-label">{t("worker.catchmentCohortSection", "Catchment Cohort")}</span>
             <h2>
-              Assigned Patients{" "}
-              <span
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "normal",
-                  color: "var(--text-secondary)"
-                }}
-              >
-                ({patients.length})
-              </span>
+              {t("worker.assignedPatientsTitle", { count: patients.length }, `Assigned Patients (${patients.length})`)}
             </h2>
           </div>
         </div>
 
         {loading ? (
           <p style={{ color: "var(--text-secondary)", padding: "24px 0" }}>
-            Loading assigned patient cohort...
+            {t("worker.loadingCohort", "Loading assigned patient cohort...")}
           </p>
         ) : patients.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px 20px" }}>
             <p style={{ color: "var(--text-secondary)", fontSize: "14px" }}>
-              No patients match the selected search or filter criteria.
+              {t("worker.noPatientsFound", "No patients match the selected search or filter criteria.")}
             </p>
             {(search || activeFilter !== "all") && (
               <button
@@ -257,7 +247,7 @@ function WorkerPatients() {
                   cursor: "pointer"
                 }}
               >
-                Reset Filters
+                {t("common.resetFilters", "Reset Filters")}
               </button>
             )}
           </div>
@@ -365,7 +355,7 @@ function WorkerPatients() {
                         }}
                       >
                         <span>
-                          {patient.age} yrs • {patient.gender} • Blood:{" "}
+                          {patient.age} {t("worker.yrs", "yrs")} • {patient.gender} • {t("worker.blood", "Blood:")}{" "}
                           {patient.bloodGroup || "O+"}
                         </span>
 
@@ -409,7 +399,7 @@ function WorkerPatients() {
                           background: "var(--card-bg)"
                         }}
                       >
-                        View Patient
+                        {t("worker.viewPatientBtn", "View Patient")}
                         <ArrowRight style={{ width: "13px", height: "13px" }} />
                       </NavLink>
 
@@ -430,7 +420,7 @@ function WorkerPatients() {
                         }}
                       >
                         <Plus style={{ width: "14px", height: "14px" }} />
-                        Record Visit
+                        {t("worker.recordVisitBtn", "Record Visit")}
                       </NavLink>
                     </div>
                   </div>
@@ -451,10 +441,10 @@ function WorkerPatients() {
                         color: "var(--text-secondary)"
                       }}
                     >
-                      Care Context:
+                      {t("worker.careContextLabel", "Care Context:")}
                     </span>
                     <span style={{ fontWeight: 500 }}>
-                      {patient.chronicConditions?.join(", ") || "Routine General Health"}
+                      {patient.chronicConditions?.join(", ") || t("worker.routineGeneralHealth", "Routine General Health")}
                     </span>
 
                     {/* TAGS */}
@@ -489,18 +479,18 @@ function WorkerPatients() {
                     }}
                   >
                     <div>
-                      Last Visit:{" "}
+                      {t("worker.lastVisitLabel", "Last Visit:")}{" "}
                       <strong style={{ color: "var(--text-primary)" }}>
-                        {patient.lastVisitDate || "None"}
+                        {patient.lastVisitDate || t("worker.noneText", "None")}
                       </strong>
                     </div>
 
                     <div>
-                      Next Follow-up / Visit:{" "}
+                      {t("worker.nextFollowUpLabel", "Next Follow-up / Visit:")}{" "}
                       <strong style={{ color: "var(--text-primary)" }}>
                         {patient.nextFollowUp ||
                           patient.nextScheduledVisit ||
-                          "Not scheduled"}
+                          t("worker.notScheduledText", "Not scheduled")}
                       </strong>
                     </div>
 
@@ -512,7 +502,7 @@ function WorkerPatients() {
                       }}
                     >
                       <Building2 style={{ width: "12px", height: "12px" }} />
-                      Primary Facility:{" "}
+                      {t("worker.primaryFacilityLabel", "Primary Facility:")}{" "}
                       <strong style={{ color: "var(--text-primary)" }}>
                         {patient.primaryFacility || "Shirur 24x7 PHC"}
                       </strong>

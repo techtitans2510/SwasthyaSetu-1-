@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import useMedicalRecords from "../hooks/useMedicalRecords";
+import useLanguage from "../hooks/useLanguage";
 import {
   ArrowLeft,
   Calendar,
@@ -23,6 +24,7 @@ import {
 function MedicalRecordDetails() {
   const { id } = useParams();
   const { records, loading, error } = useMedicalRecords();
+  const { t } = useLanguage();
 
   const record = useMemo(() => {
     return (records || []).find((item) => item.id === id);
@@ -57,9 +59,9 @@ function MedicalRecordDetails() {
     return (
       <div className="state-container-card">
         <Activity className="w-10 h-10 text-primary-color animate-spin" />
-        <h3 className="state-title">Loading Medical Record...</h3>
+        <h3 className="state-title">{t("records.loadingSingleTitle", "Loading Medical Record...")}</h3>
         <p className="state-subtitle">
-          Retrieving encrypted clinical record artifact from ABDM health repository.
+          {t("records.loadingSingleSubtitle", "Retrieving encrypted clinical record artifact from ABDM health repository.")}
         </p>
       </div>
     );
@@ -70,14 +72,14 @@ function MedicalRecordDetails() {
       <div className="state-container-card" style={{ borderColor: "var(--error-color)" }}>
         <AlertCircle className="w-10 h-10 text-rose-600" />
         <h3 className="state-title" style={{ color: "var(--error-color)" }}>
-          Record Not Found
+          {t("records.recordNotFound", "Record Not Found")}
         </h3>
         <p className="state-subtitle">
-          The requested medical record ID ({id}) could not be located in your health records.
+          {t("records.recordNotFoundDesc", { id }, `The requested medical record ID (${id}) could not be located in your health records.`)}
         </p>
         <Link to="/medical-records" className="btn-secondary-action" style={{ marginTop: "12px" }}>
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Medical Records</span>
+          <span>{t("records.backToMedicalRecords", "Back to Medical Records")}</span>
         </Link>
       </div>
     );
@@ -99,7 +101,7 @@ function MedicalRecordDetails() {
           }}
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to All Records</span>
+          <span>{t("records.backToAllRecords", "Back to All Records")}</span>
         </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -110,7 +112,7 @@ function MedicalRecordDetails() {
             style={{ padding: "8px 14px", fontSize: "13px" }}
           >
             <Printer className="w-4 h-4" />
-            <span>Print Artifact</span>
+            <span>{t("records.printArtifact", "Print Artifact")}</span>
           </button>
         </div>
       </div>
@@ -128,7 +130,7 @@ function MedicalRecordDetails() {
               </span>
               <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--surface-tint)" }}>
                 <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
-                NHA / ABDM Verified
+                {t("records.nhaAbdmVerified", "NHA / ABDM Verified")}
               </span>
             </div>
             <h1 style={{ fontSize: "24px", fontWeight: "800", color: "var(--text-color)" }}>
@@ -143,7 +145,7 @@ function MedicalRecordDetails() {
         {/* Clinical Metadata 2-Column Grid */}
         <div className="details-meta-grid">
           <div className="details-meta-item">
-            <span className="meta-label">Recording Date</span>
+            <span className="meta-label">{t("records.recordingDate", "Recording Date")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <Calendar className="w-4 h-4 text-primary-color" />
               <span className="meta-val">{formatDate(record.recordDate)}</span>
@@ -151,7 +153,7 @@ function MedicalRecordDetails() {
           </div>
 
           <div className="details-meta-item">
-            <span className="meta-label">Attending Doctor</span>
+            <span className="meta-label">{t("records.attendingDoctor", "Attending Doctor")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <User className="w-4 h-4 text-primary-color" />
               <span className="meta-val">{record.doctor}</span>
@@ -159,7 +161,7 @@ function MedicalRecordDetails() {
           </div>
 
           <div className="details-meta-item">
-            <span className="meta-label">Healthcare Facility</span>
+            <span className="meta-label">{t("records.healthcareFacility", "Healthcare Facility")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <Building2 className="w-4 h-4 text-secondary-color" />
               <span className="meta-val">{record.facility}</span>
@@ -167,7 +169,7 @@ function MedicalRecordDetails() {
           </div>
 
           <div className="details-meta-item">
-            <span className="meta-label">ABDM Record ID</span>
+            <span className="meta-label">{t("records.abhaRecordId", "ABDM Record ID")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <FileText className="w-4 h-4 text-secondary-color" />
               <span className="meta-val">{record.id}</span>
@@ -182,10 +184,10 @@ function MedicalRecordDetails() {
               <Check className="w-6 h-6 text-emerald-600 shrink-0" />
               <div>
                 <strong style={{ fontSize: "14px", color: "var(--text-color)" }}>
-                  Cached for Offline Access
+                  {t("records.cachedOfflineTitle", "Cached for Offline Access")}
                 </strong>
                 <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                  This medical record is securely stored on this device. You can view it without active cellular data.
+                  {t("records.cachedOfflineDesc", "This medical record is securely stored on this device. You can view it without active cellular data.")}
                 </p>
               </div>
             </>
@@ -194,10 +196,10 @@ function MedicalRecordDetails() {
               <Cloud className="w-6 h-6 text-sky-600 shrink-0" />
               <div>
                 <strong style={{ fontSize: "14px", color: "var(--text-color)" }}>
-                  Online Cloud Synchronized
+                  {t("records.cloudSyncedTitle", "Online Cloud Synchronized")}
                 </strong>
                 <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                  This record is stored in your ABDM repository and requires a network connection to load fresh attachments.
+                  {t("records.cloudSyncedDesc", "This record is stored in your ABDM repository and requires a network connection to load fresh attachments.")}
                 </p>
               </div>
             </>
@@ -223,10 +225,10 @@ function MedicalRecordDetails() {
             </div>
             <div>
               <div style={{ fontSize: "14px", fontWeight: "700", color: "var(--text-color)" }}>
-                Official Clinical Document ({record.type})
+                {t("records.officialDocument", { type: record.type }, `Official Clinical Document (${record.type})`)}
               </div>
               <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                Signed PDF artifact verified by {record.doctor}
+                {t("records.signedPdfVerified", { doctor: record.doctor }, `Signed PDF artifact verified by ${record.doctor}`)}
               </div>
             </div>
           </div>
@@ -238,7 +240,7 @@ function MedicalRecordDetails() {
             onClick={() => alert(`Downloading verified record artifact: ${record.title} (${record.id})`)}
           >
             <Download className="w-4 h-4" />
-            <span>Download PDF Report</span>
+            <span>{t("records.downloadPdfReport", "Download PDF Report")}</span>
           </button>
         </div>
       </section>

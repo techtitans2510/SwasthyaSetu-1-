@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import useLanguage from "../hooks/useLanguage";
 import { getWorkerDashboardSummary } from "../api/workerVisits.api";
 
 import {
@@ -18,6 +19,7 @@ import {
 
 function WorkerDashboard() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -37,10 +39,10 @@ function WorkerDashboard() {
 
   const workerRole =
     user?.role === "asha"
-      ? "ASHA Worker"
+      ? t("auth.ashaRole", "ASHA Worker")
       : user?.role === "nurse"
-      ? "Primary Care Nurse"
-      : "ANM Field Worker";
+      ? t("worker.roles.nurse", "Primary Care Nurse")
+      : t("worker.roles.anm", "ANM Field Worker");
 
   const stats = dashboardData?.stats;
   const todayVisits = dashboardData?.todayVisits || [];
@@ -51,30 +53,30 @@ function WorkerDashboard() {
 
   const summaryCards = [
     {
-      label: "My Patients",
+      label: t("worker.myPatients", "My Patients"),
       value: stats?.assignedPatients || "48",
-      subtext: "Assigned in catchment",
+      subtext: t("worker.assignedCatchment", "Assigned in catchment"),
       to: "/worker/patients",
       icon: Users
     },
     {
-      label: "Today's Visits",
+      label: t("worker.todayVisits", "Today's Visits"),
       value: todayVisits.length || "3",
-      subtext: "Scheduled field checks",
+      subtext: t("worker.scheduledFieldChecks", "Scheduled field checks"),
       to: "/worker/visits",
       icon: CalendarDays
     },
     {
-      label: "Follow-ups Due",
+      label: t("worker.followUpsDue", "Follow-ups Due"),
       value: pendingFollowUps.length || "2",
-      subtext: "Post-care verifications",
+      subtext: t("worker.postCareVerifications", "Post-care verifications"),
       to: "/worker/follow-ups",
       icon: ClipboardList
     },
     {
-      label: "Open Referrals",
+      label: t("worker.openReferrals", "Open Referrals"),
       value: urgentReferrals.length || "2",
-      subtext: "Pending facility review",
+      subtext: t("worker.pendingFacilityReview", "Pending facility review"),
       to: "/worker/referrals",
       icon: GitBranch
     }
@@ -84,7 +86,7 @@ function WorkerDashboard() {
     return (
       <div className="worker-dashboard">
         <p style={{ color: "var(--text-secondary)", padding: "30px 0" }}>
-          Loading field care workspace...
+          {t("loading", "Loading field care workspace...")}
         </p>
       </div>
     );
@@ -98,22 +100,21 @@ function WorkerDashboard() {
       <header className="worker-page-header">
         <div>
           <span className="worker-eyebrow">
-            Field Care Workspace • {workerRole}
+            {t("worker.fieldCareWorkspace", "Field Care Workspace")} • {workerRole}
           </span>
 
-          <h1>Good morning, {user?.name || "Sunita Devi"}</h1>
+          <h1>{t("worker.welcome", { name: user?.name || "Sunita Devi" })}</h1>
 
           <p>
-            Here is what requires your attention in the community today. Review
-            scheduled home visits, triage high-risk patients, and track active
-            referrals until care completion.
+            {t("worker.workspaceDesc", "Track assigned catchment families, record maternal & child checkups, and manage emergency facility referrals.")}
           </p>
         </div>
+
 
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
           <div className="worker-location-badge">
             <MapPin />
-            <span>{stats?.catchmentArea || "Talwade & Shirur Catchment (Sub-Centre 4)"}</span>
+            <span>{stats?.catchmentArea || t("worker.catchmentLocation", "Talwade & Shirur Catchment (Sub-Centre 4)")}</span>
           </div>
 
           <div
@@ -130,7 +131,7 @@ function WorkerDashboard() {
             }}
           >
             <span className="sync-pulse-dot" />
-            <span>Online · Synced with ABDM Registry</span>
+            <span>{t("worker.onlineSyncedAbdm", "Online · Synced with ABDM Registry")}</span>
           </div>
         </div>
       </header>
@@ -180,12 +181,12 @@ function WorkerDashboard() {
         <div className="worker-panel">
           <div className="worker-panel-header">
             <div>
-              <span className="worker-section-label">Today's Schedule</span>
-              <h2>Scheduled Field Visits ({todayVisits.length})</h2>
+              <span className="worker-section-label">{t("worker.todaysScheduleSection", "Today's Schedule")}</span>
+              <h2>{t("worker.scheduledFieldVisitsTitle", { count: todayVisits.length }, `Scheduled Field Visits (${todayVisits.length})`)}</h2>
             </div>
 
             <NavLink to="/worker/visits">
-              View all visits
+              {t("worker.viewAllVisits", "View all visits")}
               <ArrowRight />
             </NavLink>
           </div>
@@ -193,7 +194,7 @@ function WorkerDashboard() {
           <div className="worker-visit-list">
             {todayVisits.length === 0 ? (
               <p style={{ color: "var(--text-secondary)", padding: "20px 0" }}>
-                No more visits scheduled for today.
+                {t("worker.noMoreVisitsToday", "No more visits scheduled for today.")}
               </p>
             ) : (
               todayVisits.map((visit) => {
@@ -216,7 +217,7 @@ function WorkerDashboard() {
                           color: "var(--text-secondary)"
                         }}
                       >
-                        {visit.status === "scheduled" ? "Upcoming" : visit.status}
+                        {visit.status === "scheduled" ? t("worker.upcomingStatus", "Upcoming") : visit.status}
                       </span>
                     </div>
 
@@ -258,7 +259,7 @@ function WorkerDashboard() {
                               : "var(--primary-color)"
                           }}
                         >
-                          {visit.riskLevel || "Routine Care"}
+                          {visit.riskLevel || t("worker.routineCareBadge", "Routine Care")}
                         </span>
                       </div>
 
@@ -287,7 +288,7 @@ function WorkerDashboard() {
                           background: "var(--card-bg)"
                         }}
                       >
-                        Patient
+                        {t("worker.patientBtn", "Patient")}
                       </Link>
 
                       <Link
@@ -306,7 +307,7 @@ function WorkerDashboard() {
                           textDecoration: "none"
                         }}
                       >
-                        Start Visit
+                        {t("worker.startVisitBtn", "Start Visit")}
                       </Link>
                     </div>
                   </article>
@@ -322,8 +323,8 @@ function WorkerDashboard() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Needs attention</span>
-                <h2>Care Alerts & Tasks ({alerts.length})</h2>
+                <span className="worker-section-label">{t("worker.needsAttentionSection", "Needs attention")}</span>
+                <h2>{t("worker.careAlertsTasksTitle", { count: alerts.length }, `Care Alerts & Tasks (${alerts.length})`)}</h2>
               </div>
 
               <AlertTriangle style={{ color: "#d97706" }} />
@@ -367,7 +368,7 @@ function WorkerDashboard() {
                           textDecoration: "none"
                         }}
                       >
-                        Open Action Item
+                        {t("worker.openActionItem", "Open Action Item")}
                         <ArrowRight style={{ width: "12px", height: "12px" }} />
                       </Link>
                     </div>
@@ -380,10 +381,9 @@ function WorkerDashboard() {
             <div className="worker-care-loop">
               <CheckCircle2 />
               <div>
-                <strong>Care Continuity Principle</strong>
+                <strong>{t("worker.careContinuityTitle", "Care Continuity Principle")}</strong>
                 <span>
-                  Every patient referral stays visible on your dashboard until
-                  clinical outcome closure is confirmed by the facility.
+                  {t("worker.careContinuityDesc", "Every patient referral stays visible on your dashboard until clinical outcome closure is confirmed by the facility.")}
                 </span>
               </div>
             </div>
@@ -393,8 +393,8 @@ function WorkerDashboard() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Audit Log</span>
-                <h2>Recent Activity</h2>
+                <span className="worker-section-label">{t("worker.auditLogSection", "Audit Log")}</span>
+                <h2>{t("worker.recentActivityTitle", "Recent Activity")}</h2>
               </div>
 
               <Activity style={{ width: "17px", height: "17px", color: "var(--text-secondary)" }} />

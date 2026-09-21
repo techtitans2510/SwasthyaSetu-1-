@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import useLanguage from "../hooks/useLanguage";
 import {
   ArrowLeft,
   Plus,
@@ -19,6 +20,7 @@ import { getWorkerPatientById } from "../api/workerPatients.api";
 
 function WorkerPatientProfile() {
   const { id } = useParams();
+  const { t } = useLanguage();
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -53,7 +55,7 @@ function WorkerPatientProfile() {
     return (
       <div className="worker-dashboard">
         <p style={{ color: "var(--text-secondary)", padding: "30px 0" }}>
-          Loading community patient profile...
+          {t("worker.loadingPatientProfile", "Loading community patient profile...")}
         </p>
       </div>
     );
@@ -76,13 +78,13 @@ function WorkerPatientProfile() {
           }}
         >
           <ArrowLeft style={{ width: "16px", height: "16px" }} />
-          Back to Patients Registry
+          {t("worker.backToPatientsRegistry", "Back to Patients Registry")}
         </Link>
         <div className="worker-panel" style={{ maxWidth: "600px", padding: "30px" }}>
           <AlertTriangle style={{ width: "36px", height: "36px", color: "#d97706", marginBottom: "12px" }} />
-          <h2>Patient Profile Not Found</h2>
+          <h2>{t("worker.patientProfileNotFound", "Patient Profile Not Found")}</h2>
           <p style={{ color: "var(--text-secondary)", marginTop: "6px", fontSize: "14px" }}>
-            {error || `No catchment record found matching patient identifier "${id}".`}
+            {error || t("worker.noCatchmentRecordFound", { id }, `No catchment record found matching patient identifier "${id}".`)}
           </p>
           <div style={{ marginTop: "18px" }}>
             <Link
@@ -98,7 +100,7 @@ function WorkerPatientProfile() {
                 fontWeight: 600
               }}
             >
-              Return to Patient List
+              {t("worker.returnToPatientList", "Return to Patient List")}
             </Link>
           </div>
         </div>
@@ -130,7 +132,7 @@ function WorkerPatientProfile() {
         }}
       >
         <ArrowLeft style={{ width: "16px", height: "16px" }} />
-        Back to Patients Registry
+        {t("worker.backToPatientsRegistry", "Back to Patients Registry")}
       </Link>
 
       {/* ==============================================================
@@ -147,7 +149,7 @@ function WorkerPatientProfile() {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
             <span className="worker-eyebrow" style={{ margin: 0 }}>
-              Community Profile
+              {t("worker.communityProfileEyebrow", "Community Profile")}
             </span>
 
             <span
@@ -189,7 +191,7 @@ function WorkerPatientProfile() {
           <h1 style={{ fontSize: "28px", margin: 0 }}>{patient.name}</h1>
 
           <p style={{ marginTop: "6px", fontSize: "13px", color: "var(--text-secondary)" }}>
-            {patient.age} yrs • {patient.gender} • Blood Group: {patient.bloodGroup || "O+"} •{" "}
+            {patient.age} {t("worker.yrs", "yrs")} • {patient.gender} • {t("worker.bloodGroupLabel", "Blood Group:")} {patient.bloodGroup || "O+"} •{" "}
             <MapPin style={{ width: "13px", height: "13px", display: "inline", verticalAlign: "middle" }} />{" "}
             {patient.village} ({patient.address})
           </p>
@@ -209,7 +211,7 @@ function WorkerPatientProfile() {
               }}
             >
               <ShieldCheck style={{ width: "12px", height: "12px", color: "var(--primary-color)" }} />
-              ABHA: {patient.abhaNumber}
+              {t("worker.abhaLabel", "ABHA:")} {patient.abhaNumber}
             </span>
 
             {patient.tags?.map((tag) => (
@@ -249,7 +251,7 @@ function WorkerPatientProfile() {
             }}
           >
             <GitBranch style={{ width: "15px", height: "15px", color: "var(--primary-color)" }} />
-            Create Referral
+            {t("worker.createReferralBtn", "Create Referral")}
           </Link>
 
           <Link
@@ -268,7 +270,7 @@ function WorkerPatientProfile() {
             }}
           >
             <Plus style={{ width: "16px", height: "16px" }} />
-            Record New Visit
+            {t("worker.recordNewVisitBtn", "Record New Visit")}
           </Link>
         </div>
       </header>
@@ -288,8 +290,8 @@ function WorkerPatientProfile() {
         <div className="worker-panel">
           <div className="worker-panel-header">
             <div>
-              <span className="worker-section-label">Care Context</span>
-              <h2 style={{ fontSize: "16px" }}>Clinical Summary</h2>
+              <span className="worker-section-label">{t("worker.careContextLabel", "Care Context")}</span>
+              <h2 style={{ fontSize: "16px" }}>{t("worker.clinicalSummaryTitle", "Clinical Summary")}</h2>
             </div>
             <Activity style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
           </div>
@@ -297,15 +299,15 @@ function WorkerPatientProfile() {
           <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px" }}>
             <div>
               <span style={{ color: "var(--text-secondary)", fontSize: "11px", display: "block" }}>
-                Identified Conditions
+                {t("worker.identifiedConditions", "Identified Conditions")}
               </span>
-              <strong>{patient.chronicConditions?.join(", ") || "General Routine Care"}</strong>
+              <strong>{patient.chronicConditions?.join(", ") || t("worker.generalRoutineCare", "General Routine Care")}</strong>
             </div>
 
             {patient.allergies && patient.allergies.length > 0 && (
               <div>
                 <span style={{ color: "var(--text-secondary)", fontSize: "11px", display: "block" }}>
-                  Known Allergies
+                  {t("worker.knownAllergies", "Known Allergies")}
                 </span>
                 <span style={{ color: patient.allergies[0] !== "None known" ? "#dc2626" : "inherit" }}>
                   {patient.allergies.join(", ")}
@@ -315,7 +317,7 @@ function WorkerPatientProfile() {
 
             <div>
               <span style={{ color: "var(--text-secondary)", fontSize: "11px", display: "block" }}>
-                Primary Health Facility
+                {t("worker.primaryHealthFacility", "Primary Health Facility")}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
                 <Building2 style={{ width: "13px", height: "13px", color: "var(--text-secondary)" }} />
@@ -329,8 +331,8 @@ function WorkerPatientProfile() {
         <div className="worker-panel">
           <div className="worker-panel-header">
             <div>
-              <span className="worker-section-label">Latest Field Screening</span>
-              <h2 style={{ fontSize: "16px" }}>Vitals & Observations</h2>
+              <span className="worker-section-label">{t("worker.latestFieldScreeningSection", "Latest Field Screening")}</span>
+              <h2 style={{ fontSize: "16px" }}>{t("worker.vitalsObservationsTitle", "Vitals & Observations")}</h2>
             </div>
             <Heart style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
           </div>
@@ -347,7 +349,7 @@ function WorkerPatientProfile() {
                   }}
                 >
                   <span style={{ fontSize: "10px", color: "var(--text-secondary)", display: "block" }}>
-                    Blood Pressure
+                    {t("worker.bloodPressureLabel", "Blood Pressure")}
                   </span>
                   <strong style={{ fontSize: "13px", color: latestVisit.vitals?.bpSystolic > 140 ? "#dc2626" : "inherit" }}>
                     {latestVisit.vitals?.bpSystolic}/{latestVisit.vitals?.bpDiastolic}
@@ -364,7 +366,7 @@ function WorkerPatientProfile() {
                   }}
                 >
                   <span style={{ fontSize: "10px", color: "var(--text-secondary)", display: "block" }}>
-                    Blood Sugar
+                    {t("worker.bloodSugarLabel", "Blood Sugar")}
                   </span>
                   <strong style={{ fontSize: "13px", color: latestVisit.vitals?.bloodSugar > 180 ? "#dc2626" : "inherit" }}>
                     {latestVisit.vitals?.bloodSugar || "—"}
@@ -381,7 +383,7 @@ function WorkerPatientProfile() {
                   }}
                 >
                   <span style={{ fontSize: "10px", color: "var(--text-secondary)", display: "block" }}>
-                    SpO2 / Pulse
+                    {t("worker.spo2PulseLabel", "SpO2 / Pulse")}
                   </span>
                   <strong style={{ fontSize: "13px" }}>
                     {latestVisit.vitals?.spo2}% / {latestVisit.vitals?.pulse}
@@ -391,13 +393,13 @@ function WorkerPatientProfile() {
               </div>
 
               <div style={{ fontSize: "12px", marginTop: "2px" }}>
-                <span style={{ color: "var(--text-secondary)" }}>Observations: </span>
-                <span>{latestVisit.observations || "Screening completed within normal limits."}</span>
+                <span style={{ color: "var(--text-secondary)" }}>{t("worker.observationsLabel", "Observations:")} </span>
+                <span>{latestVisit.observations || t("worker.normalLimitsDesc", "Screening completed within normal limits.")}</span>
               </div>
             </div>
           ) : (
             <p style={{ color: "var(--text-secondary)", fontSize: "13px", padding: "10px 0" }}>
-              No previous visit screening logged. Click "Record New Visit" to document baseline vitals.
+              {t("worker.noPreviousVisitLogged", "No previous visit screening logged. Click \"Record New Visit\" to document baseline vitals.")}
             </p>
           )}
         </div>
@@ -406,8 +408,8 @@ function WorkerPatientProfile() {
         <div className="worker-panel">
           <div className="worker-panel-header">
             <div>
-              <span className="worker-section-label">Care Cadence</span>
-              <h2 style={{ fontSize: "16px" }}>Schedule & Continuity</h2>
+              <span className="worker-section-label">{t("worker.careCadenceSection", "Care Cadence")}</span>
+              <h2 style={{ fontSize: "16px" }}>{t("worker.scheduleContinuityTitle", "Schedule & Continuity")}</h2>
             </div>
             <Calendar style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
           </div>
@@ -415,23 +417,23 @@ function WorkerPatientProfile() {
           <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px" }}>
             <div>
               <span style={{ color: "var(--text-secondary)", fontSize: "11px", display: "block" }}>
-                Last Visit Recorded
+                {t("worker.lastVisitRecorded", "Last Visit Recorded")}
               </span>
-              <strong>{patient.lastVisitDate || "No prior records"}</strong>
+              <strong>{patient.lastVisitDate || t("worker.noPriorRecords", "No prior records")}</strong>
             </div>
 
             <div>
               <span style={{ color: "var(--text-secondary)", fontSize: "11px", display: "block" }}>
-                Next Follow-up Due
+                {t("worker.nextFollowUpDue", "Next Follow-up Due")}
               </span>
               <strong style={{ color: patient.hasPendingFollowUp ? "#d97706" : "inherit" }}>
-                {patient.nextFollowUp || patient.nextScheduledVisit || "Not scheduled"}
+                {patient.nextFollowUp || patient.nextScheduledVisit || t("worker.notScheduledText", "Not scheduled")}
               </strong>
             </div>
 
             <div>
               <span style={{ color: "var(--text-secondary)", fontSize: "11px", display: "block" }}>
-                Continuity Status
+                {t("worker.continuityStatus", "Continuity Status")}
               </span>
               <span
                 style={{
@@ -446,10 +448,10 @@ function WorkerPatientProfile() {
                 }}
               >
                 {patient.hasPendingFollowUp
-                  ? "Follow-up Required"
+                  ? t("worker.followUpRequiredStatus", "Follow-up Required")
                   : patient.activeReferralId
-                  ? "Referred to Facility"
-                  : "Routine Community Monitoring"}
+                  ? t("worker.referredToFacilityStatus", "Referred to Facility")
+                  : t("worker.routineMonitoringStatus", "Routine Community Monitoring")}
               </span>
             </div>
           </div>
@@ -464,8 +466,8 @@ function WorkerPatientProfile() {
         <div className="worker-panel">
           <div className="worker-panel-header">
             <div>
-              <span className="worker-section-label">Care Timeline</span>
-              <h2>Field Visit History ({visitHistory.length})</h2>
+              <span className="worker-section-label">{t("worker.careTimelineSection", "Care Timeline")}</span>
+              <h2>{t("worker.fieldVisitHistoryTitle", { count: visitHistory.length }, `Field Visit History (${visitHistory.length})`)}</h2>
             </div>
 
             <Link
@@ -481,14 +483,14 @@ function WorkerPatientProfile() {
               }}
             >
               <Plus style={{ width: "14px", height: "14px" }} />
-              Log Visit
+              {t("worker.logVisitBtn", "Log Visit")}
             </Link>
           </div>
 
           {visitHistory.length === 0 ? (
             <div style={{ padding: "30px 20px", textAlign: "center", color: "var(--text-secondary)" }}>
               <FileText style={{ width: "32px", height: "32px", margin: "0 auto 8px", color: "var(--border-color)" }} />
-              <p style={{ fontSize: "13px" }}>No previous field visits recorded for this patient.</p>
+              <p style={{ fontSize: "13px" }}>{t("worker.noPreviousFieldVisits", "No previous field visits recorded for this patient.")}</p>
               <Link
                 to={`/worker/visits/new?patientId=${patient.id}`}
                 style={{
@@ -500,7 +502,7 @@ function WorkerPatientProfile() {
                   textDecoration: "none"
                 }}
               >
-                + Record Baseline Screening Visit
+                {t("worker.recordBaselineScreening", "+ Record Baseline Screening Visit")}
               </Link>
             </div>
           ) : (
@@ -540,7 +542,7 @@ function WorkerPatientProfile() {
                             fontWeight: 600
                           }}
                         >
-                          Referred
+                          {t("worker.referredBadge", "Referred")}
                         </span>
                       )}
                     </div>
@@ -550,7 +552,7 @@ function WorkerPatientProfile() {
                     </p>
 
                     <small style={{ color: "var(--text-secondary)", fontSize: "11px" }}>
-                      Action Taken: {visit.treatmentGiven || "General guidance provided"}
+                      {t("worker.actionTakenLabel", "Action Taken:")} {visit.treatmentGiven || t("worker.generalGuidanceProvided", "General guidance provided")}
                     </small>
                   </div>
                 </article>
@@ -565,8 +567,8 @@ function WorkerPatientProfile() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Facility Escalation</span>
-                <h2>Active & Past Referrals ({referrals.length})</h2>
+                <span className="worker-section-label">{t("worker.facilityEscalationSection", "Facility Escalation")}</span>
+                <h2>{t("worker.activePastReferralsTitle", { count: referrals.length }, `Active & Past Referrals (${referrals.length})`)}</h2>
               </div>
 
               <Link
@@ -582,13 +584,13 @@ function WorkerPatientProfile() {
                 }}
               >
                 <Plus style={{ width: "13px", height: "13px" }} />
-                New
+                {t("worker.newBtn", "New")}
               </Link>
             </div>
 
             {referrals.length === 0 ? (
               <p style={{ color: "var(--text-secondary)", fontSize: "13px", padding: "10px 0" }}>
-                No active or past referrals recorded for this patient.
+                {t("worker.noActivePastReferrals", "No active or past referrals recorded for this patient.")}
               </p>
             ) : (
               <div className="worker-alert-list">
@@ -629,7 +631,7 @@ function WorkerPatientProfile() {
                           textDecoration: "none"
                         }}
                       >
-                        Referral Details
+                        {t("worker.referralDetailsLink", "Referral Details")}
                         <ArrowRight style={{ width: "12px", height: "12px" }} />
                       </Link>
                     </div>
@@ -643,8 +645,8 @@ function WorkerPatientProfile() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Care Tasks</span>
-                <h2>Follow-ups ({followUps.length})</h2>
+                <span className="worker-section-label">{t("worker.careTasksSection", "Care Tasks")}</span>
+                <h2>{t("worker.followUpsTitle", { count: followUps.length }, `Follow-ups (${followUps.length})`)}</h2>
               </div>
 
               <Clock style={{ width: "16px", height: "16px", color: "var(--text-secondary)" }} />
@@ -652,7 +654,7 @@ function WorkerPatientProfile() {
 
             {followUps.length === 0 ? (
               <p style={{ color: "var(--text-secondary)", fontSize: "13px", padding: "10px 0" }}>
-                No pending follow-ups currently scheduled for this patient.
+                {t("worker.noPendingFollowUps", "No pending follow-ups currently scheduled for this patient.")}
               </p>
             ) : (
               <div className="worker-alert-list">
@@ -671,7 +673,7 @@ function WorkerPatientProfile() {
                           color: task.status === "completed" ? "var(--primary-color)" : "#d97706"
                         }}
                       >
-                        {task.status === "completed" ? "Completed" : `Due: ${task.dueDate}`}
+                        {task.status === "completed" ? t("completed", "Completed") : `${t("worker.dueLabel", "Due:")} ${task.dueDate}`}
                       </span>
                     </div>
 
@@ -690,7 +692,7 @@ function WorkerPatientProfile() {
                           textDecoration: "none"
                         }}
                       >
-                        Manage Follow-ups
+                        {t("worker.manageFollowUpsLink", "Manage Follow-ups")}
                         <ArrowRight style={{ width: "12px", height: "12px" }} />
                       </Link>
                     </div>

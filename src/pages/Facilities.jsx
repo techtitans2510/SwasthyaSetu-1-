@@ -1,37 +1,32 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import useFacilities from "../hooks/useFacilities";
-import useAuth from "../hooks/useAuth";
+import useLanguage from "../hooks/useLanguage";
 import {
-  Building2,
   Search,
   MapPin,
   Phone,
-  Clock,
-  ShieldCheck,
-  Check,
   ArrowRight,
   Activity,
   AlertCircle,
   FolderOpen,
   Navigation,
-  Sparkles,
   Stethoscope
 } from "lucide-react";
 
 function Facilities() {
   const { facilities, loading, error } = useFacilities();
-  const { user } = useAuth();
+  const { t } = useLanguage();
 
   const [search, setSearch] = useState("");
   const [type, setType] = useState("All");
 
   const facilityTypes = [
-    "All",
-    "Primary Health Centre",
-    "District Hospital",
-    "Community Health Centre",
-    "Clinic"
+    { key: "All", label: t("facilities.allTypes", "All Facilities") },
+    { key: "Primary Health Centre", label: t("facilities.phc", "Primary Health Centre") },
+    { key: "District Hospital", label: t("facilities.dh", "District Hospital") },
+    { key: "Community Health Centre", label: t("facilities.chc", "Community Health Centre") },
+    { key: "Clinic", label: t("facilities.clinic", "Clinic") }
   ];
 
   const filteredFacilities = useMemo(() => {
@@ -91,46 +86,50 @@ function Facilities() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
               <span style={{ fontSize: "15px", fontWeight: "800", color: "var(--primary-color)" }}>
-                Verified Public Healthcare Network
+                {t("facilities.title", "Find Healthcare Facilities")}
               </span>
               <span style={{ fontSize: "10px", fontWeight: "800", textTransform: "uppercase", padding: "1px 6px", borderRadius: "4px", background: "var(--surface-tint)", color: "white" }}>
-                Ayushman Bharat Active
+                {t("facilities.ayushmanActiveBadge", "Ayushman Bharat Active")}
               </span>
             </div>
             <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-              Find nearby Primary Health Centres, Community Hospitals, and Ayushman Bharat Arogya Mandirs with 100% cashless care.
+              {t("facilities.subtitle", "Locate verified Public Health Centres (PHCs), Community Health Centres (CHCs), and District Hospitals.")}
             </p>
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--primary-color)", background: "var(--surface-container-lowest)", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)" }}>
-            Pune District Network
-          </span>
-        </div>
+        <Link
+          to="/appointments"
+          className="btn-primary-action"
+          style={{ whiteSpace: "nowrap", padding: "8px 16px", fontSize: "13px" }}
+        >
+          <Navigation className="w-3.5 h-3.5" />
+          <span>{t("appointmentsPage.bookNewBtn", "Book OPD Appointment")}</span>
+        </Link>
       </section>
 
       {/* 2. Search and Category Filter Toolbar */}
       <section className="records-toolbar-card">
-        <div className="search-input-wrapper">
-          <Search className="w-5 h-5 search-input-icon" />
+        <div className="records-search-wrapper">
+          <Search className="records-search-icon" />
           <input
-            type="search"
-            placeholder="Search by facility name, service (e.g. Vaccination, ECG, Maternal), or address..."
+            type="text"
+            className="records-search-input"
+            placeholder={t("facilities.searchPlaceholder", "Search by facility name, specialty, district, or pin code...")}
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         <div className="category-pills-row">
           {facilityTypes.map((item) => (
             <button
-              key={item}
+              key={item.key}
               type="button"
-              className={`category-pill-btn ${type === item ? "active" : ""}`}
-              onClick={() => setType(item)}
+              className={`category-pill-btn ${type === item.key ? "active" : ""}`}
+              onClick={() => setType(item.key)}
             >
-              {item === "All" ? "All Facilities" : item}
+              {item.label}
             </button>
           ))}
         </div>
@@ -140,9 +139,9 @@ function Facilities() {
       {loading && (
         <div className="state-container-card">
           <Activity className="w-10 h-10 text-primary-color animate-spin" />
-          <h3 className="state-title">Locating Healthcare Facilities...</h3>
+          <h3 className="state-title">{t("facilities.loadingTitle", "Locating Healthcare Facilities...")}</h3>
           <p className="state-subtitle">
-            Fetching verified public hospitals and primary health centers in your area.
+            {t("facilities.loadingSubtitle", "Fetching verified public hospitals and primary health centers in your area.")}
           </p>
         </div>
       )}
@@ -152,10 +151,10 @@ function Facilities() {
         <div className="state-container-card" style={{ borderColor: "var(--error-color)" }}>
           <AlertCircle className="w-10 h-10 text-rose-600" />
           <h3 className="state-title" style={{ color: "var(--error-color)" }}>
-            Unable to Load Facilities
+            {t("facilities.unableToLoad", "Unable to Load Facilities")}
           </h3>
           <p className="state-subtitle">
-            Could not fetch health center directory from the network. Please retry shortly.
+            {t("facilities.errorSubtitle", "Could not fetch health center directory from the network. Please retry shortly.")}
           </p>
         </div>
       )}
@@ -164,9 +163,9 @@ function Facilities() {
       {!loading && !error && filteredFacilities.length === 0 && (
         <div className="state-container-card">
           <FolderOpen className="w-10 h-10 text-muted-color" />
-          <h3 className="state-title">No Healthcare Facilities Found</h3>
+          <h3 className="state-title">{t("facilities.noFacilitiesFound", "No Healthcare Facilities Found")}</h3>
           <p className="state-subtitle">
-            No health centres matched "{search || type}". Try expanding your search terms.
+            {t("facilities.noFacilitiesDesc", { query: search || type }, `No health centres matched "${search || type}". Try expanding your search terms.`)}
           </p>
         </div>
       )}
@@ -195,7 +194,7 @@ function Facilities() {
 
                   <span className={`facility-status-pill ${facility.openNow ? "open" : "closed"}`}>
                     <span className="sync-pulse-dot" style={{ background: facility.openNow ? "var(--surface-tint)" : "var(--muted-color)" }} />
-                    <span>{facility.openNow ? "Open 24x7 / Available" : "Closed"}</span>
+                    <span>{facility.openNow ? t("facilities.openNow24x7", "Open 24x7 / Available") : t("facilities.closed", "Closed")}</span>
                   </span>
                 </div>
 
@@ -211,7 +210,7 @@ function Facilities() {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <Navigation className="w-4 h-4 text-secondary-color shrink-0" />
-                    <span>Distance: <strong>{facility.distance}</strong> away</span>
+                    <span>{t("facilities.distanceAway", { distance: facility.distance }, `Distance: ${facility.distance} away`)}</span>
                   </div>
                 </div>
 
@@ -224,7 +223,7 @@ function Facilities() {
                   ))}
                   {facility.services.length > 4 && (
                     <span className="service-tag-pill" style={{ background: "var(--surface-container)" }}>
-                      +{facility.services.length - 4} more services
+                      {t("facilities.moreServices", { count: facility.services.length - 4 }, `+${facility.services.length - 4} more services`)}
                     </span>
                   )}
                 </div>
@@ -248,7 +247,7 @@ function Facilities() {
                   style={{ padding: "8px 14px", fontSize: "13px" }}
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>Call {facility.phone}</span>
+                  <span>{t("facilities.callFacility", { phone: facility.phone }, `Call ${facility.phone}`)}</span>
                 </a>
 
                 <Link
@@ -256,7 +255,7 @@ function Facilities() {
                   className="btn-primary-action"
                   style={{ padding: "8px 16px", fontSize: "13px" }}
                 >
-                  <span>View Details</span>
+                  <span>{t("facilities.viewDetails", "View Details")}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>

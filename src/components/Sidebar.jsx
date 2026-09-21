@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useTheme } from "../context/ThemeContext";
+import useLanguage from "../hooks/useLanguage";
+import LanguageSelector from "./LanguageSelector";
 import logo from "../Assests/logo.svg";
 import {
   Home,
@@ -15,8 +17,9 @@ import {
 } from "lucide-react";
 
 function Sidebar() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <aside className="patient-sidebar">
@@ -31,8 +34,8 @@ function Sidebar() {
             />
           </div>
           <div className="brand-text">
-            <span className="brand-title">SwasthyaSetu</span>
-            <span className="brand-subtitle">CITIZEN HEALTH</span>
+            <span className="brand-title">{t("appName", "SwasthyaSetu")}</span>
+            <span className="brand-subtitle">{t("taglineCitizen", "CITIZEN HEALTH")}</span>
           </div>
         </div>
 
@@ -45,7 +48,7 @@ function Sidebar() {
             }
           >
             <Home className="nav-icon" />
-            <span>Home</span>
+            <span>{t("home", "Home")}</span>
           </NavLink>
 
           <NavLink
@@ -55,7 +58,7 @@ function Sidebar() {
             }
           >
             <Search className="nav-icon" />
-            <span>Find Facility</span>
+            <span>{t("findFacility", "Find Facility")}</span>
           </NavLink>
 
           <NavLink
@@ -65,7 +68,7 @@ function Sidebar() {
             }
           >
             <Calendar className="nav-icon" />
-            <span>Appointments</span>
+            <span>{t("appointments", "Appointments")}</span>
           </NavLink>
 
           <NavLink
@@ -75,7 +78,7 @@ function Sidebar() {
             }
           >
             <FileText className="nav-icon" />
-            <span>Medical Records</span>
+            <span>{t("medicalRecords", "Medical Records")}</span>
           </NavLink>
         </nav>
       </div>
@@ -85,38 +88,40 @@ function Sidebar() {
         <div className="helpline-card">
           <div className="helpline-header">
             <PhoneCall className="w-4 h-4 text-secondary-color" />
-            <span className="helpline-tag">Citizen Health Line</span>
+            <span className="helpline-tag">{t("citizenHealthLine", "Citizen Health Line")}</span>
           </div>
-          <div className="helpline-number">104 / 14416</div>
-          <p className="helpline-desc">24x7 Tele-MANAS & Support</p>
+          <div className="helpline-number">{t("helplineNumber", "104 / 14416")}</div>
+          <p className="helpline-desc">{t("helplineDesc", "24x7 Tele-MANAS & Support")}</p>
         </div>
 
         {/* ABDM Compliance */}
         <div className="abdm-badge">
           <div className="abdm-status">
             <ShieldCheck className="w-4 h-4 text-primary-color" />
-            <span>ABDM Compliant</span>
+            <span>{t("abdmCompliant", "ABDM Compliant")}</span>
           </div>
           <span className="abdm-version">v2.4.1</span>
         </div>
 
-        {/* Action Controls: Theme & Logout */}
+        {/* Action Controls: Language, Theme & Logout */}
         <div className="sidebar-controls">
+          <LanguageSelector variant="sidebar-row" />
+
           <button
             type="button"
             className="sidebar-control-btn"
             onClick={toggleTheme}
-            aria-label="Toggle Theme"
+            aria-label={darkMode ? t("lightMode", "Switch to Light Mode") : t("darkMode", "Switch to Dark Mode")}
           >
             {darkMode ? (
               <>
                 <Sun className="w-4 h-4 text-amber-400" />
-                <span>Light Mode</span>
+                <span>{t("lightMode", "Light Mode")}</span>
               </>
             ) : (
               <>
                 <Moon className="w-4 h-4 text-slate-600" />
-                <span>Dark Mode</span>
+                <span>{t("darkMode", "Dark Mode")}</span>
               </>
             )}
           </button>
@@ -125,10 +130,10 @@ function Sidebar() {
             type="button"
             className="sidebar-control-btn logout"
             onClick={logout}
-            aria-label="Log Out"
+            aria-label={t("signOut", "Sign Out")}
           >
             <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
+            <span>{t("signOut", "Sign Out")}</span>
           </button>
         </div>
       </div>
@@ -137,3 +142,4 @@ function Sidebar() {
 }
 
 export default Sidebar;
+

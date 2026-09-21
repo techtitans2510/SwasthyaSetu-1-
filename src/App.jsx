@@ -23,12 +23,15 @@ import WorkerFollowUps from "./pages/WorkerFollowUps";
 import PatientLayout from "./layouts/PatientLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import useLanguage from "./hooks/useLanguage";
+
 function Unauthorized() {
+  const { t } = useLanguage();
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Access Denied</h1>
-        <p>You don't have permission to access this page.</p>
+        <h1>{t("auth.accessDenied", "Access Denied")}</h1>
+        <p>{t("auth.noPermission", "You don't have permission to access this page.")}</p>
       </div>
     </div>
   );

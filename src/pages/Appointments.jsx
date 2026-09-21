@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import useAppointments from "../hooks/useAppointments";
+import useLanguage from "../hooks/useLanguage";
 import {
   Calendar,
   Clock,
@@ -21,6 +22,7 @@ import {
 
 function Appointments() {
   const { appointments, loading, error } = useAppointments();
+  const { t } = useLanguage();
 
   const [activeFilter, setActiveFilter] = useState("all");
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -60,13 +62,13 @@ function Appointments() {
   const getStatusLabel = (status) => {
     switch (status) {
       case "upcoming":
-        return "Upcoming · Confirmed";
+        return t("patientDashboard.nextAppointmentConfirmed", "Upcoming · Confirmed");
       case "completed":
-        return "Completed";
+        return t("completed", "Completed");
       case "cancelled":
-        return "Cancelled";
+        return t("cancelled", "Cancelled");
       case "pending":
-        return "Pending Confirmation";
+        return t("pending", "Pending Confirmation");
       default:
         return status;
     }
@@ -93,72 +95,71 @@ function Appointments() {
             <span style={{ color: "var(--muted-color)" }}>•</span>
             <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--surface-tint)" }}>
               <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
-              Direct OPD Booking
+              {t("appointmentsPage.title", "Appointments & Consultations")}
             </span>
           </div>
           <h1 className="hero-greeting-title" style={{ fontSize: "26px" }}>
-            Appointments & Consultations
+            {t("appointmentsPage.title", "Appointments & Consultations")}
           </h1>
           <p className="hero-greeting-desc" style={{ fontSize: "14px" }}>
-            Manage scheduled doctor consultations, view OPD queue tokens, and request free clinic appointments.
+            {t("appointmentsPage.subtitle", "Manage your scheduled clinic consultations, doctor visits, and digital OPD tokens.")}
           </p>
         </div>
 
         <button
           type="button"
-          className="btn-primary-action"
           onClick={() => setShowBookingModal(true)}
-          style={{ padding: "12px 20px" }}
+          className="btn-primary-action"
+          style={{ padding: "12px 20px", whiteSpace: "nowrap" }}
         >
           <Plus className="w-4 h-4" />
-          <span>Request New Appointment</span>
+          <span>{t("appointmentsPage.bookNewBtn", "Book New Appointment")}</span>
         </button>
       </section>
 
-      {/* 2. Status Tab Filter Bar */}
-      <section className="records-toolbar-card" style={{ padding: "14px 20px" }}>
-        <div className="category-pills-row">
-          <button
-            type="button"
-            className={`category-pill-btn ${activeFilter === "all" ? "active" : ""}`}
-            onClick={() => setActiveFilter("all")}
-          >
-            All Appointments ({counts.all})
-          </button>
-
-          <button
-            type="button"
-            className={`category-pill-btn ${activeFilter === "upcoming" ? "active" : ""}`}
-            onClick={() => setActiveFilter("upcoming")}
-          >
-            Upcoming ({counts.upcoming})
-          </button>
-
-          <button
-            type="button"
-            className={`category-pill-btn ${activeFilter === "completed" ? "active" : ""}`}
-            onClick={() => setActiveFilter("completed")}
-          >
-            Completed ({counts.completed})
-          </button>
-
-          <button
-            type="button"
-            className={`category-pill-btn ${activeFilter === "cancelled" ? "active" : ""}`}
-            onClick={() => setActiveFilter("cancelled")}
-          >
-            Cancelled ({counts.cancelled})
-          </button>
-        </div>
-      </section>
+      {/* 2. Filter Tabs */}
+      <div className="filter-tabs-container">
+        <button
+          type="button"
+          className={`filter-tab-pill ${activeFilter === "all" ? "active" : ""}`}
+          onClick={() => setActiveFilter("all")}
+        >
+          <span>{t("appointmentsPage.allTab", "All")}</span>
+          <span className="count-badge">{counts.all}</span>
+        </button>
+        <button
+          type="button"
+          className={`filter-tab-pill ${activeFilter === "upcoming" ? "active" : ""}`}
+          onClick={() => setActiveFilter("upcoming")}
+        >
+          <span>{t("appointmentsPage.upcomingTab", "Upcoming")}</span>
+          <span className="count-badge">{counts.upcoming}</span>
+        </button>
+        <button
+          type="button"
+          className={`filter-tab-pill ${activeFilter === "completed" ? "active" : ""}`}
+          onClick={() => setActiveFilter("completed")}
+        >
+          <span>{t("appointmentsPage.completedTab", "Completed")}</span>
+          <span className="count-badge">{counts.completed}</span>
+        </button>
+        <button
+          type="button"
+          className={`filter-tab-pill ${activeFilter === "cancelled" ? "active" : ""}`}
+          onClick={() => setActiveFilter("cancelled")}
+        >
+          <span>{t("appointmentsPage.cancelledTab", "Cancelled")}</span>
+          <span className="count-badge">{counts.cancelled}</span>
+        </button>
+      </div>
 
       {/* 3. Loading State */}
       {loading && (
         <div className="state-container-card">
           <Activity className="w-10 h-10 text-primary-color animate-spin" />
-          <h3 className="state-title">Loading Appointments...</h3>
+          <h3 className="state-title">{t("appointmentsPage.loadingTitle", "Loading Appointments...")}</h3>
           <p className="state-subtitle">
-            Fetching scheduled OPD visits, tokens, and doctor availability slots.
+            {t("appointmentsPage.loadingSubtitle", "Fetching scheduled OPD visits, tokens, and doctor availability slots.")}
           </p>
         </div>
       )}
@@ -168,10 +169,10 @@ function Appointments() {
         <div className="state-container-card" style={{ borderColor: "var(--error-color)" }}>
           <AlertCircle className="w-10 h-10 text-rose-600" />
           <h3 className="state-title" style={{ color: "var(--error-color)" }}>
-            Unable to Load Appointments
+            {t("appointmentsPage.unableToLoad", "Unable to Load Appointments")}
           </h3>
           <p className="state-subtitle">
-            An error occurred while fetching your appointment schedule. Please try again.
+            {t("appointmentsPage.errorSubtitle", "An error occurred while fetching your appointment schedule. Please try again.")}
           </p>
         </div>
       )}
@@ -180,9 +181,9 @@ function Appointments() {
       {!loading && !error && filteredAppointments.length === 0 && (
         <div className="state-container-card">
           <FolderOpen className="w-10 h-10 text-muted-color" />
-          <h3 className="state-title">No Appointments Found</h3>
+          <h3 className="state-title">{t("appointmentsPage.noAppointmentsFound", "No Appointments Found")}</h3>
           <p className="state-subtitle">
-            There are no appointments under the "{activeFilter}" status.
+            {t("appointmentsPage.noAppointmentsStatusDesc", { filter: activeFilter }, `There are no appointments under the "${activeFilter}" status.`)}
           </p>
           <button
             type="button"
@@ -191,7 +192,7 @@ function Appointments() {
             style={{ marginTop: "12px", padding: "10px 18px", fontSize: "13px" }}
           >
             <Plus className="w-4 h-4" />
-            <span>Book an Appointment</span>
+            <span>{t("appointmentsPage.bookAppointmentBtn", "Book an Appointment")}</span>
           </button>
         </div>
       )}
@@ -247,7 +248,7 @@ function Appointments() {
 
                     {appointment.reason && (
                       <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "8px", background: "var(--surface)", padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)" }}>
-                        <strong>Reason:</strong> {appointment.reason}
+                        <strong>{t("appointmentsPage.reasonLabel", "Reason:")}</strong> {appointment.reason}
                       </p>
                     )}
                   </div>
@@ -261,7 +262,7 @@ function Appointments() {
                     style={{ padding: "8px 14px", fontSize: "13px" }}
                   >
                     <Building2 className="w-3.5 h-3.5" />
-                    <span>Facility Info</span>
+                    <span>{t("appointmentsPage.facilityInfoBtn", "Facility Info")}</span>
                   </Link>
                   <a
                     href="tel:104"
@@ -269,7 +270,7 @@ function Appointments() {
                     style={{ padding: "8px 14px", fontSize: "13px" }}
                   >
                     <Phone className="w-3.5 h-3.5" />
-                    <span>Helpline 104</span>
+                    <span>{t("appointmentsPage.helpline104Btn", "Helpline 104")}</span>
                   </a>
                 </div>
               </article>
@@ -286,7 +287,7 @@ function Appointments() {
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <Stethoscope className="w-5 h-5 text-primary-color" />
                 <h3 style={{ fontSize: "18px", fontWeight: "800", color: "var(--text-color)" }}>
-                  Request OPD Consultation
+                  {t("appointmentsPage.bookingModalTitle", "Request OPD Consultation")}
                 </h3>
               </div>
               <button
@@ -303,16 +304,16 @@ function Appointments() {
               <div style={{ textAlign: "center", padding: "24px 0" }}>
                 <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
                 <h4 style={{ fontSize: "18px", fontWeight: "800", marginTop: "12px", color: "var(--primary-color)" }}>
-                  Appointment Requested!
+                  {t("appointmentsPage.appointmentRequestedTitle", "Appointment Requested!")}
                 </h4>
                 <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "4px" }}>
-                  Your request has been forwarded to the primary health center desk. Token #15 will be sent via SMS.
+                  {t("appointmentsPage.appointmentRequestedDesc", "Your request has been forwarded to the primary health center desk. Token #15 will be sent via SMS.")}
                 </p>
               </div>
             ) : (
               <form onSubmit={handleBookingSubmit} className="auth-form" style={{ marginTop: "12px" }}>
                 <div className="form-group">
-                  <label htmlFor="booking-doctor">Select Doctor / Specialty</label>
+                  <label htmlFor="booking-doctor">{t("appointmentsPage.selectDoctorSpecialty", "Select Doctor / Specialty")}</label>
                   <input
                     id="booking-doctor"
                     type="text"
@@ -323,7 +324,7 @@ function Appointments() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="booking-facility">Primary Health Facility</label>
+                  <label htmlFor="booking-facility">{t("appointmentsPage.primaryHealthFacility", "Primary Health Facility")}</label>
                   <input
                     id="booking-facility"
                     type="text"
@@ -335,7 +336,7 @@ function Appointments() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                   <div className="form-group">
-                    <label htmlFor="booking-date">Preferred Date</label>
+                    <label htmlFor="booking-date">{t("appointmentsPage.preferredDate", "Preferred Date")}</label>
                     <input
                       id="booking-date"
                       type="date"
@@ -345,7 +346,7 @@ function Appointments() {
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="booking-time">Time Slot</label>
+                    <label htmlFor="booking-time">{t("appointmentsPage.timeSlot", "Time Slot")}</label>
                     <input
                       id="booking-time"
                       type="text"
@@ -357,11 +358,11 @@ function Appointments() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="booking-reason">Symptoms / Reason for Visit</label>
+                  <label htmlFor="booking-reason">{t("appointmentsPage.symptomsReason", "Symptoms / Reason for Visit")}</label>
                   <input
                     id="booking-reason"
                     type="text"
-                    placeholder="e.g. Regular blood pressure check, fever, follow-up"
+                    placeholder={t("appointmentsPage.symptomsPlaceholder", "e.g. Regular blood pressure check, fever, follow-up")}
                     value={bookingData.reason}
                     onChange={(e) => setBookingData({ ...bookingData, reason: e.target.value })}
                     required
@@ -369,7 +370,7 @@ function Appointments() {
                 </div>
 
                 <button type="submit" className="auth-submit" style={{ marginTop: "10px" }}>
-                  Confirm Consultation Request
+                  {t("appointmentsPage.confirmRequestBtn", "Confirm Consultation Request")}
                 </button>
               </form>
             )}

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import useLanguage from "../hooks/useLanguage";
 import ThemeToggle from "../components/ThemeToggle";
+import LanguageSelector from "../components/LanguageSelector";
 import logo from "../Assests/logo.svg";
 
 import {
@@ -32,35 +34,24 @@ import {
 const PORTAL_ROLES = [
   {
     id: "patient",
-    label: "Patient",
-    title: "Sign in as Patient",
-    subtitle: "Citizen ABHA Records",
     icon: User,
-    isAvailable: true,
-    badgeText: "Active"
+    isAvailable: true
   },
   {
     id: "doctor",
-    label: "Doctor",
-    title: "Sign in as Doctor",
-    subtitle: "Clinical Provider & e-Rx",
     icon: Stethoscope,
-    isAvailable: false,
-    badgeText: "Coming Soon"
+    isAvailable: false
   },
   {
     id: "asha",
-    label: "ASHA Worker",
-    title: "Sign in as ASHA Worker",
-    subtitle: "Field Community Care",
     icon: HeartHandshake,
-    isAvailable: true,
-    badgeText: "Active"
+    isAvailable: true
   }
 ];
 
 function Login() {
   const { login, isAuthenticated, user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -81,45 +72,45 @@ function Login() {
   // ALREADY AUTHENTICATED
   // =======================================================================
 
-if (isAuthenticated) {
-  const currentRole = user?.role;
+  if (isAuthenticated) {
+    const currentRole = user?.role;
 
-  if (location.state?.from?.pathname) {
-    if (
-      currentRole === "patient" &&
-      !location.state.from.pathname.startsWith("/worker")
-    ) {
-      return (
-        <Navigate
-          to={location.state.from.pathname}
-          replace
-        />
-      );
+    if (location.state?.from?.pathname) {
+      if (
+        currentRole === "patient" &&
+        !location.state.from.pathname.startsWith("/worker")
+      ) {
+        return (
+          <Navigate
+            to={location.state.from.pathname}
+            replace
+          />
+        );
+      }
+
+      if (
+        ["asha", "nurse", "anm"].includes(currentRole) &&
+        location.state.from.pathname.startsWith("/worker")
+      ) {
+        return (
+          <Navigate
+            to={location.state.from.pathname}
+            replace
+          />
+        );
+      }
     }
 
-    if (
-      ["asha", "nurse", "anm"].includes(currentRole) &&
-      location.state.from.pathname.startsWith("/worker")
-    ) {
-      return (
-        <Navigate
-          to={location.state.from.pathname}
-          replace
-        />
-      );
+    if (currentRole === "patient") {
+      return <Navigate to="/dashboard" replace />;
     }
-  }
 
-  if (currentRole === "patient") {
-    return <Navigate to="/dashboard" replace />;
-  }
+    if (["asha", "nurse", "anm"].includes(currentRole)) {
+      return <Navigate to="/worker/dashboard" replace />;
+    }
 
-  if (["asha", "nurse", "anm"].includes(currentRole)) {
-    return <Navigate to="/worker/dashboard" replace />;
+    return <Navigate to="/unauthorized" replace />;
   }
-
-  return <Navigate to="/unauthorized" replace />;
-}
 
   // =======================================================================
   // INPUT HANDLER
@@ -184,7 +175,7 @@ if (isAuthenticated) {
       });
     } catch (err) {
       setError(
-        err.message || "Unable to sign in."
+        err.message || t("auth.errUnableToSignIn", "Unable to sign in.")
       );
     } finally {
       setLoading(false);
@@ -214,7 +205,7 @@ if (isAuthenticated) {
         )
       ) {
         throw new Error(
-          "This account is not registered as a field worker."
+          t("auth.errNotAshaAccount", "This account is not registered as a field worker.")
         );
       }
 
@@ -223,7 +214,7 @@ if (isAuthenticated) {
       });
     } catch (err) {
       setError(
-        err.message || "Unable to sign in."
+        err.message || t("auth.errUnableToSignIn", "Unable to sign in.")
       );
     } finally {
       setLoading(false);
@@ -255,19 +246,21 @@ if (isAuthenticated) {
       ================================================================ */}
 
       <div className="auth-top-bar">
-
         <Link
           to="/"
           className="auth-back-btn"
-          title="Back to Home"
+          title={t("home", "Back to Home")}
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Home</span>
+          <span>{t("home", "Home")}</span>
         </Link>
 
-        <ThemeToggle />
-
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <LanguageSelector variant="auth" />
+          <ThemeToggle />
+        </div>
       </div>
+
 
       {/* ================================================================
           AUTH SPLIT LAYOUT
@@ -293,11 +286,11 @@ if (isAuthenticated) {
 
             <div>
               <span className="hero-brand-name">
-                SwasthyaSetu
+                {t("appName", "SwasthyaSetu")}
               </span>
 
               <span className="hero-brand-badge">
-                Citizen Health Portal
+                {t("portalTitle", "Citizen Health Portal")}
               </span>
             </div>
 
@@ -306,19 +299,18 @@ if (isAuthenticated) {
           <div className="auth-hero-content">
 
             <h1 className="auth-hero-title">
-              Welcome to SwasthyaSetu
+              {t("auth.signInTitle", "Welcome to SwasthyaSetu")}
             </h1>
 
             <p className="auth-hero-tagline">
-              Your healthcare, connected.
+              {t("auth.tagline", "Your healthcare, connected.")}
             </p>
 
             <p className="auth-hero-desc">
-              Securely access your longitudinal ABHA
-              medical records, manage outpatient
-              consultations, and stay connected with
-              verified public healthcare providers
-              nationwide.
+              {t(
+                "auth.description",
+                "Securely access your longitudinal ABHA medical records, manage outpatient consultations, and stay connected with verified public healthcare providers nationwide."
+              )}
             </p>
 
             <div className="auth-hero-features">
@@ -331,11 +323,11 @@ if (isAuthenticated) {
 
                 <div>
                   <strong>
-                    ABDM & M3 Compliant
+                    {t("auth.featureAbdmTitle", "ABDM & M3 Compliant")}
                   </strong>
 
                   <span>
-                    Consent-driven health data exchange
+                    {t("auth.featureAbdmDesc", "Consent-driven health data exchange")}
                   </span>
                 </div>
 
@@ -349,11 +341,11 @@ if (isAuthenticated) {
 
                 <div>
                   <strong>
-                    Unified Longitudinal EHR
+                    {t("auth.featureEhrTitle", "Unified Longitudinal EHR")}
                   </strong>
 
                   <span>
-                    Diagnostic reports & prescriptions
+                    {t("auth.featureEhrDesc", "Diagnostic reports & prescriptions")}
                   </span>
                 </div>
 
@@ -367,11 +359,11 @@ if (isAuthenticated) {
 
                 <div>
                   <strong>
-                    National PHC Network
+                    {t("auth.featureNetworkTitle", "National PHC Network")}
                   </strong>
 
                   <span>
-                    Connected primary & community health centers
+                    {t("auth.featureNetworkDesc", "Connected primary & community health centers")}
                   </span>
                 </div>
 
@@ -388,7 +380,7 @@ if (isAuthenticated) {
               <PhoneCall className="w-4 h-4 text-secondary-color" />
 
               <span>
-                National Health Helpline:
+                {t("auth.nationalHelpline", "National Health Helpline:")}
                 {" "}
                 <strong>
                   104 / 14416
@@ -428,11 +420,11 @@ if (isAuthenticated) {
             <div>
 
               <h1 className="auth-brand-title">
-                SwasthyaSetu
+                {t("appName", "SwasthyaSetu")}
               </h1>
 
               <span className="auth-brand-subtitle">
-                Citizen Health Portal
+                {t("portalTitle", "Citizen Health Portal")}
               </span>
 
             </div>
@@ -446,7 +438,7 @@ if (isAuthenticated) {
           <div className="auth-role-section">
 
             <label className="auth-role-label">
-              Select Your Portal Role
+              {t("auth.selectRoleLabel", "Select Your Portal Role")}
             </label>
 
             <div className="auth-role-selector">
@@ -457,6 +449,25 @@ if (isAuthenticated) {
 
                 const isActive =
                   activeRole === role.id;
+
+                const roleTitle =
+                  role.id === "patient"
+                    ? t("auth.patientRoleTitle", "Sign in as Patient")
+                    : role.id === "doctor"
+                    ? t("auth.doctorRoleTitle", "Sign in as Doctor")
+                    : t("auth.ashaRoleTitle", "Sign in as ASHA Worker");
+
+                const roleSubtitle =
+                  role.id === "patient"
+                    ? t("auth.patientRoleDesc", "Citizen ABHA Records")
+                    : role.id === "doctor"
+                    ? t("auth.doctorRoleDesc", "Clinical Provider & e-Rx")
+                    : t("auth.ashaRoleDesc", "Field Community Care");
+
+                const roleBadgeText =
+                  role.isAvailable
+                    ? t("auth.activeBadge", "Active")
+                    : t("auth.comingSoonBadge", "Coming Soon");
 
                 return (
                   <button
@@ -481,8 +492,8 @@ if (isAuthenticated) {
                     aria-pressed={isActive}
                     title={
                       role.isAvailable
-                        ? role.title
-                        : `${role.title} (${role.badgeText})`
+                        ? roleTitle
+                        : `${roleTitle} (${roleBadgeText})`
                     }
                   >
 
@@ -491,11 +502,11 @@ if (isAuthenticated) {
                     <div className="role-tab-text">
 
                       <span className="role-tab-title">
-                        {role.title}
+                        {roleTitle}
                       </span>
 
                       <span className="role-tab-sub">
-                        {role.subtitle}
+                        {roleSubtitle}
                       </span>
 
                     </div>
@@ -507,7 +518,7 @@ if (isAuthenticated) {
                           : "soon-badge"
                       }`}
                     >
-                      {role.badgeText}
+                      {roleBadgeText}
                     </span>
 
                   </button>
@@ -530,12 +541,14 @@ if (isAuthenticated) {
               <div className="auth-heading">
 
                 <h2>
-                  Citizen Sign In
+                  {t("auth.patientSignInHeading", "Citizen Sign In")}
                 </h2>
 
                 <p>
-                  Enter your registered ABHA ID or
-                  email to access your health portal.
+                  {t(
+                    "auth.patientSignInSubheading",
+                    "Enter your registered ABHA ID or email to access your health portal."
+                  )}
                 </p>
 
               </div>
@@ -564,7 +577,7 @@ if (isAuthenticated) {
                 <div className="form-group">
 
                   <label htmlFor="email">
-                    ABHA Number or Registered Email
+                    {t("auth.emailLabel", "ABHA Number or Registered Email")}
                   </label>
 
                   <div className="auth-input-wrapper">
@@ -577,7 +590,7 @@ if (isAuthenticated) {
                       type="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="patient@example.com"
+                      placeholder={t("auth.emailPlaceholder", "patient@example.com")}
                       autoComplete="email"
                       required
                       className="auth-input-with-icon"
@@ -594,7 +607,7 @@ if (isAuthenticated) {
                   <div className="auth-label-row">
 
                     <label htmlFor="password">
-                      Security Password / MPIN
+                      {t("auth.passwordLabel", "Security Password / MPIN")}
                     </label>
 
                     <button
@@ -604,7 +617,7 @@ if (isAuthenticated) {
                         setShowForgotModal(true)
                       }
                     >
-                      Forgot password?
+                      {t("auth.forgotPassword", "Forgot password?")}
                     </button>
 
                   </div>
@@ -623,7 +636,7 @@ if (isAuthenticated) {
                       }
                       value={formData.password}
                       onChange={handleChange}
-                      placeholder="Enter your security password"
+                      placeholder={t("auth.passwordPlaceholder", "Enter your security password")}
                       autoComplete="current-password"
                       required
                       className="auth-input-with-icon pr-10"
@@ -639,8 +652,8 @@ if (isAuthenticated) {
                       }
                       aria-label={
                         showPassword
-                          ? "Hide password"
-                          : "Show password"
+                          ? t("auth.hidePassword", "Hide password")
+                          : t("auth.showPassword", "Show password")
                       }
                     >
 
@@ -671,13 +684,13 @@ if (isAuthenticated) {
                       <span className="auth-spinner" />
 
                       <span>
-                        Authenticating with ABDM...
+                        {t("auth.loggingInAbdm", "Authenticating with ABDM...")}
                       </span>
 
                     </span>
 
                   ) : (
-                    "Sign in as Patient"
+                    t("auth.loginPatientSubmit", "Sign in as Patient")
                   )}
 
                 </button>
@@ -689,14 +702,14 @@ if (isAuthenticated) {
               <div className="auth-footer">
 
                 <p className="auth-register-prompt">
-                  Don't have an ABHA profile?
+                  {t("auth.createAccountPrompt", "Don't have an ABHA profile?")}
                 </p>
 
                 <Link
                   to="/register"
                   className="btn-create-abha"
                 >
-                  Create ABHA Account
+                  {t("auth.createAccountLink", "Create ABHA Account")}
                 </Link>
 
               </div>
@@ -708,7 +721,7 @@ if (isAuthenticated) {
                 <div className="demo-header">
 
                   <span className="demo-badge">
-                    Verified Test Account
+                    {t("auth.verifiedTestAccount", "Verified Test Account")}
                   </span>
 
                   <button
@@ -719,7 +732,7 @@ if (isAuthenticated) {
                     }
                   >
                     <Sparkles className="w-3 h-3 inline mr-1" />
-                    Auto-fill Demo
+                    {t("auth.autofillDemo", "Auto-fill Demo")}
                   </button>
 
                 </div>
@@ -728,7 +741,7 @@ if (isAuthenticated) {
 
                   <div>
                     <span className="demo-label">
-                      Login:
+                      {t("auth.loginLabel", "Login:")}
                     </span>
 
                     <span className="demo-val">
@@ -738,7 +751,7 @@ if (isAuthenticated) {
 
                   <div>
                     <span className="demo-label">
-                      Password:
+                      {t("auth.workerPasswordLabel", "Password:")}
                     </span>
 
                     <span className="demo-val">
@@ -765,13 +778,14 @@ if (isAuthenticated) {
               <div className="auth-heading">
 
                 <h2>
-                  ASHA Worker Sign In
+                  {t("auth.ashaSignInHeading", "ASHA Worker Sign In")}
                 </h2>
 
                 <p>
-                  Sign in to manage community visits,
-                  patient screening, referrals, and
-                  follow-ups.
+                  {t(
+                    "auth.ashaSignInSubheading",
+                    "Sign in to manage community visits, patient screening, referrals, and follow-ups."
+                  )}
                 </p>
 
               </div>
@@ -800,7 +814,7 @@ if (isAuthenticated) {
                 <div className="form-group">
 
                   <label htmlFor="worker-email">
-                    Registered Email
+                    {t("auth.workerEmailLabel", "Registered Email")}
                   </label>
 
                   <div className="auth-input-wrapper">
@@ -813,7 +827,7 @@ if (isAuthenticated) {
                       type="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="asha@example.com"
+                      placeholder={t("auth.workerEmailPlaceholder", "asha@example.com")}
                       autoComplete="email"
                       required
                       className="auth-input-with-icon"
@@ -830,7 +844,7 @@ if (isAuthenticated) {
                   <div className="auth-label-row">
 
                     <label htmlFor="worker-password">
-                      Password
+                      {t("auth.workerPasswordLabel", "Password")}
                     </label>
 
                   </div>
@@ -849,7 +863,7 @@ if (isAuthenticated) {
                       }
                       value={formData.password}
                       onChange={handleChange}
-                      placeholder="Enter your password"
+                      placeholder={t("auth.workerPasswordPlaceholder", "Enter your password")}
                       autoComplete="current-password"
                       required
                       className="auth-input-with-icon pr-10"
@@ -865,8 +879,8 @@ if (isAuthenticated) {
                       }
                       aria-label={
                         showPassword
-                          ? "Hide password"
-                          : "Show password"
+                          ? t("auth.hidePassword", "Hide password")
+                          : t("auth.showPassword", "Show password")
                       }
                     >
 
@@ -897,13 +911,13 @@ if (isAuthenticated) {
                       <span className="auth-spinner" />
 
                       <span>
-                        Signing in...
+                        {t("auth.loggingInWorker", "Signing in...")}
                       </span>
 
                     </span>
 
                   ) : (
-                    "Sign in as ASHA Worker"
+                    t("auth.loginWorkerSubmit", "Sign in as ASHA Worker")
                   )}
 
                 </button>
@@ -917,7 +931,7 @@ if (isAuthenticated) {
                 <div className="demo-header">
 
                   <span className="demo-badge">
-                    ASHA Test Account
+                    {t("auth.ashaTestAccount", "ASHA Test Account")}
                   </span>
 
                   <button
@@ -928,7 +942,7 @@ if (isAuthenticated) {
                     }
                   >
                     <Sparkles className="w-3 h-3 inline mr-1" />
-                    Auto-fill Demo
+                    {t("auth.autofillDemo", "Auto-fill Demo")}
                   </button>
 
                 </div>
@@ -937,7 +951,7 @@ if (isAuthenticated) {
 
                   <div>
                     <span className="demo-label">
-                      Login:
+                      {t("auth.loginLabel", "Login:")}
                     </span>
 
                     <span className="demo-val">
@@ -947,7 +961,7 @@ if (isAuthenticated) {
 
                   <div>
                     <span className="demo-label">
-                      Password:
+                      {t("auth.workerPasswordLabel", "Password:")}
                     </span>
 
                     <span className="demo-val">
@@ -976,7 +990,7 @@ if (isAuthenticated) {
                     });
                   }}
                 >
-                  Switch to Patient Sign In
+                  {t("auth.switchToPatient", "Switch to Patient Sign In")}
                 </button>
 
               </div>
@@ -1000,15 +1014,14 @@ if (isAuthenticated) {
               </div>
 
               <h3>
-                Clinical Doctor Portal
+                {t("auth.doctorPortalHeading", "Clinical Doctor Portal")}
               </h3>
 
               <p>
-                The Clinical Provider module is
-                scheduled for a future release.
-                Doctor authentication will link
-                directly to the healthcare
-                professional registry.
+                {t(
+                  "auth.doctorPortalDesc",
+                  "The Clinical Provider module is scheduled for a future release. Doctor authentication will link directly to the healthcare professional registry."
+                )}
               </p>
 
               <div className="inactive-features-list">
@@ -1018,7 +1031,7 @@ if (isAuthenticated) {
                   <CheckCircle2 className="w-4 h-4 text-primary-color shrink-0" />
 
                   <span>
-                    Verified professional credentials
+                    {t("auth.doctorFeature1", "Verified professional credentials")}
                   </span>
 
                 </div>
@@ -1028,7 +1041,7 @@ if (isAuthenticated) {
                   <CheckCircle2 className="w-4 h-4 text-primary-color shrink-0" />
 
                   <span>
-                    Longitudinal OPD & e-Prescription
+                    {t("auth.doctorFeature2", "Longitudinal OPD & e-Prescription")}
                   </span>
 
                 </div>
@@ -1043,7 +1056,7 @@ if (isAuthenticated) {
                   setError("");
                 }}
               >
-                Switch to Patient Sign In
+                {t("auth.switchToPatient", "Switch to Patient Sign In")}
               </button>
 
             </div>
@@ -1061,7 +1074,7 @@ if (isAuthenticated) {
               <ShieldCheck className="w-3.5 h-3.5 text-primary-color" />
 
               <span>
-                ABDM Encrypted
+                {t("auth.abdmEncrypted", "ABDM Encrypted")}
               </span>
 
             </div>
@@ -1075,7 +1088,7 @@ if (isAuthenticated) {
               <LockKeyhole className="w-3.5 h-3.5 text-muted-color" />
 
               <span>
-                256-Bit SSL Security
+                {t("auth.sslSecurity", "256-Bit SSL Security")}
               </span>
 
             </div>
@@ -1117,11 +1130,11 @@ if (isAuthenticated) {
               <div>
 
                 <h3>
-                  Reset Security Password / MPIN
+                  {t("auth.resetPasswordTitle", "Reset Security Password / MPIN")}
                 </h3>
 
                 <p>
-                  Ayushman Bharat Digital Health Account
+                  {t("auth.resetPasswordSubtitle", "Ayushman Bharat Digital Health Account")}
                 </p>
 
               </div>
@@ -1132,7 +1145,7 @@ if (isAuthenticated) {
                 onClick={() =>
                   setShowForgotModal(false)
                 }
-                aria-label="Close"
+                aria-label={t("closeMenu", "Close")}
               >
 
                 <X className="w-5 h-5" />
@@ -1144,22 +1157,23 @@ if (isAuthenticated) {
             <div className="forgot-modal-body">
 
               <p>
-                Self-service password recovery via
-                Aadhaar OTP / ABHA authentication is
-                scheduled for an upcoming release.
+                {t(
+                  "auth.resetPasswordNotice",
+                  "Self-service password recovery via Aadhaar OTP / ABHA authentication is scheduled for an upcoming release."
+                )}
               </p>
 
               <div className="forgot-help-card">
 
                 <strong>
-                  Need immediate assistance?
+                  {t("auth.needImmediateAssistance", "Need immediate assistance?")}
                 </strong>
 
                 <p>
-                  Contact the 24x7 Citizen Health
-                  Helpline at <strong>104</strong> or{" "}
-                  <strong>14416</strong>, or visit your
-                  nearest Primary Health Centre (PHC).
+                  {t(
+                    "auth.helplineNotice",
+                    "Contact the 24x7 Citizen Health Helpline at 104 or 14416, or visit your nearest Primary Health Centre (PHC)."
+                  )}
                 </p>
 
               </div>
@@ -1175,7 +1189,7 @@ if (isAuthenticated) {
                   setShowForgotModal(false)
                 }
               >
-                Understood, Return to Sign In
+                {t("auth.understoodReturn", "Understood, Return to Sign In")}
               </button>
 
             </div>

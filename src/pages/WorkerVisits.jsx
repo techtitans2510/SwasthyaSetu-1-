@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import useLanguage from "../hooks/useLanguage";
 import {
   CalendarDays,
   MapPin,
@@ -12,27 +13,28 @@ import {
 } from "lucide-react";
 import { getWorkerScheduledVisits } from "../api/workerVisits.api";
 
-const TIMEFRAME_TABS = [
-  { id: "today", label: "Today" },
-  { id: "tomorrow", label: "Tomorrow" },
-  { id: "this_week", label: "This Week" },
-  { id: "all", label: "All Scheduled" }
-];
-
-const STATUS_FILTERS = [
-  { id: "all", label: "All Statuses" },
-  { id: "scheduled", label: "Pending / Scheduled" },
-  { id: "completed", label: "Completed" },
-  { id: "missed", label: "Missed / Overdue" }
-];
-
 function WorkerVisits() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState("today");
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+
+  const timeframeTabs = [
+    { id: "today", label: t("worker.timeframeToday", "Today") },
+    { id: "tomorrow", label: t("worker.timeframeTomorrow", "Tomorrow") },
+    { id: "this_week", label: t("worker.timeframeThisWeek", "This Week") },
+    { id: "all", label: t("worker.timeframeAll", "All Scheduled") }
+  ];
+
+  const statusFilters = [
+    { id: "all", label: t("worker.statusAll", "All Statuses") },
+    { id: "scheduled", label: t("worker.statusPending", "Pending / Scheduled") },
+    { id: "completed", label: t("worker.statusCompleted", "Completed") },
+    { id: "missed", label: t("worker.statusMissed", "Missed / Overdue") }
+  ];
 
   useEffect(() => {
     let isMounted = true;
@@ -67,10 +69,10 @@ function WorkerVisits() {
 
   const workerRole =
     user?.role === "asha"
-      ? "ASHA Worker"
+      ? t("auth.ashaRole", "ASHA Worker")
       : user?.role === "nurse"
-      ? "Primary Care Nurse"
-      : "ANM Field Worker";
+      ? t("worker.roles.nurse", "Primary Care Nurse")
+      : t("worker.roles.anm", "ANM Field Worker");
 
   return (
     <div className="worker-dashboard">
@@ -79,11 +81,12 @@ function WorkerVisits() {
       ============================================================== */}
       <header className="worker-page-header">
         <div>
-          <span className="worker-eyebrow">Field Work Itinerary • {workerRole}</span>
-          <h1>Scheduled Visits</h1>
+          <span className="worker-eyebrow">
+            {t("worker.fieldWorkItineraryEyebrow", { role: workerRole }, `Field Work Itinerary • ${workerRole}`)}
+          </span>
+          <h1>{t("worker.scheduledVisitsTitle", "Scheduled Visits")}</h1>
           <p>
-            Community home visits, screening schedules, maternal checkups, and
-            chronic care follow-ups assigned to you in Talwade & Shirur blocks.
+            {t("worker.scheduledVisitsDesc", "Community home visits, screening schedules, maternal checkups, and chronic care follow-ups assigned to you in Talwade & Shirur blocks.")}
           </p>
         </div>
 
@@ -104,7 +107,7 @@ function WorkerVisits() {
             }}
           >
             <Plus style={{ width: "16px", height: "16px" }} />
-            Record New Visit
+            {t("worker.recordNewVisitBtn", "Record New Visit")}
           </Link>
         </div>
       </header>
@@ -150,7 +153,7 @@ function WorkerVisits() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search visits by patient name, ID (e.g. PAT-1001), village, or purpose..."
+              placeholder={t("worker.searchVisitsPlaceholder", "Search visits by patient name, ID (e.g. PAT-1001), village, or purpose...")}
               style={{
                 width: "100%",
                 padding: "10px 36px 10px 38px",
@@ -198,7 +201,7 @@ function WorkerVisits() {
           >
             {/* TIMEFRAME TABS */}
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {TIMEFRAME_TABS.map((tab) => {
+              {timeframeTabs.map((tab) => {
                 const isActive = timeframe === tab.id;
                 return (
                   <button
@@ -230,9 +233,9 @@ function WorkerVisits() {
             {/* STATUS FILTER BUTTONS */}
             <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
               <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 600 }}>
-                Status:
+                {t("common.status", "Status")}:
               </span>
-              {STATUS_FILTERS.map((st) => {
+              {statusFilters.map((st) => {
                 const isSelected = statusFilter === st.id;
                 return (
                   <button
@@ -269,25 +272,16 @@ function WorkerVisits() {
       <div className="worker-panel">
         <div className="worker-panel-header">
           <div>
-            <span className="worker-section-label">Field Schedule</span>
+            <span className="worker-section-label">{t("worker.fieldScheduleSection", "Field Schedule")}</span>
             <h2>
-              Visits Queue{" "}
-              <span
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "normal",
-                  color: "var(--text-secondary)"
-                }}
-              >
-                ({visits.length})
-              </span>
+              {t("worker.visitsQueueTitle", { count: visits.length }, `Visits Queue (${visits.length})`)}
             </h2>
           </div>
         </div>
 
         {loading ? (
           <p style={{ color: "var(--text-secondary)", padding: "24px 0" }}>
-            Loading field visit schedule...
+            {t("worker.loadingVisitsSchedule", "Loading field visit schedule...")}
           </p>
         ) : visits.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px 20px" }}>
@@ -300,7 +294,7 @@ function WorkerVisits() {
               }}
             />
             <p style={{ color: "var(--text-secondary)", fontSize: "14px" }}>
-              No scheduled visits match the selected date or status filter.
+              {t("worker.noScheduledVisitsMatch", "No scheduled visits match the selected date or status filter.")}
             </p>
             {(search || timeframe !== "all" || statusFilter !== "all") && (
               <button
@@ -322,7 +316,7 @@ function WorkerVisits() {
                   cursor: "pointer"
                 }}
               >
-                Show All Scheduled Visits
+                {t("worker.showAllScheduledVisits", "Show All Scheduled Visits")}
               </button>
             )}
           </div>
@@ -439,7 +433,7 @@ function WorkerVisits() {
                             : "var(--primary-color)"
                         }}
                       >
-                        {visit.riskLevel || "Routine Care"}
+                        {visit.riskLevel || t("worker.routineCareBadge", "Routine Care")}
                       </span>
                     </div>
 
@@ -478,7 +472,7 @@ function WorkerVisits() {
                         background: "var(--card-bg)"
                       }}
                     >
-                      View Patient
+                      {t("worker.viewPatientBtn", "View Patient")}
                     </NavLink>
 
                     {isCompleted ? (
@@ -494,7 +488,7 @@ function WorkerVisits() {
                         }}
                       >
                         <CheckCircle2 style={{ width: "14px", height: "14px" }} />
-                        Completed
+                        {t("completed", "Completed")}
                       </span>
                     ) : (
                       <NavLink
@@ -513,7 +507,7 @@ function WorkerVisits() {
                           textDecoration: "none"
                         }}
                       >
-                        Start Visit
+                        {t("worker.startVisitBtn", "Start Visit")}
                         <ArrowRight style={{ width: "12px", height: "12px" }} />
                       </NavLink>
                     )}

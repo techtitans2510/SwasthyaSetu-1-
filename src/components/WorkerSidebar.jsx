@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useTheme } from "../context/ThemeContext";
+import useLanguage from "../hooks/useLanguage";
+import LanguageSelector from "./LanguageSelector";
 import logo from "../Assests/logo.svg";
 
 import {
@@ -18,43 +20,44 @@ import {
 function WorkerSidebar() {
   const { user, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
+  const { t } = useLanguage();
 
   const links = [
     {
       to: "/worker/dashboard",
-      label: "Dashboard",
+      label: t("dashboard", "Dashboard"),
       icon: LayoutDashboard
     },
     {
       to: "/worker/patients",
-      label: "My Patients",
+      label: t("myPatients", "My Patients"),
       icon: Users
     },
     {
       to: "/worker/visits",
-      label: "Scheduled Visits",
+      label: t("scheduledVisits", "Scheduled Visits"),
       icon: CalendarDays
     },
     {
       to: "/worker/visits/new",
-      label: "New Visit",
+      label: t("newVisit", "New Visit"),
       icon: ClipboardPlus
     },
     {
       to: "/worker/referrals",
-      label: "Referrals",
+      label: t("referrals", "Referrals"),
       icon: GitBranch
     },
     {
       to: "/worker/follow-ups",
-      label: "Follow-ups",
+      label: t("followUps", "Follow-ups"),
       icon: ListChecks
     }
   ];
 
   const workerRole =
     user?.role === "asha"
-      ? "ASHA Worker"
+      ? t("auth.ashaRole", "ASHA Worker")
       : "ANM / Nurse";
 
   return (
@@ -71,8 +74,8 @@ function WorkerSidebar() {
           </div>
 
           <div className="brand-text">
-            <span className="brand-title">SwasthyaSetu</span>
-            <span className="brand-subtitle">FIELD CARE PORTAL</span>
+            <span className="brand-title">{t("appName", "SwasthyaSetu")}</span>
+            <span className="brand-subtitle">{t("taglineWorker", "FIELD CARE PORTAL")}</span>
           </div>
         </div>
 
@@ -116,15 +119,17 @@ function WorkerSidebar() {
 
       {/* Bottom Controls */}
       <div className="worker-sidebar-bottom">
+        {/* Language Selector */}
+        <LanguageSelector variant="sidebar-row" />
 
         {/* Offline Status */}
         <div className="worker-sync-card">
           <span className="sync-pulse-dot" />
 
           <div>
-            <strong>Offline-ready</strong>
+            <strong>{t("offlineReady", "Offline-ready")}</strong>
             <span>
-              Changes sync when online
+              {t("offlineSubtext", "Changes sync when online")}
             </span>
           </div>
         </div>
@@ -139,8 +144,8 @@ function WorkerSidebar() {
 
           <span>
             {darkMode
-              ? "Light Mode"
-              : "Dark Mode"}
+              ? t("lightMode", "Light Mode")
+              : t("darkMode", "Dark Mode")}
           </span>
         </button>
 
@@ -152,11 +157,11 @@ function WorkerSidebar() {
         >
           <LogOut />
 
-          <span>Sign Out</span>
+          <span>{t("signOut", "Sign Out")}</span>
         </button>
       </div>
     </aside>
   );
 }
 
-export default WorkerSidebar;
+export default WorkerSidebar;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import useLanguage from "../hooks/useLanguage";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -11,23 +12,24 @@ import {
 import { getWorkerPatients, getWorkerPatientById } from "../api/workerPatients.api";
 import { recordWorkerVisit } from "../api/workerVisits.api";
 
-const SYMPTOM_OPTIONS = [
-  "Dizziness / Vertigo",
-  "Headache",
-  "Chest Discomfort / Tightness",
-  "Shortness of Breath",
-  "Pedal Edema / Swelling",
-  "Fever / Chills",
-  "Excessive Thirst / Urination",
-  "Fatigue / Generalized Weakness",
-  "Blurred Vision",
-  "No Acute Symptoms"
-];
-
 function WorkerNewVisit() {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const initialPatientId = searchParams.get("patientId") || "";
+
+  const symptomOptions = [
+    { id: "Dizziness / Vertigo", label: t("worker.symptomsList.dizziness", "Dizziness / Vertigo") },
+    { id: "Headache", label: t("worker.symptomsList.headache", "Headache") },
+    { id: "Chest Discomfort / Tightness", label: t("worker.symptomsList.chestDiscomfort", "Chest Discomfort / Tightness") },
+    { id: "Shortness of Breath", label: t("worker.symptomsList.shortnessOfBreath", "Shortness of Breath") },
+    { id: "Pedal Edema / Swelling", label: t("worker.symptomsList.pedalEdema", "Pedal Edema / Swelling") },
+    { id: "Fever / Chills", label: t("worker.symptomsList.feverChills", "Fever / Chills") },
+    { id: "Excessive Thirst / Urination", label: t("worker.symptomsList.excessiveThirst", "Excessive Thirst / Urination") },
+    { id: "Fatigue / Generalized Weakness", label: t("worker.symptomsList.fatigueWeakness", "Fatigue / Generalized Weakness") },
+    { id: "Blurred Vision", label: t("worker.symptomsList.blurredVision", "Blurred Vision") },
+    { id: "No Acute Symptoms", label: t("worker.symptomsList.noAcuteSymptoms", "No Acute Symptoms") }
+  ];
 
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(initialPatientId);
@@ -216,16 +218,15 @@ function WorkerNewVisit() {
         }}
       >
         <ArrowLeft style={{ width: "16px", height: "16px" }} />
-        Back to {selectedPatientId ? "Patient Profile" : "Patients Registry"}
+        {selectedPatientId ? t("worker.backToPatientProfile", "Back to Patient Profile") : t("worker.backToPatientsRegistry", "Back to Patients Registry")}
       </Link>
 
       <header className="worker-page-header">
         <div>
-          <span className="worker-eyebrow">Field Clinical Workflow</span>
-          <h1>Record New Patient Visit</h1>
+          <span className="worker-eyebrow">{t("worker.fieldClinicalWorkflowEyebrow", "Field Clinical Workflow")}</span>
+          <h1>{t("worker.recordNewPatientVisitTitle", "Record New Patient Visit")}</h1>
           <p>
-            Document community screening vitals, symptom screening, observations,
-            and care actions for this patient visit.
+            {t("worker.recordNewPatientVisitDesc", "Document community screening vitals, symptom screening, observations, and care actions for this patient visit.")}
           </p>
         </div>
       </header>
@@ -243,13 +244,12 @@ function WorkerNewVisit() {
               margin: "0 auto 16px"
             }}
           />
-          <h2>Visit Record Saved Successfully!</h2>
+          <h2>{t("worker.visitSavedSuccessTitle", "Visit Record Saved Successfully!")}</h2>
           <p style={{ color: "var(--text-secondary)", marginTop: "8px", fontSize: "14px" }}>
-            Continuity log, scheduled visit status, and care records updated for{" "}
-            <strong>{selectedPatient?.name} ({selectedPatientId})</strong>.
+            {t("worker.visitSavedSuccessDesc", { name: selectedPatient?.name, id: selectedPatientId }, `Continuity log, scheduled visit status, and care records updated for ${selectedPatient?.name} (${selectedPatientId}).`)}
           </p>
           <p style={{ color: "var(--text-secondary)", fontSize: "12px", marginTop: "4px" }}>
-            Redirecting to Patient Profile...
+            {t("worker.redirectingToProfile", "Redirecting to Patient Profile...")}
           </p>
         </div>
       ) : (
@@ -268,8 +268,8 @@ function WorkerNewVisit() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Section 1 of 6</span>
-                <h2>Patient Identification</h2>
+                <span className="worker-section-label">{t("worker.section1Title", "Section 1 of 6")}</span>
+                <h2>{t("worker.patientIdentification", "Patient Identification")}</h2>
               </div>
             </div>
 
@@ -283,7 +283,7 @@ function WorkerNewVisit() {
                     marginBottom: "6px"
                   }}
                 >
-                  Select Assigned Patient
+                  {t("worker.selectAssignedPatient", "Select Assigned Patient")}
                 </label>
                 <select
                   value={selectedPatientId}
@@ -331,7 +331,7 @@ function WorkerNewVisit() {
                       {selectedPatient.age}y • {selectedPatient.gender} • {selectedPatient.village}
                     </span>
                     <div style={{ marginTop: "3px", color: "var(--text-secondary)", fontSize: "11px" }}>
-                      Care Context: {selectedPatient.chronicConditions?.join(", ") || "Routine"}
+                      {t("worker.careContextLabel", "Care Context:")} {selectedPatient.chronicConditions?.join(", ") || t("worker.routineGeneralHealth", "Routine")}
                     </div>
                   </div>
 
@@ -364,8 +364,8 @@ function WorkerNewVisit() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Section 2 of 6</span>
-                <h2>Visit Details</h2>
+                <span className="worker-section-label">{t("worker.section2Title", "Section 2 of 6")}</span>
+                <h2>{t("worker.visitDetailsTitle", "Visit Details")}</h2>
               </div>
               <Calendar style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
             </div>
@@ -373,7 +373,7 @@ function WorkerNewVisit() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px" }}>
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Visit Date
+                  {t("worker.visitDateLabel", "Visit Date")}
                 </label>
                 <input
                   type="date"
@@ -393,7 +393,7 @@ function WorkerNewVisit() {
 
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Visit Time
+                  {t("worker.visitTimeLabel", "Visit Time")}
                 </label>
                 <input
                   type="text"
@@ -414,7 +414,7 @@ function WorkerNewVisit() {
 
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Location / Context
+                  {t("worker.locationContextLabel", "Location / Context")}
                 </label>
                 <input
                   type="text"
@@ -435,7 +435,7 @@ function WorkerNewVisit() {
 
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Purpose / Reason for Visit
+                  {t("worker.purposeReasonLabel", "Purpose / Reason for Visit")}
                 </label>
                 <input
                   type="text"
@@ -456,13 +456,13 @@ function WorkerNewVisit() {
 
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Short Visit Notes
+                  {t("worker.shortVisitNotesLabel", "Short Visit Notes")}
                 </label>
                 <input
                   type="text"
                   value={visitNotes}
                   onChange={(e) => setVisitNotes(e.target.value)}
-                  placeholder="Context or remarks for this home encounter..."
+                  placeholder={t("worker.shortVisitNotesPlaceholder", "Context or remarks for this home encounter...")}
                   style={{
                     width: "100%",
                     padding: "9px 12px",
@@ -483,8 +483,8 @@ function WorkerNewVisit() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Section 3 of 6</span>
-                <h2>Vital Signs Screening</h2>
+                <span className="worker-section-label">{t("worker.section3Title", "Section 3 of 6")}</span>
+                <h2>{t("worker.vitalSignsScreeningTitle", "Vital Signs Screening")}</h2>
               </div>
               <Heart style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
             </div>
@@ -499,7 +499,7 @@ function WorkerNewVisit() {
               {/* BLOOD PRESSURE */}
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Blood Pressure (Systolic / Diastolic)
+                  {t("worker.bloodPressureSystolicDiastolic", "Blood Pressure (Systolic / Diastolic)")}
                 </label>
                 <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                   <input
@@ -540,7 +540,7 @@ function WorkerNewVisit() {
               {/* BLOOD SUGAR */}
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Blood Glucose & Type
+                  {t("worker.bloodGlucoseType", "Blood Glucose & Type")}
                 </label>
                 <div style={{ display: "flex", gap: "6px" }}>
                   <input
@@ -571,9 +571,9 @@ function WorkerNewVisit() {
                       fontSize: "12px"
                     }}
                   >
-                    <option value="Random">Random</option>
-                    <option value="Fasting">Fasting</option>
-                    <option value="PP">Post-Meal</option>
+                    <option value="Random">{t("worker.glucoseTypeRandom", "Random")}</option>
+                    <option value="Fasting">{t("worker.glucoseTypeFasting", "Fasting")}</option>
+                    <option value="PP">{t("worker.glucoseTypePostMeal", "Post-Meal")}</option>
                   </select>
                 </div>
               </div>
@@ -581,7 +581,7 @@ function WorkerNewVisit() {
               {/* PULSE / HEART RATE */}
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Pulse / Heart Rate (bpm)
+                  {t("worker.pulseHeartRate", "Pulse / Heart Rate (bpm)")}
                 </label>
                 <input
                   type="number"
@@ -603,7 +603,7 @@ function WorkerNewVisit() {
               {/* SPO2 */}
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Oxygen Saturation SpO2 (%)
+                  {t("worker.oxygenSaturation", "Oxygen Saturation SpO2 (%)")}
                 </label>
                 <input
                   type="number"
@@ -625,7 +625,7 @@ function WorkerNewVisit() {
               {/* TEMPERATURE */}
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Body Temperature (°F)
+                  {t("worker.bodyTemperature", "Body Temperature (°F)")}
                 </label>
                 <input
                   type="number"
@@ -648,7 +648,7 @@ function WorkerNewVisit() {
               {/* RESPIRATORY RATE */}
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Respiratory Rate (breaths/min)
+                  {t("worker.respiratoryRate", "Respiratory Rate (breaths/min)")}
                 </label>
                 <input
                   type="number"
@@ -670,7 +670,7 @@ function WorkerNewVisit() {
               {/* WEIGHT */}
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Weight (kg)
+                  {t("worker.weightKgLabel", "Weight (kg)")}
                 </label>
                 <input
                   type="number"
@@ -698,8 +698,8 @@ function WorkerNewVisit() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Section 4 of 6</span>
-                <h2>Symptoms & Field Screening</h2>
+                <span className="worker-section-label">{t("worker.section4Title", "Section 4 of 6")}</span>
+                <h2>{t("worker.symptomsFieldScreeningTitle", "Symptoms & Field Screening")}</h2>
               </div>
               <Activity style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
             </div>
@@ -707,16 +707,16 @@ function WorkerNewVisit() {
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "8px" }}>
-                  Reported Symptoms / Red Flags (Select all applicable)
+                  {t("worker.reportedSymptomsRedFlags", "Reported Symptoms / Red Flags (Select all applicable)")}
                 </label>
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                  {SYMPTOM_OPTIONS.map((symp) => {
-                    const isSelected = selectedSymptoms.includes(symp);
+                  {symptomOptions.map((symp) => {
+                    const isSelected = selectedSymptoms.includes(symp.id);
                     return (
                       <button
-                        key={symp}
+                        key={symp.id}
                         type="button"
-                        onClick={() => handleToggleSymptom(symp)}
+                        onClick={() => handleToggleSymptom(symp.id)}
                         style={{
                           padding: "6px 12px",
                           borderRadius: "8px",
@@ -733,7 +733,7 @@ function WorkerNewVisit() {
                           transition: "all 0.15s ease"
                         }}
                       >
-                        {symp}
+                        {symp.label}
                       </button>
                     );
                   })}
@@ -742,13 +742,13 @@ function WorkerNewVisit() {
 
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Additional Symptom Details
+                  {t("worker.additionalSymptomDetails", "Additional Symptom Details")}
                 </label>
                 <input
                   type="text"
                   value={symptomNotes}
                   onChange={(e) => setSymptomNotes(e.target.value)}
-                  placeholder="Duration, severity, onset, triggers..."
+                  placeholder={t("worker.symptomDetailsPlaceholder", "Duration, severity, onset, triggers...")}
                   style={{
                     width: "100%",
                     padding: "9px 12px",
@@ -763,13 +763,13 @@ function WorkerNewVisit() {
 
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Worker Screening Observations
+                  {t("worker.workerScreeningObservations", "Worker Screening Observations")}
                 </label>
                 <textarea
                   rows="2"
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  placeholder="General appearance, medication stock check, dietary compliance, fluid intake..."
+                  placeholder={t("worker.observationsPlaceholder", "General appearance, medication stock check, dietary compliance, fluid intake...")}
                   style={{
                     width: "100%",
                     padding: "9px 12px",
@@ -790,21 +790,21 @@ function WorkerNewVisit() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Section 5 of 6</span>
-                <h2>Worker Assessment</h2>
+                <span className="worker-section-label">{t("worker.section5Title", "Section 5 of 6")}</span>
+                <h2>{t("worker.workerAssessmentTitle", "Worker Assessment")}</h2>
               </div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  Field Worker Clinical Notes & Impressions
+                  {t("worker.clinicalNotesImpressions", "Field Worker Clinical Notes & Impressions")}
                 </label>
                 <textarea
                   rows="2"
                   value={workerAssessment}
                   onChange={(e) => setWorkerAssessment(e.target.value)}
-                  placeholder="Summary of current episode, adherence evaluation, recovery progression..."
+                  placeholder={t("worker.assessmentPlaceholder", "Summary of current episode, adherence evaluation, recovery progression...")}
                   style={{
                     width: "100%",
                     padding: "9px 12px",
@@ -817,11 +817,7 @@ function WorkerNewVisit() {
                 />
               </div>
 
-              {/* ======================================================
-                  FUTURE ML TRIAGE ASSESSMENT INTEGRATION POINT
-                  Architecture Contract:
-                  Vitals + Symptoms -> triage.api.js -> ML inference API -> XGBoost -> Acuity Result
-                  ====================================================== */}
+              {/* FUTURE ML TRIAGE ASSESSMENT INTEGRATION POINT */}
               <div
                 style={{
                   padding: "14px 16px",
@@ -836,12 +832,10 @@ function WorkerNewVisit() {
                 <Sparkles style={{ width: "18px", height: "18px", color: "var(--primary-color)", marginTop: "2px", flexShrink: 0 }} />
                 <div>
                   <strong style={{ fontSize: "12px", display: "block" }}>
-                    Clinical Triage Model Assessment Module (Integration Placeholder)
+                    {t("worker.mlTriagePlaceholderTitle", "Clinical Triage Model Assessment Module (Integration Placeholder)")}
                   </strong>
                   <p style={{ margin: "3px 0 0", fontSize: "11px", color: "var(--text-secondary)", lineHeight: 1.4 }}>
-                    The ML-assisted acuity scoring engine (XGBoost triage model) will connect to this section
-                    via <code style={{ fontFamily: "monospace" }}>triage.api.js</code> upon model contract finalization.
-                    No automated prediction is claimed during this prototype skeleton phase.
+                    {t("worker.mlTriagePlaceholderDesc", "The ML-assisted acuity scoring engine (XGBoost triage model) will connect to this section via triage.api.js upon model contract finalization. No automated prediction is claimed during this prototype skeleton phase.")}
                   </p>
                 </div>
               </div>
@@ -854,8 +848,8 @@ function WorkerNewVisit() {
           <div className="worker-panel">
             <div className="worker-panel-header">
               <div>
-                <span className="worker-section-label">Section 6 of 6</span>
-                <h2>Action Plan & Care Continuity</h2>
+                <span className="worker-section-label">{t("worker.section6Title", "Section 6 of 6")}</span>
+                <h2>{t("worker.actionPlanTitle", "Action Plan & Care Continuity")}</h2>
               </div>
             </div>
 
@@ -869,7 +863,7 @@ function WorkerNewVisit() {
                   onChange={(e) => setActionAdvice(e.target.checked)}
                 />
                 <label htmlFor="actAdvice" style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                  Provide Health Education & Dietary Advice (Salt restriction, hydration, rest)
+                  {t("worker.actionAdviceLabel", "Provide Health Education & Dietary Advice (Salt restriction, hydration, rest)")}
                 </label>
               </div>
 
@@ -883,7 +877,7 @@ function WorkerNewVisit() {
                     onChange={(e) => setActionMedication(e.target.checked)}
                   />
                   <label htmlFor="actMed" style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                    Medication Verification & Supply (IFA / Calcium distribution, adherence check)
+                    {t("worker.actionMedicationLabel", "Medication Verification & Supply (IFA / Calcium distribution, adherence check)")}
                   </label>
                 </div>
                 {actionMedication && (
@@ -891,7 +885,7 @@ function WorkerNewVisit() {
                     type="text"
                     value={medicationNotes}
                     onChange={(e) => setMedicationNotes(e.target.value)}
-                    placeholder="e.g. Distributed 30 IFA tablets, verified daily Amlodipine 5mg compliance"
+                    placeholder={t("worker.medicationNotesPlaceholder", "e.g. Distributed 30 IFA tablets, verified daily Amlodipine 5mg compliance")}
                     style={{
                       marginTop: "6px",
                       width: "100%",
@@ -916,7 +910,7 @@ function WorkerNewVisit() {
                     onChange={(e) => setFollowUpRequired(e.target.checked)}
                   />
                   <label htmlFor="actFollowUp" style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                    Schedule Post-Screening Follow-up
+                    {t("worker.actionFollowUpLabel", "Schedule Post-Screening Follow-up")}
                   </label>
                 </div>
 
@@ -924,7 +918,7 @@ function WorkerNewVisit() {
                   <div style={{ marginTop: "10px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                     <div>
                       <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                        Follow-up Due Date
+                        {t("worker.followUpDueDateLabel", "Follow-up Due Date")}
                       </label>
                       <input
                         type="date"
@@ -943,13 +937,13 @@ function WorkerNewVisit() {
                     </div>
                     <div>
                       <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                        Follow-up Purpose
+                        {t("worker.followUpPurposeLabel", "Follow-up Purpose")}
                       </label>
                       <input
                         type="text"
                         value={followUpReason}
                         onChange={(e) => setFollowUpReason(e.target.value)}
-                        placeholder="e.g. Re-check BP, verify symptom resolution"
+                        placeholder={t("worker.followUpPurposePlaceholder", "e.g. Re-check BP, verify symptom resolution")}
                         style={{
                           width: "100%",
                           padding: "8px 10px",
@@ -975,7 +969,7 @@ function WorkerNewVisit() {
                     onChange={(e) => setReferralRequired(e.target.checked)}
                   />
                   <label htmlFor="actReferral" style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                    Escalate & Refer to Primary Health Centre / Hospital
+                    {t("worker.actionReferralLabel", "Escalate & Refer to Primary Health Centre / Hospital")}
                   </label>
                 </div>
 
@@ -984,7 +978,7 @@ function WorkerNewVisit() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                       <div>
                         <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                          Target Facility
+                          {t("worker.targetFacilityLabel", "Target Facility")}
                         </label>
                         <select
                           value={referralFacility}
@@ -1007,7 +1001,7 @@ function WorkerNewVisit() {
 
                       <div>
                         <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                          Urgency Level
+                          {t("worker.urgencyLevelLabel", "Urgency Level")}
                         </label>
                         <select
                           value={referralUrgency}
@@ -1022,22 +1016,22 @@ function WorkerNewVisit() {
                             fontSize: "12px"
                           }}
                         >
-                          <option value="Routine">Routine (Within 7 Days)</option>
-                          <option value="Urgent">Urgent (Within 24-48 Hours)</option>
-                          <option value="Emergency">Emergency (Immediate)</option>
+                          <option value="Routine">{t("worker.urgencyRoutineOption", "Routine (Within 7 Days)")}</option>
+                          <option value="Urgent">{t("worker.urgencyUrgentOption", "Urgent (Within 24-48 Hours)")}</option>
+                          <option value="Emergency">{t("worker.urgencyEmergencyOption", "Emergency (Immediate)")}</option>
                         </select>
                       </div>
                     </div>
 
                     <div>
                       <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                        Specialty / Department Required
+                        {t("worker.specialtyDeptRequired", "Specialty / Department Required")}
                       </label>
                       <input
                         type="text"
                         value={referralSpecialty}
                         onChange={(e) => setReferralSpecialty(e.target.value)}
-                        placeholder="e.g. Internal Medicine, Obstetrics, Cardiology"
+                        placeholder={t("worker.specialtyPlaceholder", "e.g. Internal Medicine, Obstetrics, Cardiology")}
                         style={{
                           width: "100%",
                           padding: "8px 10px",
@@ -1052,13 +1046,13 @@ function WorkerNewVisit() {
 
                     <div>
                       <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                        Reason for Facility Referral
+                        {t("worker.reasonForFacilityReferral", "Reason for Facility Referral")}
                       </label>
                       <input
                         type="text"
                         value={referralReason}
                         onChange={(e) => setReferralReason(e.target.value)}
-                        placeholder="e.g. Uncontrolled high systolic BP, abnormal glucose, specialist review needed"
+                        placeholder={t("worker.referralReasonPlaceholder", "e.g. Uncontrolled high systolic BP, abnormal glucose, specialist review needed")}
                         style={{
                           width: "100%",
                           padding: "8px 10px",
@@ -1101,7 +1095,7 @@ function WorkerNewVisit() {
                 textDecoration: "none"
               }}
             >
-              Cancel
+              {t("common.cancel", "Cancel")}
             </Link>
 
             <button
@@ -1121,7 +1115,7 @@ function WorkerNewVisit() {
                 gap: "6px"
               }}
             >
-              {saving ? "Saving Visit Record..." : "Save Visit Record"}
+              {saving ? t("worker.savingVisitRecordBtn", "Saving Visit Record...") : t("worker.saveVisitRecordBtn", "Save Visit Record")}
             </button>
           </div>
         </form>

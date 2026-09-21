@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import useLanguage from "../hooks/useLanguage";
 
 function ProtectedRoute({ allowedRoles }) {
   const {
@@ -7,6 +8,7 @@ function ProtectedRoute({ allowedRoles }) {
     loading,
     user
   } = useAuth();
+  const { t } = useLanguage();
 
   const location = useLocation();
 
@@ -14,7 +16,7 @@ function ProtectedRoute({ allowedRoles }) {
   if (loading) {
     return (
       <div className="auth-loading">
-        <p>Loading...</p>
+        <p>{t("loading", "Loading...")}</p>
       </div>
     );
   }

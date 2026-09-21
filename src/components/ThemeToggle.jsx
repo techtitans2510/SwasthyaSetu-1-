@@ -1,10 +1,9 @@
 import { useTheme } from "../context/ThemeContext";
+import useLanguage from "../hooks/useLanguage";
 
 function ThemeToggle() {
-  const {
-    darkMode,
-    toggleTheme
-  } = useTheme();
+  const { darkMode, toggleTheme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <button
@@ -15,8 +14,8 @@ function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={
         darkMode
-          ? "Switch to light mode"
-          : "Switch to dark mode"
+          ? t("lightMode", "Switch to Light Mode")
+          : t("darkMode", "Switch to Dark Mode")
       }
       aria-pressed={darkMode}
     >
@@ -26,11 +25,11 @@ function ThemeToggle() {
 
       <span>
         {darkMode
-          ? "Light Mode"
-          : "Dark Mode"}
+          ? t("lightMode", "Light Mode")
+          : t("darkMode", "Dark Mode")}
       </span>
     </button>
   );
 }
 
-export default ThemeToggle;
+export default ThemeToggle;

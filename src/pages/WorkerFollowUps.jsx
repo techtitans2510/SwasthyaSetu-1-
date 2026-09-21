@@ -13,6 +13,7 @@ import {
   Send,
   X
 } from "lucide-react";
+import useLanguage from "../hooks/useLanguage";
 import {
   getWorkerFollowUps,
   getWorkerFollowUpSummary,
@@ -20,15 +21,17 @@ import {
   FOLLOW_UP_OUTCOMES
 } from "../api/workerFollowUps.api";
 
-const FILTER_TABS = [
-  { key: "ALL", label: "All Tasks" },
-  { key: "DUE_TODAY", label: "Due Today" },
-  { key: "OVERDUE", label: "Overdue" },
-  { key: "UPCOMING", label: "Upcoming" },
-  { key: "COMPLETED", label: "Completed" }
-];
-
 function WorkerFollowUps() {
+  const { t } = useLanguage();
+
+  const FILTER_TABS = [
+    { key: "ALL", label: t("worker.tabAllTasks") },
+    { key: "DUE_TODAY", label: t("worker.tabDueToday") },
+    { key: "OVERDUE", label: t("worker.tabOverdue") },
+    { key: "UPCOMING", label: t("worker.tabUpcoming") },
+    { key: "COMPLETED", label: t("worker.completedStat") }
+  ];
+
   const [followUps, setFollowUps] = useState([]);
   const [summary, setSummary] = useState({
     totalCount: 0,
@@ -110,7 +113,7 @@ function WorkerFollowUps() {
         nextFollowUpDate: nextFollowUpDate || null
       });
 
-      setSuccessMessage(`Follow-up ${activeTask.id} completed successfully!`);
+      setSuccessMessage(t("worker.followUpCompletedSuccess", { id: activeTask.id }));
 
       // Refresh list & summary
       const [listData, summaryData] = await Promise.all([
@@ -149,11 +152,10 @@ function WorkerFollowUps() {
       ============================================================== */}
       <header className="worker-page-header">
         <div>
-          <span className="worker-eyebrow">Care Continuity & Surveillance</span>
-          <h1>Post-Care & Clinical Follow-ups</h1>
+          <span className="worker-eyebrow">{t("worker.careContinuitySurveillanceEyebrow")}</span>
+          <h1>{t("worker.postCareClinicalFollowUpsTitle")}</h1>
           <p>
-            Verify patient recovery progression, check medication adherence, monitor post-referral discharge compliance,
-            and perform maternal & NCD follow-up verifications.
+            {t("worker.postCareClinicalFollowUpsDesc")}
           </p>
         </div>
       </header>
@@ -171,10 +173,10 @@ function WorkerFollowUps() {
             <Clock />
           </div>
           <div>
-            <span>Due Today</span>
+            <span>{t("worker.dueTodayStat")}</span>
             <strong>{summary.dueTodayCount}</strong>
             <small style={{ display: "block", marginTop: "3px", fontSize: "10px", color: "var(--text-secondary)" }}>
-              22 Sep 2026 tasks
+              {t("worker.dueTodaySubtext")}
             </small>
           </div>
         </div>
@@ -188,10 +190,10 @@ function WorkerFollowUps() {
             <AlertTriangle />
           </div>
           <div>
-            <span>Overdue</span>
+            <span>{t("worker.overdueStat")}</span>
             <strong>{summary.overdueCount}</strong>
             <small style={{ display: "block", marginTop: "3px", fontSize: "10px", color: "var(--text-secondary)" }}>
-              Past scheduled date
+              {t("worker.overdueSubtext")}
             </small>
           </div>
         </div>
@@ -205,10 +207,10 @@ function WorkerFollowUps() {
             <Calendar />
           </div>
           <div>
-            <span>Upcoming</span>
+            <span>{t("worker.upcomingStat")}</span>
             <strong>{summary.upcomingCount}</strong>
             <small style={{ display: "block", marginTop: "3px", fontSize: "10px", color: "var(--text-secondary)" }}>
-              Scheduled in future
+              {t("worker.upcomingSubtext")}
             </small>
           </div>
         </div>
@@ -218,14 +220,14 @@ function WorkerFollowUps() {
           onClick={() => setActiveFilter("COMPLETED")}
           style={{ cursor: "pointer" }}
         >
-          <div className="worker-stat-icon" style={{ background: "rgba(22, 163, 74, 0.12)", color: "#16a34a" }}>
+          <div className="worker-stat-icon" style={{ background: "rgba(220, 38, 38, 0.12)", color: "#16a34a" }}>
             <CheckCircle2 />
           </div>
           <div>
-            <span>Completed</span>
+            <span>{t("worker.completedStat")}</span>
             <strong>{summary.completedCount}</strong>
             <small style={{ display: "block", marginTop: "3px", fontSize: "10px", color: "var(--text-secondary)" }}>
-              Verification logged
+              {t("worker.completedSubtext")}
             </small>
           </div>
         </div>
@@ -253,7 +255,7 @@ function WorkerFollowUps() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by patient name, patient ID (e.g. PAT-1001), follow-up task type, or linked referral ID..."
+              placeholder={t("worker.searchFollowUpsPlaceholder")}
               style={{
                 width: "100%",
                 padding: "9px 12px 9px 36px",
@@ -304,27 +306,27 @@ function WorkerFollowUps() {
       <div className="worker-panel">
         <div className="worker-panel-header">
           <div>
-            <span className="worker-section-label">Follow-up Task Queue</span>
+            <span className="worker-section-label">{t("worker.followUpTaskQueueSection")}</span>
             <h2>
-              {FILTER_TABS.find((t) => t.key === activeFilter)?.label || "All Tasks"} ({followUps.length})
+              {FILTER_TABS.find((t) => t.key === activeFilter)?.label || t("worker.tabAllTasks")} ({followUps.length})
             </h2>
           </div>
 
           <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
-            Showing {followUps.length} follow-up tasks
+            {t("worker.showingTasksCount", { count: followUps.length })}
           </span>
         </div>
 
         {loading ? (
           <p style={{ color: "var(--text-secondary)", padding: "24px 0", textAlign: "center" }}>
-            Loading follow-up tasks...
+            {t("worker.loadingFollowUpTasks")}
           </p>
         ) : followUps.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px 20px" }}>
             <ListChecks style={{ width: "40px", height: "40px", color: "var(--text-secondary)", margin: "0 auto 12px" }} />
-            <h3 style={{ fontSize: "15px" }}>No follow-up tasks found</h3>
+            <h3 style={{ fontSize: "15px" }}>{t("worker.noFollowUpTasksFound")}</h3>
             <p style={{ color: "var(--text-secondary)", fontSize: "13px", marginTop: "4px" }}>
-              No items match the selected filter category or search keyword.
+              {t("worker.noFollowUpItemsMatch")}
             </p>
           </div>
         ) : (
@@ -392,7 +394,7 @@ function WorkerFollowUps() {
                             fontWeight: 700
                           }}
                         >
-                          High Priority
+                          {t("worker.highPriorityBadge")}
                         </span>
                       )}
                     </div>
@@ -415,7 +417,11 @@ function WorkerFollowUps() {
                         }}
                       >
                         <Calendar style={{ width: "13px", height: "13px" }} />
-                        Due: {task.dueDate} {overdue ? "(Overdue)" : dueToday ? "(Today)" : ""}
+                        {overdue
+                          ? t("worker.dueOverdue", { date: task.dueDate })
+                          : dueToday
+                          ? t("worker.dueTodayTag", { date: task.dueDate })
+                          : t("worker.dueNormal", { date: task.dueDate })}
                       </span>
 
                       {isCompleted ? (
@@ -426,14 +432,14 @@ function WorkerFollowUps() {
                             gap: "4px",
                             padding: "3px 8px",
                             borderRadius: "999px",
-                            background: "rgba(22, 163, 74, 0.12)",
+                            background: "rgba(220, 38, 38, 0.12)",
                             color: "#16a34a",
                             fontSize: "11px",
                             fontWeight: 600
                           }}
                         >
                           <CheckCircle2 style={{ width: "12px", height: "12px" }} />
-                          Completed
+                          {t("worker.completedStat")}
                         </span>
                       ) : (
                         <span
@@ -450,7 +456,7 @@ function WorkerFollowUps() {
                           }}
                         >
                           <Clock style={{ width: "12px", height: "12px" }} />
-                          Pending Action
+                          {t("worker.pendingActionBadge")}
                         </span>
                       )}
                     </div>
@@ -470,7 +476,7 @@ function WorkerFollowUps() {
                   >
                     <div>
                       <span style={{ fontSize: "10px", textTransform: "uppercase", color: "var(--text-secondary)", fontWeight: 600 }}>
-                        Patient Details
+                        {t("worker.patientDetailsLabel")}
                       </span>
                       <div style={{ marginTop: "3px" }}>
                         <Link
@@ -496,7 +502,7 @@ function WorkerFollowUps() {
 
                     <div>
                       <span style={{ fontSize: "10px", textTransform: "uppercase", color: "var(--text-secondary)", fontWeight: 600 }}>
-                        Care Action / Reason
+                        {t("worker.careActionReasonLabel")}
                       </span>
                       <div style={{ marginTop: "3px", fontSize: "12px", lineHeight: 1.4 }}>
                         {task.reason}
@@ -516,7 +522,7 @@ function WorkerFollowUps() {
                             }}
                           >
                             <GitBranch style={{ width: "11px", height: "11px" }} />
-                            Linked Referral ({task.linkedReferralId})
+                            {t("worker.linkedReferralLink", { id: task.linkedReferralId })}
                           </Link>
                         </div>
                       )}
@@ -524,16 +530,16 @@ function WorkerFollowUps() {
 
                     <div>
                       <span style={{ fontSize: "10px", textTransform: "uppercase", color: "var(--text-secondary)", fontWeight: 600 }}>
-                        {isCompleted ? "Completion Outcome" : "Baseline / Last Outcome"}
+                        {isCompleted ? t("worker.completionOutcomeLabel") : t("worker.baselineLastOutcomeLabel")}
                       </span>
                       <div style={{ marginTop: "3px", fontSize: "12px", color: isCompleted ? "#16a34a" : "var(--text-primary)" }}>
                         {isCompleted ? (
                           <div>
-                            <strong>Outcome: {task.outcome || "Stable"}</strong>
-                            {task.notes && <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>Notes: {task.notes}</div>}
+                            <strong>{t("worker.outcomeLabel")} {task.outcome || "Stable"}</strong>
+                            {task.notes && <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>{t("worker.notesLabel")} {task.notes}</div>}
                           </div>
                         ) : (
-                          <div>{task.lastOutcome || "Routine post-care verification required"}</div>
+                          <div>{task.lastOutcome || t("worker.routinePostCareVerification")}</div>
                         )}
                       </div>
                     </div>
@@ -552,7 +558,7 @@ function WorkerFollowUps() {
                     }}
                   >
                     <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
-                      <strong>Next Action: </strong> {task.nextAction || "Conduct home visit & verify patient state"}
+                      <strong>{t("worker.nextActionLabel")} </strong> {task.nextAction || t("worker.conductHomeVisitDefault")}
                     </div>
 
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
@@ -569,7 +575,7 @@ function WorkerFollowUps() {
                           textDecoration: "none"
                         }}
                       >
-                        View Patient
+                        {t("worker.viewPatientBtn")}
                       </Link>
 
                       {!isCompleted && (
@@ -590,7 +596,7 @@ function WorkerFollowUps() {
                             cursor: "pointer"
                           }}
                         >
-                          Start Follow-up
+                          {t("worker.startFollowUpBtn")}
                           <ArrowRight style={{ width: "13px", height: "13px" }} />
                         </button>
                       )}
@@ -638,9 +644,9 @@ function WorkerFollowUps() {
               }}
             >
               <div>
-                <span className="worker-section-label">Care Verification Form</span>
+                <span className="worker-section-label">{t("worker.careVerificationFormSection")}</span>
                 <h2 style={{ fontSize: "16px", margin: 0 }}>
-                  Perform Follow-up • {activeTask.patientName} ({activeTask.patientId})
+                  {t("worker.performFollowUpTitle", { name: activeTask.patientName, id: activeTask.patientId })}
                 </h2>
               </div>
               <button
@@ -662,14 +668,14 @@ function WorkerFollowUps() {
                 <CheckCircle2 style={{ width: "44px", height: "44px", color: "#16a34a", margin: "0 auto 12px" }} />
                 <h3>{successMessage}</h3>
                 <p style={{ color: "var(--text-secondary)", fontSize: "13px", marginTop: "4px" }}>
-                  Updating follow-up task registry...
+                  {t("worker.updatingTaskRegistry")}
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSaveFollowUp} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                    Follow-up Purpose / Task
+                    {t("worker.followUpPurposeTaskLabel")}
                   </label>
                   <p style={{ margin: 0, fontSize: "13px", color: "var(--text-secondary)" }}>
                     {activeTask.reason}
@@ -678,11 +684,21 @@ function WorkerFollowUps() {
 
                 <div>
                   <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
-                    Clinical & Recovery Outcome
+                    {t("worker.clinicalRecoveryOutcomeLabel")}
                   </label>
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                     {FOLLOW_UP_OUTCOMES.map((out) => {
                       const isSelected = outcome === out;
+                      const outcomeKeyMap = {
+                        "Stable": "stable",
+                        "Improving": "improving",
+                        "Deteriorating": "deteriorating",
+                        "Non-Compliant": "nonCompliant",
+                        "Referred to Hospital": "referredToHospital",
+                        "Resolved": "resolved"
+                      };
+                      const outcomeLabel = outcomeKeyMap[out] ? t(`worker.outcomes.${outcomeKeyMap[out]}`) : out;
+
                       return (
                         <button
                           key={out}
@@ -699,7 +715,7 @@ function WorkerFollowUps() {
                             color: isSelected ? "white" : "var(--text-primary)"
                           }}
                         >
-                          {out}
+                          {outcomeLabel}
                         </button>
                       );
                     })}
@@ -708,14 +724,14 @@ function WorkerFollowUps() {
 
                 <div>
                   <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                    Observation & Adherence Notes
+                    {t("worker.observationAdherenceNotesLabel")}
                   </label>
                   <textarea
                     rows="3"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     required
-                    placeholder="Document vitals re-check, patient feedback, drug adherence, or symptom resolution..."
+                    placeholder={t("worker.notesTextareaPlaceholder")}
                     style={{
                       width: "100%",
                       padding: "8px 12px",
@@ -730,13 +746,13 @@ function WorkerFollowUps() {
 
                 <div>
                   <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                    Next Action Planned
+                    {t("worker.nextActionPlannedLabel")}
                   </label>
                   <input
                     type="text"
                     value={nextAction}
                     onChange={(e) => setNextAction(e.target.value)}
-                    placeholder="e.g. Continue home surveillance, review blood pressure next week..."
+                    placeholder={t("worker.nextActionPlannedPlaceholder")}
                     style={{
                       width: "100%",
                       padding: "8px 12px",
@@ -751,7 +767,7 @@ function WorkerFollowUps() {
 
                 <div>
                   <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                    Schedule Subsequent Follow-up (Optional)
+                    {t("worker.scheduleSubsequentFollowUpOptional")}
                   </label>
                   <input
                     type="date"
@@ -792,7 +808,7 @@ function WorkerFollowUps() {
                       cursor: "pointer"
                     }}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </button>
 
                   <button
@@ -813,7 +829,7 @@ function WorkerFollowUps() {
                     }}
                   >
                     <Send style={{ width: "13px", height: "13px" }} />
-                    {submitting ? "Saving Follow-up..." : "Record & Complete Follow-up"}
+                    {submitting ? t("worker.savingFollowUpBtn") : t("worker.recordCompleteFollowUpBtn")}
                   </button>
                 </div>
               </form>
@@ -826,3 +842,4 @@ function WorkerFollowUps() {
 }
 
 export default WorkerFollowUps;
+
