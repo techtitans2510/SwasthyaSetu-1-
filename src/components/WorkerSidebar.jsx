@@ -1,17 +1,18 @@
 import { NavLink } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useTheme } from "../context/ThemeContext";
+import logo from "../Assests/logo.svg";
 
 import {
   LayoutDashboard,
   Users,
+  CalendarDays,
   ClipboardPlus,
   GitBranch,
   ListChecks,
   Sun,
   Moon,
-  LogOut,
-  HeartHandshake
+  LogOut
 } from "lucide-react";
 
 function WorkerSidebar() {
@@ -28,6 +29,11 @@ function WorkerSidebar() {
       to: "/worker/patients",
       label: "My Patients",
       icon: Users
+    },
+    {
+      to: "/worker/visits",
+      label: "Scheduled Visits",
+      icon: CalendarDays
     },
     {
       to: "/worker/visits/new",
@@ -56,13 +62,17 @@ function WorkerSidebar() {
       <div>
         {/* Brand */}
         <div className="worker-brand">
-          <div className="worker-brand-icon">
-            <HeartHandshake />
+          <div className="brand-emblem">
+            <img
+              src={logo}
+              alt="SwasthyaSetu Logo"
+              className="brand-logo-img"
+            />
           </div>
 
-          <div>
-            <strong>SwasthyaSetu</strong>
-            <span>Field Care Portal</span>
+          <div className="brand-text">
+            <span className="brand-title">SwasthyaSetu</span>
+            <span className="brand-subtitle">FIELD CARE PORTAL</span>
           </div>
         </div>
 

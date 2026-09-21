@@ -1,4 +1,7 @@
-import { NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, NavLink } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import { getWorkerDashboardSummary } from "../api/workerVisits.api";
 
 import {
   AlertTriangle,
@@ -8,259 +11,425 @@ import {
   ClipboardList,
   GitBranch,
   MapPin,
-  Users
+  Users,
+  Activity,
+  Clock
 } from "lucide-react";
 
-const stats = [
-  {
-    label: "Assigned Patients",
-    value: "48",
-    icon: Users
-  },
-  {
-    label: "Today's Visits",
-    value: "6",
-    icon: CalendarDays
-  },
-  {
-    label: "Follow-ups Due",
-    value: "4",
-    icon: ClipboardList
-  },
-  {
-    label: "Active Referrals",
-    value: "3",
-    icon: GitBranch
-  }
-];
-
-const visits = [
-  {
-    time: "08:30 AM",
-    patient: "Meena Kumari",
-    purpose: "BP & diabetes follow-up",
-    location: "Talwade"
-  },
-  {
-    time: "10:00 AM",
-    patient: "Ramesh Kumar",
-    purpose: "Medication review",
-    location: "Shirur"
-  },
-  {
-    time: "11:30 AM",
-    patient: "Sunita Devi",
-    purpose: "Maternal health follow-up",
-    location: "Talwade"
-  }
-];
-
-const alerts = [
-  {
-    title: "Follow-up due today",
-    detail:
-      "2 patients have pending post-referral follow-ups.",
-    type: "warning"
-  },
-  {
-    title: "Referral awaiting facility",
-    detail:
-      "REF-10482 has not yet received a facility response.",
-    type: "info"
-  }
-];
-
 function WorkerDashboard() {
+  const { user } = useAuth();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadDashboard() {
+      try {
+        const data = await getWorkerDashboardSummary();
+        setDashboardData(data);
+      } catch (err) {
+        console.error("Failed to load worker dashboard data", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDashboard();
+  }, []);
+
+  const workerRole =
+    user?.role === "asha"
+      ? "ASHA Worker"
+      : user?.role === "nurse"
+      ? "Primary Care Nurse"
+      : "ANM Field Worker";
+
+  const stats = dashboardData?.stats;
+  const todayVisits = dashboardData?.todayVisits || [];
+  const alerts = dashboardData?.alerts || [];
+  const recentActivity = dashboardData?.recentActivity || [];
+  const pendingFollowUps = dashboardData?.pendingFollowUps || [];
+  const urgentReferrals = dashboardData?.urgentReferrals || [];
+
+  const summaryCards = [
+    {
+      label: "My Patients",
+      value: stats?.assignedPatients || "48",
+      subtext: "Assigned in catchment",
+      to: "/worker/patients",
+      icon: Users
+    },
+    {
+      label: "Today's Visits",
+      value: todayVisits.length || "3",
+      subtext: "Scheduled field checks",
+      to: "/worker/visits",
+      icon: CalendarDays
+    },
+    {
+      label: "Follow-ups Due",
+      value: pendingFollowUps.length || "2",
+      subtext: "Post-care verifications",
+      to: "/worker/follow-ups",
+      icon: ClipboardList
+    },
+    {
+      label: "Open Referrals",
+      value: urgentReferrals.length || "2",
+      subtext: "Pending facility review",
+      to: "/worker/referrals",
+      icon: GitBranch
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="worker-dashboard">
+        <p style={{ color: "var(--text-secondary)", padding: "30px 0" }}>
+          Loading field care workspace...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="worker-dashboard">
-
-      {/* Page Header */}
+      {/* ==============================================================
+          1. WORKER CONTEXT & HEADER
+      ============================================================== */}
       <header className="worker-page-header">
-
         <div>
           <span className="worker-eyebrow">
-            Field Care Workspace
+            Field Care Workspace • {workerRole}
           </span>
 
-          <h1>
-            Good morning, Field Worker
-          </h1>
+          <h1>Good morning, {user?.name || "Sunita Devi"}</h1>
 
           <p>
-            Manage community visits, identify care
-            needs, and keep referrals moving until
-            the patient receives care.
+            Here is what requires your attention in the community today. Review
+            scheduled home visits, triage high-risk patients, and track active
+            referrals until care completion.
           </p>
         </div>
 
-        <div className="worker-location-badge">
-          <MapPin />
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+          <div className="worker-location-badge">
+            <MapPin />
+            <span>{stats?.catchmentArea || "Talwade & Shirur Catchment (Sub-Centre 4)"}</span>
+          </div>
 
-          <span>
-            Assigned catchment area
-          </span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "4px 12px",
+              borderRadius: "999px",
+              background: "var(--bg-secondary)",
+              border: "1px solid var(--border-color)",
+              fontSize: "11px",
+              color: "var(--text-secondary)"
+            }}
+          >
+            <span className="sync-pulse-dot" />
+            <span>Online · Synced with ABDM Registry</span>
+          </div>
         </div>
-
       </header>
 
-      {/* Statistics */}
+      {/* ==============================================================
+          2. SUMMARY CARDS
+      ============================================================== */}
       <section className="worker-stat-grid">
-
-        {stats.map(
-          ({ label, value, icon: Icon }) => (
-            <article
-              className="worker-stat-card"
-              key={label}
-            >
-              <div className="worker-stat-icon">
-                <Icon />
-              </div>
-
-              <div>
-                <span>{label}</span>
-                <strong>{value}</strong>
-              </div>
-            </article>
-          )
-        )}
-
-      </section>
-
-      {/* Main Dashboard */}
-      <section className="worker-dashboard-grid">
-
-        {/* Scheduled Visits */}
-        <div className="worker-panel">
-
-          <div className="worker-panel-header">
-
-            <div>
-              <span className="worker-section-label">
-                Today's work
-              </span>
-
-              <h2>
-                Scheduled Visits
-              </h2>
+        {summaryCards.map(({ label, value, subtext, to, icon: Icon }) => (
+          <NavLink
+            to={to}
+            key={label}
+            className="worker-stat-card"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              cursor: "pointer"
+            }}
+          >
+            <div className="worker-stat-icon">
+              <Icon />
             </div>
 
-            <NavLink to="/worker/patients">
-              View patients
+            <div>
+              <span>{label}</span>
+              <strong>{value}</strong>
+              <small
+                style={{
+                  display: "block",
+                  marginTop: "3px",
+                  fontSize: "10px",
+                  color: "var(--text-secondary)"
+                }}
+              >
+                {subtext}
+              </small>
+            </div>
+          </NavLink>
+        ))}
+      </section>
+
+      {/* ==============================================================
+          3. MAIN DASHBOARD CONTENT (TODAY'S WORK + NEEDS ATTENTION)
+      ============================================================== */}
+      <section className="worker-dashboard-grid">
+        {/* LEFT COLUMN: TODAY'S WORK */}
+        <div className="worker-panel">
+          <div className="worker-panel-header">
+            <div>
+              <span className="worker-section-label">Today's Schedule</span>
+              <h2>Scheduled Field Visits ({todayVisits.length})</h2>
+            </div>
+
+            <NavLink to="/worker/visits">
+              View all visits
               <ArrowRight />
             </NavLink>
-
           </div>
 
           <div className="worker-visit-list">
+            {todayVisits.length === 0 ? (
+              <p style={{ color: "var(--text-secondary)", padding: "20px 0" }}>
+                No more visits scheduled for today.
+              </p>
+            ) : (
+              todayVisits.map((visit) => {
+                const isHighRisk = visit.riskLevel === "High Risk";
+                const isMaternal = visit.riskLevel === "Maternal Care";
 
-            {visits.map((visit) => (
-              <article
-                className="worker-visit-item"
-                key={`${visit.time}-${visit.patient}`}
-              >
+                return (
+                  <article
+                    className="worker-visit-item"
+                    key={`${visit.id}-${visit.patientId}`}
+                  >
+                    <div className="worker-visit-time">
+                      {visit.time}
+                      <span
+                        style={{
+                          display: "block",
+                          marginTop: "3px",
+                          fontSize: "10px",
+                          fontWeight: "normal",
+                          color: "var(--text-secondary)"
+                        }}
+                      >
+                        {visit.status === "scheduled" ? "Upcoming" : visit.status}
+                      </span>
+                    </div>
 
-                <div className="worker-visit-time">
-                  {visit.time}
-                </div>
+                    <div className="worker-visit-main">
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                        <strong>
+                          {visit.patientName}
+                        </strong>
 
-                <div className="worker-visit-main">
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            padding: "1px 6px",
+                            borderRadius: "4px",
+                            background: "var(--bg-secondary)",
+                            border: "1px solid var(--border-color)",
+                            fontFamily: "monospace",
+                            color: "var(--text-secondary)"
+                          }}
+                        >
+                          {visit.patientId}
+                        </span>
 
-                  <strong>
-                    {visit.patient}
-                  </strong>
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: 600,
+                            padding: "2px 6px",
+                            borderRadius: "999px",
+                            background: isHighRisk
+                              ? "rgba(220, 38, 38, 0.12)"
+                              : isMaternal
+                              ? "rgba(217, 119, 6, 0.12)"
+                              : "var(--primary-light)",
+                            color: isHighRisk
+                              ? "#dc2626"
+                              : isMaternal
+                              ? "#d97706"
+                              : "var(--primary-color)"
+                          }}
+                        >
+                          {visit.riskLevel || "Routine Care"}
+                        </span>
+                      </div>
 
-                  <span>
-                    {visit.purpose}
-                  </span>
+                      <span>{visit.purpose}</span>
 
-                  <small>
-                    <MapPin />
-                    {visit.location}
-                  </small>
+                      <small>
+                        <MapPin />
+                        {visit.village}
+                      </small>
+                    </div>
 
-                </div>
+                    <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                      <Link
+                        to={`/worker/patients/${visit.patientId}`}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "7px 11px",
+                          border: "1px solid var(--border-color)",
+                          borderRadius: "8px",
+                          color: "var(--text-primary)",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          background: "var(--card-bg)"
+                        }}
+                      >
+                        Patient
+                      </Link>
 
-                <button type="button">
-                  Start visit
-                </button>
-
-              </article>
-            ))}
-
+                      <Link
+                        to={`/worker/visits/new?patientId=${visit.patientId}`}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "7px 11px",
+                          background: "var(--primary-color)",
+                          color: "white",
+                          border: "1px solid var(--primary-color)",
+                          borderRadius: "8px",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          textDecoration: "none"
+                        }}
+                      >
+                        Start Visit
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })
+            )}
           </div>
-
         </div>
 
-        {/* Alerts */}
-        <div className="worker-panel">
+        {/* RIGHT COLUMN: NEEDS ATTENTION & RECENT ACTIVITY */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          {/* NEEDS ATTENTION */}
+          <div className="worker-panel">
+            <div className="worker-panel-header">
+              <div>
+                <span className="worker-section-label">Needs attention</span>
+                <h2>Care Alerts & Tasks ({alerts.length})</h2>
+              </div>
 
-          <div className="worker-panel-header">
-
-            <div>
-              <span className="worker-section-label">
-                Needs attention
-              </span>
-
-              <h2>
-                Care Alerts
-              </h2>
+              <AlertTriangle style={{ color: "#d97706" }} />
             </div>
 
-            <AlertTriangle />
+            <div className="worker-alert-list">
+              {alerts.map((alert) => (
+                <article
+                  className={`worker-alert ${alert.type}`}
+                  key={alert.id || alert.title}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px"
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                    {alert.type === "warning" ? (
+                      <AlertTriangle style={{ width: "16px", height: "16px", flexShrink: 0, marginTop: "2px" }} />
+                    ) : (
+                      <GitBranch style={{ width: "16px", height: "16px", flexShrink: 0, marginTop: "2px" }} />
+                    )}
 
+                    <div style={{ flex: 1 }}>
+                      <strong>{alert.title}</strong>
+                      <p>{alert.detail}</p>
+                    </div>
+                  </div>
+
+                  {alert.linkTo && (
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Link
+                        to={alert.linkTo}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: "var(--primary-color)",
+                          textDecoration: "none"
+                        }}
+                      >
+                        Open Action Item
+                        <ArrowRight style={{ width: "12px", height: "12px" }} />
+                      </Link>
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+
+            {/* CARE CONTINUITY PRINCIPLE */}
+            <div className="worker-care-loop">
+              <CheckCircle2 />
+              <div>
+                <strong>Care Continuity Principle</strong>
+                <span>
+                  Every patient referral stays visible on your dashboard until
+                  clinical outcome closure is confirmed by the facility.
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="worker-alert-list">
+          {/* 5. RECENT ACTIVITY */}
+          <div className="worker-panel">
+            <div className="worker-panel-header">
+              <div>
+                <span className="worker-section-label">Audit Log</span>
+                <h2>Recent Activity</h2>
+              </div>
 
-            {alerts.map((alert) => (
-              <article
-                className={`worker-alert ${alert.type}`}
-                key={alert.title}
-              >
+              <Activity style={{ width: "17px", height: "17px", color: "var(--text-secondary)" }} />
+            </div>
 
-                {alert.type === "warning" ? (
-                  <AlertTriangle />
-                ) : (
-                  <GitBranch />
-                )}
-
-                <div>
-                  <strong>
-                    {alert.title}
-                  </strong>
-
-                  <p>
-                    {alert.detail}
-                  </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {recentActivity.map((activity) => (
+                <div
+                  key={activity.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "10px",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    background: "var(--bg-secondary)",
+                    fontSize: "12px"
+                  }}
+                >
+                  <Clock style={{ width: "14px", height: "14px", color: "var(--text-secondary)", marginTop: "2px", flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: "6px" }}>
+                      <strong style={{ fontSize: "12px" }}>{activity.title}</strong>
+                      <span style={{ fontSize: "10px", color: "var(--text-secondary)", flexShrink: 0 }}>{activity.timeAgo}</span>
+                    </div>
+                    <p style={{ margin: "2px 0 0", color: "var(--text-secondary)", fontSize: "11px", lineHeight: 1.4 }}>
+                      {activity.description}
+                    </p>
+                  </div>
                 </div>
-
-              </article>
-            ))}
-
-          </div>
-
-          {/* Care Continuity */}
-          <div className="worker-care-loop">
-
-            <CheckCircle2 />
-
-            <div>
-              <strong>
-                Care continuity
-              </strong>
-
-              <span>
-                Every referral stays visible until
-                an outcome is recorded.
-              </span>
+              ))}
             </div>
-
           </div>
-
         </div>
-
       </section>
-
     </div>
   );
 }

@@ -3144,37 +3144,23 @@ a {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 4px 10px 24px;
+  padding: 4px 6px 20px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.worker-brand-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--primary-color);
-  color: white;
+.worker-brand .brand-emblem {
+  width: 38px;
+  height: 38px;
 }
 
-.worker-brand-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.worker-brand strong {
-  display: block;
+.worker-brand .brand-title {
   font-size: 17px;
-  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.worker-brand span {
-  display: block;
-  margin-top: 2px;
-  font-size: 11px;
-  color: var(--text-secondary);
+.worker-brand .brand-subtitle {
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
 }
 
 /* =========================================================
