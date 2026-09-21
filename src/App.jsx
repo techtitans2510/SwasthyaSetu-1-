@@ -9,6 +9,8 @@ import MedicalRecordDetails from "./pages/MedicalRecordDetails";
 import Facilities from "./pages/Facilities";
 import FacilityDetails from "./pages/FacilityDetails";
 import Appointments from "./pages/Appointments";
+import WorkerLayout from "./layouts/WorkerLayout";
+import WorkerDashboard from "./pages/WorkerDashboard";
 
 import PatientLayout from "./layouts/PatientLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -55,6 +57,13 @@ function App() {
             <Route path="/facilities" element={<Facilities />} />
             <Route path="/facilities/:id" element={<FacilityDetails />} />
             <Route path="/appointments" element={<Appointments />} />
+          </Route>
+        </Route>
+        <Route
+          element={<ProtectedRoute allowedRoles={["asha", "nurse", "anm"]} />}
+        >
+          <Route element={<WorkerLayout />}>
+            <Route path="/worker/dashboard" element={<WorkerDashboard />} />
           </Route>
         </Route>
 

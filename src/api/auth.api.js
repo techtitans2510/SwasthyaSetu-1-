@@ -12,6 +12,27 @@ const DEFAULT_USERS = [
     email: "doctor@example.com",
     password: "doctor123",
     role: "doctor"
+  },
+  {
+    id: "ASHA-001",
+    name: "Sunita Devi",
+    email: "asha@example.com",
+    password: "asha123",
+    role: "asha"
+  },
+  {
+    id: "NURSE-001",
+    name: "Priya Sharma",
+    email: "nurse@example.com",
+    password: "nurse123",
+    role: "nurse"
+  },
+  {
+    id: "ANM-001",
+    name: "Anita Kumari",
+    email: "anm@example.com",
+    password: "anm123",
+    role: "anm"
   }
 ];
 
