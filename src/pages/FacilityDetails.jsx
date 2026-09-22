@@ -112,7 +112,7 @@ function FacilityDetails() {
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "6px" }}>
               <span className="record-type-pill">
-                {facility.type}
+                {t(facility.type)}
               </span>
               <span className={`facility-status-pill ${facility.openNow ? "open" : "closed"}`}>
                 <span className="sync-pulse-dot" style={{ background: facility.openNow ? "var(--surface-tint)" : "var(--muted-color)" }} />
@@ -120,7 +120,7 @@ function FacilityDetails() {
               </span>
             </div>
             <h1 style={{ fontSize: "24px", fontWeight: "800", color: "var(--text-color)" }}>
-              {facility.name}
+              {t(facility.name)}
             </h1>
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginTop: "4px" }}>
               {t("facilities.publicHealthNode", "Public Health Network Node · Pune District Health Grid")}
@@ -134,7 +134,7 @@ function FacilityDetails() {
             <span className="meta-label">{t("facilities.facilityCategory", "Facility Category")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <Building2 className="w-4 h-4 text-primary-color" />
-              <span className="meta-val">{facility.type}</span>
+              <span className="meta-val">{t(facility.type)}</span>
             </div>
           </div>
 
@@ -150,7 +150,7 @@ function FacilityDetails() {
             <span className="meta-label">{t("facilities.districtRegion", "District / Administrative Region")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <MapPin className="w-4 h-4 text-primary-color" />
-              <span className="meta-val">{facility.district}</span>
+              <span className="meta-val">{t(facility.district)}</span>
             </div>
           </div>
 
@@ -170,7 +170,7 @@ function FacilityDetails() {
           </h4>
           <p style={{ fontSize: "14px", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "8px" }}>
             <MapPin className="w-4 h-4 text-primary-color shrink-0" />
-            <span>{facility.address}, {facility.district}</span>
+            <span>{t(facility.address)}, {t(facility.district)}</span>
           </p>
         </div>
 
@@ -197,7 +197,7 @@ function FacilityDetails() {
                 }}
               >
                 <CheckCircle2 className="w-4 h-4 text-surface-tint" />
-                <span>{service}</span>
+                <span>{t(service)}</span>
               </span>
             ))}
           </div>

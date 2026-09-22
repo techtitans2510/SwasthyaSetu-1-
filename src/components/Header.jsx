@@ -112,8 +112,8 @@ function Header() {
             </div>
             <div className="profile-info">
               <div className="profile-name-row">
-                <span className="profile-name">{user?.name || t("patient", "Patient")}</span>
-                <span className="profile-badge">Citizen</span>
+                <span className="profile-name">{t(user?.name) || t("patient", "Patient")}</span>
+                <span className="profile-badge">{t("Citizen")}</span>
               </div>
               <span className="profile-id">{user?.email || "91-4029-1823-0192"}</span>
             </div>

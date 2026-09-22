@@ -184,16 +184,16 @@ function WorkerPatientProfile() {
                   : "var(--primary-color)"
               }}
             >
-              {patient.riskCategory}
+              {t(patient.riskCategory)}
             </span>
           </div>
 
-          <h1 style={{ fontSize: "28px", margin: 0 }}>{patient.name}</h1>
+          <h1 style={{ fontSize: "28px", margin: 0 }}>{t(patient.name)}</h1>
 
           <p style={{ marginTop: "6px", fontSize: "13px", color: "var(--text-secondary)" }}>
-            {patient.age} {t("worker.yrs", "yrs")} • {patient.gender} • {t("worker.bloodGroupLabel", "Blood Group:")} {patient.bloodGroup || "O+"} •{" "}
+            {patient.age} {t("worker.yrs", "yrs")} • {t(patient.gender)} • {t("worker.bloodGroupLabel", "Blood Group:")} {patient.bloodGroup || "O+"} •{" "}
             <MapPin style={{ width: "13px", height: "13px", display: "inline", verticalAlign: "middle" }} />{" "}
-            {patient.village} ({patient.address})
+            {t(patient.village)} ({t(patient.address)})
           </p>
 
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
@@ -226,7 +226,7 @@ function WorkerPatientProfile() {
                   color: "var(--text-secondary)"
                 }}
               >
-                {tag}
+                {t(tag)}
               </span>
             ))}
           </div>
@@ -301,7 +301,7 @@ function WorkerPatientProfile() {
               <span style={{ color: "var(--text-secondary)", fontSize: "11px", display: "block" }}>
                 {t("worker.identifiedConditions", "Identified Conditions")}
               </span>
-              <strong>{patient.chronicConditions?.join(", ") || t("worker.generalRoutineCare", "General Routine Care")}</strong>
+              <strong>{patient.chronicConditions ? patient.chronicConditions.map((c) => t(c)).join(", ") : t("worker.generalRoutineCare", "General Routine Care")}</strong>
             </div>
 
             {patient.allergies && patient.allergies.length > 0 && (
@@ -310,7 +310,7 @@ function WorkerPatientProfile() {
                   {t("worker.knownAllergies", "Known Allergies")}
                 </span>
                 <span style={{ color: patient.allergies[0] !== "None known" ? "#dc2626" : "inherit" }}>
-                  {patient.allergies.join(", ")}
+                  {patient.allergies.map((a) => t(a)).join(", ")}
                 </span>
               </div>
             )}
@@ -321,7 +321,7 @@ function WorkerPatientProfile() {
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
                 <Building2 style={{ width: "13px", height: "13px", color: "var(--text-secondary)" }} />
-                <span>{patient.primaryFacility || "Shirur 24x7 Primary Health Centre"}</span>
+                <span>{t(patient.primaryFacility || "Shirur 24x7 Primary Health Centre")}</span>
               </div>
             </div>
           </div>
@@ -394,7 +394,7 @@ function WorkerPatientProfile() {
 
               <div style={{ fontSize: "12px", marginTop: "2px" }}>
                 <span style={{ color: "var(--text-secondary)" }}>{t("worker.observationsLabel", "Observations:")} </span>
-                <span>{latestVisit.observations || t("worker.normalLimitsDesc", "Screening completed within normal limits.")}</span>
+                <span>{t(latestVisit.observations || "Screening completed within normal limits.")}</span>
               </div>
             </div>
           ) : (
@@ -548,11 +548,11 @@ function WorkerPatientProfile() {
                     </div>
 
                     <p style={{ margin: "4px 0 2px", fontSize: "12px", color: "var(--text-primary)" }}>
-                      {visit.observations}
+                      {t(visit.observations)}
                     </p>
 
                     <small style={{ color: "var(--text-secondary)", fontSize: "11px" }}>
-                      {t("worker.actionTakenLabel", "Action Taken:")} {visit.treatmentGiven || t("worker.generalGuidanceProvided", "General guidance provided")}
+                      {t("worker.actionTakenLabel", "Action Taken:")} {t(visit.treatmentGiven || "General guidance provided")}
                     </small>
                   </div>
                 </article>
@@ -605,15 +605,15 @@ function WorkerPatientProfile() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", gap: "6px" }}>
                           <strong>
-                            {ref.id} • {ref.urgency}
+                            {ref.id} • {t(ref.urgency)}
                           </strong>
                           <span style={{ fontSize: "10px", color: "var(--text-secondary)" }}>
                             {ref.referralDate}
                           </span>
                         </div>
-                        <p style={{ margin: "2px 0", fontSize: "11px" }}>{ref.reason}</p>
+                        <p style={{ margin: "2px 0", fontSize: "11px" }}>{t(ref.reason)}</p>
                         <small style={{ display: "block", color: "var(--text-secondary)", fontSize: "10px" }}>
-                          {ref.facilityName} ({ref.status})
+                          {t(ref.facilityName)} ({t(ref.status)})
                         </small>
                       </div>
                     </div>
@@ -665,7 +665,7 @@ function WorkerPatientProfile() {
                     style={{ display: "flex", flexDirection: "column", gap: "6px" }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "6px" }}>
-                      <strong style={{ fontSize: "12px" }}>{task.type}</strong>
+                      <strong style={{ fontSize: "12px" }}>{t(task.type)}</strong>
                       <span
                         style={{
                           fontSize: "10px",
@@ -677,7 +677,7 @@ function WorkerPatientProfile() {
                       </span>
                     </div>
 
-                    <p style={{ margin: "2px 0", fontSize: "11px" }}>{task.reason}</p>
+                    <p style={{ margin: "2px 0", fontSize: "11px" }}>{t(task.reason)}</p>
 
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
                       <Link

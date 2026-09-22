@@ -24,21 +24,11 @@ import {
 function MedicalRecordDetails() {
   const { id } = useParams();
   const { records, loading, error } = useMedicalRecords();
-  const { t } = useLanguage();
+  const { t, formatDate } = useLanguage();
 
   const record = useMemo(() => {
     return (records || []).find((item) => item.id === id);
   }, [records, id]);
-
-  const formatDate = (date) => {
-    if (!date) return "N/A";
-    return new Date(date).toLocaleDateString("en-IN", {
-      weekday: "long",
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  };
 
   const getRecordIcon = (type) => {
     switch (type) {
@@ -126,7 +116,7 @@ function MedicalRecordDetails() {
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
               <span className="record-type-pill">
-                {record.type}
+                {t(record.type)}
               </span>
               <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--surface-tint)" }}>
                 <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
@@ -134,10 +124,10 @@ function MedicalRecordDetails() {
               </span>
             </div>
             <h1 style={{ fontSize: "24px", fontWeight: "800", color: "var(--text-color)" }}>
-              {record.title}
+              {t(record.title)}
             </h1>
             <p style={{ fontSize: "15px", color: "var(--text-secondary)", marginTop: "6px", lineHeight: "1.6" }}>
-              {record.description}
+              {t(record.description)}
             </p>
           </div>
         </div>
@@ -148,7 +138,7 @@ function MedicalRecordDetails() {
             <span className="meta-label">{t("records.recordingDate", "Recording Date")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <Calendar className="w-4 h-4 text-primary-color" />
-              <span className="meta-val">{formatDate(record.recordDate)}</span>
+              <span className="meta-val">{formatDate(record.recordDate, { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</span>
             </div>
           </div>
 
@@ -156,7 +146,7 @@ function MedicalRecordDetails() {
             <span className="meta-label">{t("records.attendingDoctor", "Attending Doctor")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <User className="w-4 h-4 text-primary-color" />
-              <span className="meta-val">{record.doctor}</span>
+              <span className="meta-val">{t(record.doctor)}</span>
             </div>
           </div>
 
@@ -164,7 +154,7 @@ function MedicalRecordDetails() {
             <span className="meta-label">{t("records.healthcareFacility", "Healthcare Facility")}</span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
               <Building2 className="w-4 h-4 text-secondary-color" />
-              <span className="meta-val">{record.facility}</span>
+              <span className="meta-val">{t(record.facility)}</span>
             </div>
           </div>
 
@@ -225,7 +215,7 @@ function MedicalRecordDetails() {
             </div>
             <div>
               <div style={{ fontSize: "14px", fontWeight: "700", color: "var(--text-color)" }}>
-                {t("records.officialDocument", { type: record.type }, `Official Clinical Document (${record.type})`)}
+                {t("records.officialDocument", { type: t(record.type) }, `Official Clinical Document (${t(record.type)})`)}
               </div>
               <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
                 {t("records.signedPdfVerified", { doctor: record.doctor }, `Signed PDF artifact verified by ${record.doctor}`)}
@@ -237,7 +227,7 @@ function MedicalRecordDetails() {
             type="button"
             className="btn-primary-action"
             style={{ padding: "10px 18px", fontSize: "13px" }}
-            onClick={() => alert(`Downloading verified record artifact: ${record.title} (${record.id})`)}
+            onClick={() => alert(`Downloading verified record artifact: ${t(record.title)} (${record.id})`)}
           >
             <Download className="w-4 h-4" />
             <span>{t("records.downloadPdfReport", "Download PDF Report")}</span>

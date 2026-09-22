@@ -22,7 +22,7 @@ import {
 
 function Appointments() {
   const { appointments, loading, error } = useAppointments();
-  const { t } = useLanguage();
+  const { t, formatDate } = useLanguage();
 
   const [activeFilter, setActiveFilter] = useState("all");
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -70,7 +70,7 @@ function Appointments() {
       case "pending":
         return t("pending", "Pending Confirmation");
       default:
-        return status;
+        return t(status, status);
     }
   };
 
@@ -90,7 +90,7 @@ function Appointments() {
         <div className="hero-welcome-section">
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
             <span style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "var(--secondary-color)", letterSpacing: "0.06em" }}>
-              Healthcare Continuity
+              {t("patientDashboard.careContinuityTitle", "Healthcare Continuity")}
             </span>
             <span style={{ color: "var(--muted-color)" }}>•</span>
             <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--surface-tint)" }}>
@@ -205,7 +205,7 @@ function Appointments() {
             const dayNumber = isNaN(dateObj.getTime()) ? "24" : dateObj.getDate();
             const monthText = isNaN(dateObj.getTime())
               ? "OCT"
-              : dateObj.toLocaleString("en-US", { month: "short" }).toUpperCase();
+              : formatDate(dateObj, { month: "short" }).toUpperCase();
 
             return (
               <article className="appointment-full-card" key={appointment.id}>
@@ -220,7 +220,7 @@ function Appointments() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                       <h3 style={{ fontSize: "18px", fontWeight: "800", color: "var(--text-color)" }}>
-                        {appointment.doctor}
+                        {t(appointment.doctor)}
                       </h3>
                       <span className={`status-badge-pill ${appointment.status}`}>
                         {getStatusLabel(appointment.status)}
@@ -228,13 +228,13 @@ function Appointments() {
                     </div>
 
                     <span style={{ fontSize: "13px", fontWeight: "600", color: "var(--secondary-color)" }}>
-                      {appointment.specialty}
+                      {t(appointment.specialty)}
                     </span>
 
                     <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap", marginTop: "6px", fontSize: "12px", color: "var(--text-secondary)" }}>
                       <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                         <Building2 className="w-3.5 h-3.5 text-primary-color" />
-                        {appointment.facility}
+                        {t(appointment.facility)}
                       </span>
                       <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                         <Clock className="w-3.5 h-3.5 text-primary-color" />
@@ -242,13 +242,13 @@ function Appointments() {
                       </span>
                       <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                         <FileText className="w-3.5 h-3.5 text-secondary-color" />
-                        {appointment.type}
+                        {t(appointment.type)}
                       </span>
                     </div>
 
                     {appointment.reason && (
                       <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "8px", background: "var(--surface)", padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)" }}>
-                        <strong>{t("appointmentsPage.reasonLabel", "Reason:")}</strong> {appointment.reason}
+                        <strong>{t("appointmentsPage.reasonLabel", "Reason:")}</strong> {t(appointment.reason)}
                       </p>
                     )}
                   </div>

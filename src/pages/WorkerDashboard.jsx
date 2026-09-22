@@ -103,7 +103,7 @@ function WorkerDashboard() {
             {t("worker.fieldCareWorkspace", "Field Care Workspace")} • {workerRole}
           </span>
 
-          <h1>{t("worker.welcome", { name: user?.name || "Sunita Devi" })}</h1>
+          <h1>{t("worker.welcome", { name: t(user?.name) || t("Sunita Devi") })}</h1>
 
           <p>
             {t("worker.workspaceDesc", "Track assigned catchment families, record maternal & child checkups, and manage emergency facility referrals.")}
@@ -113,7 +113,7 @@ function WorkerDashboard() {
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
           <div className="worker-location-badge">
             <MapPin />
-            <span>{stats?.catchmentArea || t("worker.catchmentLocation", "Talwade & Shirur Catchment (Sub-Centre 4)")}</span>
+            <span>{t(stats?.catchmentArea) || t("worker.catchmentLocation", "Talwade & Shirur Catchment (Sub-Centre 4)")}</span>
           </div>
 
           <div
@@ -218,14 +218,14 @@ function WorkerDashboard() {
                           color: "var(--text-secondary)"
                         }}
                       >
-                        {visit.status === "scheduled" ? t("worker.upcomingStatus", "Upcoming") : visit.status}
+                        {visit.status === "scheduled" ? t("worker.upcomingStatus", "Upcoming") : t(visit.status, visit.status)}
                       </span>
                     </div>
 
                     <div className="worker-visit-main">
                       <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                         <strong>
-                          {visit.patientName}
+                          {t(visit.patientName)}
                         </strong>
 
                         <span
@@ -260,22 +260,22 @@ function WorkerDashboard() {
                               : "var(--primary-color)"
                           }}
                         >
-                          {visit.riskLevel || t("worker.routineCareBadge", "Routine Care")}
+                          {t(visit.riskLevel) || t("worker.routineCareBadge", "Routine Care")}
                         </span>
                       </div>
 
-                      <span>{visit.purpose}</span>
+                      <span>{t(visit.purpose)}</span>
 
                       <small>
                         <MapPin />
-                        {visit.village}
+                        {t(visit.village)}
                       </small>
                     </div>
 
                     <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
                       <Link
                         to={`/worker/patients/${visit.patientId}`}
-                        aria-label={`View patient profile for ${visit.patientName}`}
+                        aria-label={`View patient profile for ${t(visit.patientName)}`}
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
@@ -295,7 +295,7 @@ function WorkerDashboard() {
 
                       <Link
                         to={`/worker/visits/new?patientId=${visit.patientId}`}
-                        aria-label={`Start visit for ${visit.patientName}`}
+                        aria-label={`Start visit for ${t(visit.patientName)}`}
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
@@ -347,8 +347,8 @@ function WorkerDashboard() {
                     )}
 
                     <div style={{ flex: 1 }}>
-                      <strong>{alert.title}</strong>
-                      <p>{alert.detail}</p>
+                      <strong>{t(alert.title)}</strong>
+                      <p>{t(alert.detail)}</p>
                     </div>
                   </div>
 
@@ -415,11 +415,11 @@ function WorkerDashboard() {
                   <Clock style={{ width: "14px", height: "14px", color: "var(--text-secondary)", marginTop: "2px", flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "6px" }}>
-                      <strong style={{ fontSize: "var(--text-xs)", fontWeight: 600 }}>{activity.title}</strong>
-                      <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", flexShrink: 0 }}>{activity.timeAgo}</span>
+                      <strong style={{ fontSize: "var(--text-xs)", fontWeight: 600 }}>{t(activity.title)}</strong>
+                      <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", flexShrink: 0 }}>{t(activity.timeAgo)}</span>
                     </div>
                     <p style={{ margin: "3px 0 0", color: "var(--text-secondary)", fontSize: "var(--text-xs)", lineHeight: 1.4 }}>
-                      {activity.description}
+                      {t(activity.description)}
                     </p>
                   </div>
                 </div>

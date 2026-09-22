@@ -371,7 +371,7 @@ function WorkerVisits() {
                           : "var(--text-secondary)"
                       }}
                     >
-                      {visit.status}
+                      {t(visit.status)}
                     </span>
                   </div>
 
@@ -386,7 +386,7 @@ function WorkerVisits() {
                       }}
                     >
                       <strong style={{ fontSize: "14px" }}>
-                        {visit.patientName}
+                        {t(visit.patientName)}
                       </strong>
 
                       <span
@@ -433,17 +433,17 @@ function WorkerVisits() {
                             : "var(--primary-color)"
                         }}
                       >
-                        {visit.riskLevel || t("worker.routineCareBadge", "Routine Care")}
+                        {t(visit.riskLevel || "Routine Care")}
                       </span>
                     </div>
 
                     <span style={{ marginTop: "4px", display: "block", fontSize: "12px" }}>
-                      {visit.purpose}
+                      {t(visit.purpose)}
                     </span>
 
                     <small style={{ marginTop: "4px" }}>
                       <MapPin style={{ width: "13px", height: "13px" }} />
-                      {visit.village} {visit.address && `(${visit.address})`}
+                      {t(visit.village)} {visit.address && `(${t(visit.address)})`}
                     </small>
                   </div>
 

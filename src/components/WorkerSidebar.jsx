@@ -58,7 +58,9 @@ function WorkerSidebar() {
   const workerRole =
     user?.role === "asha"
       ? t("auth.ashaRole", "ASHA Worker")
-      : "ANM / Nurse";
+      : user?.role === "nurse"
+      ? t("worker.roles.nurse", "Primary Care Nurse")
+      : t("worker.roles.anm", "ANM Field Worker");
 
   return (
     <aside className="worker-sidebar">
@@ -90,7 +92,7 @@ function WorkerSidebar() {
           </div>
 
           <div>
-            <strong>{user?.name || "Field Worker"}</strong>
+            <strong>{t(user?.name) || t("Field Worker")}</strong>
             <span>{workerRole}</span>
           </div>
         </div>

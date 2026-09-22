@@ -380,7 +380,7 @@ function WorkerFollowUps() {
                           color: "var(--text-primary)"
                         }}
                       >
-                        {task.type}
+                        {t(task.type)}
                       </span>
 
                       {task.priority === "High" && (
@@ -492,10 +492,10 @@ function WorkerFollowUps() {
                           }}
                         >
                           <User style={{ width: "13px", height: "13px" }} />
-                          {task.patientName} ({task.patientId})
+                          {t(task.patientName)} ({task.patientId})
                         </Link>
                         <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                          {task.patientAge ? `${task.patientAge}y • ` : ""}{task.patientGender ? `${task.patientGender} • ` : ""}{task.village || "Talwade"}
+                          {task.patientAge ? `${task.patientAge}y • ` : ""}{task.patientGender ? `${t(task.patientGender)} • ` : ""}{t(task.village || "Talwade")}
                         </div>
                       </div>
                     </div>
@@ -505,7 +505,7 @@ function WorkerFollowUps() {
                         {t("worker.careActionReasonLabel")}
                       </span>
                       <div style={{ marginTop: "3px", fontSize: "12px", lineHeight: 1.4 }}>
-                        {task.reason}
+                        {t(task.reason)}
                       </div>
                       {task.linkedReferralId && (
                         <div style={{ marginTop: "4px" }}>
@@ -535,11 +535,11 @@ function WorkerFollowUps() {
                       <div style={{ marginTop: "3px", fontSize: "12px", color: isCompleted ? "#16a34a" : "var(--text-primary)" }}>
                         {isCompleted ? (
                           <div>
-                            <strong>{t("worker.outcomeLabel")} {task.outcome || "Stable"}</strong>
-                            {task.notes && <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>{t("worker.notesLabel")} {task.notes}</div>}
+                            <strong>{t("worker.outcomeLabel")} {t(task.outcome || "Stable")}</strong>
+                            {task.notes && <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>{t("worker.notesLabel")} {t(task.notes)}</div>}
                           </div>
                         ) : (
-                          <div>{task.lastOutcome || t("worker.routinePostCareVerification")}</div>
+                          <div>{t(task.lastOutcome || "Routine post-care verification")}</div>
                         )}
                       </div>
                     </div>
@@ -558,7 +558,7 @@ function WorkerFollowUps() {
                     }}
                   >
                     <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
-                      <strong>{t("worker.nextActionLabel")} </strong> {task.nextAction || t("worker.conductHomeVisitDefault")}
+                      <strong>{t("worker.nextActionLabel")} </strong> {t(task.nextAction || "Conduct home visit")}
                     </div>
 
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
@@ -646,7 +646,7 @@ function WorkerFollowUps() {
               <div>
                 <span className="worker-section-label">{t("worker.careVerificationFormSection")}</span>
                 <h2 style={{ fontSize: "16px", margin: 0 }}>
-                  {t("worker.performFollowUpTitle", { name: activeTask.patientName, id: activeTask.patientId })}
+                  {t("worker.performFollowUpTitle", { name: t(activeTask.patientName), id: activeTask.patientId })}
                 </h2>
               </div>
               <button
@@ -678,7 +678,7 @@ function WorkerFollowUps() {
                     {t("worker.followUpPurposeTaskLabel")}
                   </label>
                   <p style={{ margin: 0, fontSize: "13px", color: "var(--text-secondary)" }}>
-                    {activeTask.reason}
+                    {t(activeTask.reason)}
                   </p>
                 </div>
 
