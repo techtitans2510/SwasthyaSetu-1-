@@ -20,7 +20,7 @@ PREPROCESSOR_PATH = BASE_DIR / "preprocessor.joblib"
 
 
 # ============================================================
-# FastAPI application
+# FastAPI
 # ============================================================
 
 app = FastAPI(
@@ -47,7 +47,7 @@ app.add_middleware(
 
 
 # ============================================================
-# Load ML model and preprocessor
+# Load ML model
 # ============================================================
 
 model = xgb.XGBClassifier()
@@ -83,10 +83,10 @@ class PatientAssessment(BaseModel):
 
 
 # ============================================================
-# Routes
+# API routes
 # ============================================================
 
-@app.get("/")
+@app.get("/api")
 def root():
     return {
         "service": "SwasthyaSetu ML Service",
@@ -94,7 +94,7 @@ def root():
     }
 
 
-@app.get("/health")
+@app.get("/api/health")
 def health():
     return {
         "status": "healthy",
@@ -102,20 +102,15 @@ def health():
     }
 
 
-@app.post("/predict")
+@app.post("/api/predict")
 def predict_triage(patient: PatientAssessment):
     try:
-        # Convert request into DataFrame
         patient_data = pd.DataFrame([patient.model_dump()])
 
-        # Apply the same preprocessing used during training
         patient_encoded = preprocessor.transform(patient_data)
 
-        # Generate prediction
         prediction = model.predict(patient_encoded)
 
-        # Model classes are 0–4 internally,
-        # while triage acuity is 1–5.
         triage_level = int(prediction[0]) + 1
 
         return {
