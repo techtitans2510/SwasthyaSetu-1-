@@ -1,6 +1,6 @@
-import { en } from "./en";
-import { hi } from "./hi";
-import { mr } from "./mr";
+import { en } from "./en.js";
+import { hi } from "./hi.js";
+import { mr } from "./mr.js";
 
 export const SUPPORTED_LANGUAGES = [
   {

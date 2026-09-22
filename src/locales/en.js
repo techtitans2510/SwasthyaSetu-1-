@@ -745,5 +745,28 @@ export const en = {
       nurse: "Primary Care Nurse",
       anm: "ANM Field Worker"
     }
+  },
+  aiAssistant: {
+    triggerLabel: "Setu AI",
+    triggerTitle: "SwasthyaSetu AI Navigation Assistant",
+    openAria: "Open AI Navigation Assistant",
+    closeAria: "Close AI Navigation Assistant",
+    title: "Setu AI Navigator",
+    resetConversation: "Reset conversation",
+    closeButton: "Close assistant (Esc)",
+    directNavigation: "Direct Navigation:",
+    inputPlaceholder: "Ask for navigation, records, visits...",
+    sendAria: "Send query",
+    sendTitle: "Send query (Enter)",
+    greetingDefault: "Namaste! I am your SwasthyaSetu AI navigation guide. Where would you like to navigate today?",
+    greetingNamed: "Namaste {name}! I am your SwasthyaSetu AI navigation guide. How can I assist your navigation today?",
+    resolving: "Setu AI is resolving navigation...",
+    roleBadge: {
+      asha: "ASHA Field Care",
+      patient: "Citizen",
+      doctor: "Doctor",
+      admin: "Admin",
+      public: "Public"
+    }
   }
 };

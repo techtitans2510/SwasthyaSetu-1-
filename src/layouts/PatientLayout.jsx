@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import AiAssistant from "../components/AiAssistant/AiAssistant";
 
 function PatientLayout() {
   return (
@@ -16,6 +17,9 @@ function PatientLayout() {
           <Outlet />
         </main>
       </div>
+
+      {/* AI Navigation Assistant */}
+      <AiAssistant />
     </div>
   );
 }

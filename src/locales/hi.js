@@ -745,5 +745,28 @@ export const hi = {
       nurse: "प्राथमिक देखभाल नर्स",
       anm: "एएनएम फील्ड कार्यकर्ता"
     }
+  },
+  aiAssistant: {
+    triggerLabel: "सेतु AI",
+    triggerTitle: "SwasthyaSetu AI नेविगेशन सहायक",
+    openAria: "AI नेविगेशन सहायक खोलें",
+    closeAria: "AI नेविगेशन सहायक बंद करें",
+    title: "सेतु AI नेविगेटर",
+    resetConversation: "बातचीत रीसेट करें",
+    closeButton: "सहायक बंद करें (Esc)",
+    directNavigation: "सीधा नेविगेशन:",
+    inputPlaceholder: "नेविगेशन, रिकॉर्ड, दौरे आदि के बारे में पूछें...",
+    sendAria: "प्रश्न भेजें",
+    sendTitle: "प्रश्न भेजें (Enter)",
+    greetingDefault: "नमस्ते! मैं आपका SwasthyaSetu AI नेविगेशन मार्गदर्शक हूँ। आज आप किस पृष्ठ पर जाना चाहते हैं?",
+    greetingNamed: "नमस्ते {name}! मैं आपका SwasthyaSetu AI नेविगेशन मार्गदर्शक हूँ। आज मैं आपकी क्या सहायता कर सकता हूँ?",
+    resolving: "सेतु AI नेविगेशन खोज रहा है...",
+    roleBadge: {
+      asha: "आशा फील्ड केयर",
+      patient: "नागरिक",
+      doctor: "डॉक्टर",
+      admin: "व्यवस्थापक",
+      public: "सार्वजनिक"
+    }
   }
 };

@@ -1,0 +1,567 @@
+/* ==========================================================================
+   SwasthyaSetu - AI Assistant Floating UI Styles
+   Theme-aware, civic-healthcare design system adhering to index.css tokens
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Floating Action Trigger (FAB)
+   -------------------------------------------------------------------------- */
+.swasthya-ai-trigger-wrap {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.swasthya-ai-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.125rem;
+  background-color: var(--primary-color, #003021);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full, 9999px);
+  box-shadow: 0 4px 18px rgba(0, 48, 33, 0.25);
+  font-family: inherit;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition, 0.2s ease), box-shadow var(--transition, 0.2s ease), background-color var(--transition, 0.2s ease);
+}
+
+.swasthya-ai-trigger-btn:hover {
+  background-color: var(--primary-container, #0e4834);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(0, 48, 33, 0.35);
+}
+
+.swasthya-ai-trigger-btn:active {
+  transform: translateY(0);
+}
+
+.swasthya-ai-trigger-btn:focus-visible {
+  outline: 2px solid var(--secondary-color, #1d587a);
+  outline-offset: 2px;
+}
+
+.swasthya-ai-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  background-color: rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+}
+
+.swasthya-ai-trigger-label {
+  letter-spacing: 0.01em;
+}
+
+.swasthya-ai-pulse-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  animation: pulseAiDot 2s infinite;
+}
+
+@keyframes pulseAiDot {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Chat Panel Container
+   -------------------------------------------------------------------------- */
+.swasthya-ai-panel {
+  position: fixed;
+  bottom: 5.25rem;
+  right: 1.5rem;
+  width: 380px;
+  max-width: calc(100vw - 2rem);
+  height: 540px;
+  max-height: calc(100vh - 7rem);
+  background-color: var(--surface-card, #ffffff);
+  border: 1px solid var(--border-color, #dde5e0);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 48, 33, 0.06);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUpFade 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Panel Header
+   -------------------------------------------------------------------------- */
+.swasthya-ai-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background-color: var(--primary-color, #003021);
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.swasthya-ai-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.swasthya-ai-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md, 10px);
+  color: #ffffff;
+}
+
+.swasthya-ai-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.swasthya-ai-title {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.swasthya-ai-subtitle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.125rem;
+}
+
+.swasthya-ai-role-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #e6f8ee;
+  padding: 0.1rem 0.375rem;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.swasthya-ai-lang-badge {
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.swasthya-ai-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.swasthya-ai-header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  transition: background-color var(--transition, 0.2s ease), color var(--transition, 0.2s ease);
+}
+
+.swasthya-ai-header-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.swasthya-ai-header-btn:focus-visible {
+  outline: 2px solid #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   4. Quick Suggestion Chips Bar
+   -------------------------------------------------------------------------- */
+.swasthya-ai-suggestions {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--surface-container-low, #f0f7f3);
+  border-bottom: 1px solid var(--border-color, #dde5e0);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.swasthya-ai-suggestions::-webkit-scrollbar {
+  display: none;
+}
+
+.swasthya-ai-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 500;
+  color: var(--primary-color, #003021);
+  background-color: var(--surface-card, #ffffff);
+  border: 1px solid var(--border-color, #dde5e0);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.swasthya-ai-chip:hover {
+  background-color: var(--primary-light, #e6f8ee);
+  border-color: var(--primary-fixed, #b6efd3);
+}
+
+.swasthya-ai-chip:focus-visible {
+  outline: 2px solid var(--primary-color, #003021);
+  outline-offset: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   5. Message Body Area
+   -------------------------------------------------------------------------- */
+.swasthya-ai-messages {
+  flex: 1;
+  padding: 1rem 0.875rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  background-color: var(--surface, #f8faf8);
+}
+
+.swasthya-ai-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 86%;
+  animation: fadeInMsg 0.18s ease-out;
+}
+
+@keyframes fadeInMsg {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.swasthya-ai-msg.user {
+  align-self: flex-end;
+}
+
+.swasthya-ai-msg.assistant {
+  align-self: flex-start;
+}
+
+.swasthya-ai-msg-bubble {
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--radius-md, 10px);
+  font-size: var(--text-sm, 0.875rem);
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.swasthya-ai-msg.user .swasthya-ai-msg-bubble {
+  background-color: var(--primary-color, #003021);
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+.swasthya-ai-msg.assistant .swasthya-ai-msg-bubble {
+  background-color: var(--surface-card, #ffffff);
+  color: var(--text-color, #101e19);
+  border: 1px solid var(--border-color, #dde5e0);
+  border-bottom-left-radius: 2px;
+}
+
+.swasthya-ai-msg-time {
+  font-size: 0.6875rem;
+  color: var(--muted-color, #707973);
+  margin-top: 0.25rem;
+  align-self: flex-end;
+}
+
+.swasthya-ai-msg.assistant .swasthya-ai-msg-time {
+  align-self: flex-start;
+}
+
+/* --------------------------------------------------------------------------
+   6. Navigation Action Button in Assistant Bubble
+   -------------------------------------------------------------------------- */
+.swasthya-ai-nav-card {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  background-color: var(--surface-container-low, #f0f7f3);
+  border: 1px solid var(--border-emphasis, #c8d6ce);
+  border-radius: var(--radius-sm, 6px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.swasthya-ai-nav-card-label {
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 700;
+  color: var(--primary-color, #003021);
+}
+
+.swasthya-ai-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background-color: var(--primary-color, #003021);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.swasthya-ai-nav-btn:hover {
+  background-color: var(--primary-container, #0e4834);
+}
+
+.swasthya-ai-nav-btn:focus-visible {
+  outline: 2px solid var(--secondary-color, #1d587a);
+}
+
+/* --------------------------------------------------------------------------
+   7. Loading & Typing Indicator
+   -------------------------------------------------------------------------- */
+.swasthya-ai-typing {
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--surface-card, #ffffff);
+  border: 1px solid var(--border-color, #dde5e0);
+  border-radius: var(--radius-md, 10px);
+  border-bottom-left-radius: 2px;
+  width: fit-content;
+}
+
+.swasthya-ai-typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--muted-color, #707973);
+  border-radius: 50%;
+  animation: typingBounce 1.2s infinite ease-in-out;
+}
+
+.swasthya-ai-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.swasthya-ai-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. Error State
+   -------------------------------------------------------------------------- */
+.swasthya-ai-error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  background-color: var(--error-container, #ffdad6);
+  color: var(--on-error-container, #93000a);
+  border-radius: var(--radius-sm, 6px);
+  font-size: var(--text-xs, 0.75rem);
+  line-height: 1.35;
+}
+
+/* --------------------------------------------------------------------------
+   9. Footer & Input Form
+   -------------------------------------------------------------------------- */
+.swasthya-ai-footer {
+  padding: 0.625rem 0.75rem;
+  background-color: var(--surface-card, #ffffff);
+  border-top: 1px solid var(--border-color, #dde5e0);
+}
+
+.swasthya-ai-form {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.swasthya-ai-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--text-color, #101e19);
+  background-color: var(--surface, #f8faf8);
+  border: 1px solid var(--border-color, #dde5e0);
+  border-radius: var(--radius-md, 10px);
+  outline: none;
+  transition: border-color var(--transition, 0.2s ease), box-shadow var(--transition, 0.2s ease);
+}
+
+.swasthya-ai-input:focus {
+  border-color: var(--primary-color, #003021);
+  box-shadow: 0 0 0 2px var(--primary-light, #e6f8ee);
+}
+
+.swasthya-ai-send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  background-color: var(--primary-color, #003021);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md, 10px);
+  cursor: pointer;
+  transition: background-color var(--transition, 0.2s ease), transform var(--transition, 0.15s ease);
+}
+
+.swasthya-ai-send-btn:hover:not(:disabled) {
+  background-color: var(--primary-container, #0e4834);
+}
+
+.swasthya-ai-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.swasthya-ai-send-btn:focus-visible {
+  outline: 2px solid var(--secondary-color, #1d587a);
+}
+
+/* --------------------------------------------------------------------------
+   10. Dark Mode Overrides
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .swasthya-ai-panel {
+  background-color: #121f19;
+  border-color: #273b31;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .swasthya-ai-suggestions {
+  background-color: #162720;
+  border-color: #273b31;
+}
+
+[data-theme="dark"] .swasthya-ai-chip {
+  background-color: #1c3128;
+  color: #b6efd3;
+  border-color: #2f4e40;
+}
+
+[data-theme="dark"] .swasthya-ai-chip:hover {
+  background-color: #233d32;
+}
+
+[data-theme="dark"] .swasthya-ai-messages {
+  background-color: #0c1611;
+}
+
+[data-theme="dark"] .swasthya-ai-msg.assistant .swasthya-ai-msg-bubble {
+  background-color: #182a22;
+  color: #e6f8ee;
+  border-color: #2a473a;
+}
+
+[data-theme="dark"] .swasthya-ai-nav-card {
+  background-color: #1f372d;
+  border-color: #315847;
+}
+
+[data-theme="dark"] .swasthya-ai-nav-card-label {
+  color: #b6efd3;
+}
+
+[data-theme="dark"] .swasthya-ai-typing {
+  background-color: #182a22;
+  border-color: #2a473a;
+}
+
+[data-theme="dark"] .swasthya-ai-footer {
+  background-color: #121f19;
+  border-color: #273b31;
+}
+
+[data-theme="dark"] .swasthya-ai-input {
+  background-color: #182a22;
+  color: #e6f8ee;
+  border-color: #2a473a;
+}
+
+/* --------------------------------------------------------------------------
+   11. Mobile Responsiveness (< 640px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .swasthya-ai-trigger-wrap {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .swasthya-ai-panel {
+    bottom: 4.75rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+    max-width: 100%;
+    height: 480px;
+  }
+}
