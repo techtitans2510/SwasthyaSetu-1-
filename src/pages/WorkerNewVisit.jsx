@@ -7,43 +7,118 @@ import {
   Heart,
   Activity,
   Calendar,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
-import { getWorkerPatients, getWorkerPatientById } from "../api/workerPatients.api";
+
+import {
+  getWorkerPatients,
+  getWorkerPatientById,
+} from "../api/workerPatients.api";
+
+import { predictTriage } from "../api/ml.api";
 import { recordWorkerVisit } from "../api/workerVisits.api";
 
 function WorkerNewVisit() {
   const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
   const initialPatientId = searchParams.get("patientId") || "";
 
   const symptomOptions = [
-    { id: "Dizziness / Vertigo", label: t("worker.symptomsList.dizziness", "Dizziness / Vertigo") },
-    { id: "Headache", label: t("worker.symptomsList.headache", "Headache") },
-    { id: "Chest Discomfort / Tightness", label: t("worker.symptomsList.chestDiscomfort", "Chest Discomfort / Tightness") },
-    { id: "Shortness of Breath", label: t("worker.symptomsList.shortnessOfBreath", "Shortness of Breath") },
-    { id: "Pedal Edema / Swelling", label: t("worker.symptomsList.pedalEdema", "Pedal Edema / Swelling") },
-    { id: "Fever / Chills", label: t("worker.symptomsList.feverChills", "Fever / Chills") },
-    { id: "Excessive Thirst / Urination", label: t("worker.symptomsList.excessiveThirst", "Excessive Thirst / Urination") },
-    { id: "Fatigue / Generalized Weakness", label: t("worker.symptomsList.fatigueWeakness", "Fatigue / Generalized Weakness") },
-    { id: "Blurred Vision", label: t("worker.symptomsList.blurredVision", "Blurred Vision") },
-    { id: "No Acute Symptoms", label: t("worker.symptomsList.noAcuteSymptoms", "No Acute Symptoms") }
+    {
+      id: "Dizziness / Vertigo",
+      label: t("worker.symptomsList.dizziness", "Dizziness / Vertigo"),
+    },
+    {
+      id: "Headache",
+      label: t("worker.symptomsList.headache", "Headache"),
+    },
+    {
+      id: "Chest Discomfort / Tightness",
+      label: t(
+        "worker.symptomsList.chestDiscomfort",
+        "Chest Discomfort / Tightness"
+      ),
+    },
+    {
+      id: "Shortness of Breath",
+      label: t(
+        "worker.symptomsList.shortnessOfBreath",
+        "Shortness of Breath"
+      ),
+    },
+    {
+      id: "Pedal Edema / Swelling",
+      label: t(
+        "worker.symptomsList.pedalEdema",
+        "Pedal Edema / Swelling"
+      ),
+    },
+    {
+      id: "Fever / Chills",
+      label: t(
+        "worker.symptomsList.feverChills",
+        "Fever / Chills"
+      ),
+    },
+    {
+      id: "Excessive Thirst / Urination",
+      label: t(
+        "worker.symptomsList.excessiveThirst",
+        "Excessive Thirst / Urination"
+      ),
+    },
+    {
+      id: "Fatigue / Generalized Weakness",
+      label: t(
+        "worker.symptomsList.fatigueWeakness",
+        "Fatigue / Generalized Weakness"
+      ),
+    },
+    {
+      id: "Blurred Vision",
+      label: t(
+        "worker.symptomsList.blurredVision",
+        "Blurred Vision"
+      ),
+    },
+    {
+      id: "No Acute Symptoms",
+      label: t(
+        "worker.symptomsList.noAcuteSymptoms",
+        "No Acute Symptoms"
+      ),
+    },
   ];
 
+  // ==========================================================
+  // PATIENT
+  // ==========================================================
+
   const [patients, setPatients] = useState([]);
-  const [selectedPatientId, setSelectedPatientId] = useState(initialPatientId);
+  const [selectedPatientId, setSelectedPatientId] =
+    useState(initialPatientId);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loadingPatient, setLoadingPatient] = useState(false);
 
-  // Section 2: Visit Details
+  // ==========================================================
+  // SECTION 2: VISIT DETAILS
+  // ==========================================================
+
   const [visitDate, setVisitDate] = useState("2026-09-22");
   const [visitTime, setVisitTime] = useState("09:30 AM");
-  const [visitReason, setVisitReason] = useState("Routine NCD screening & vitals check");
-  const [visitLocation, setVisitLocation] = useState("Home Visit - Household");
+  const [visitReason, setVisitReason] = useState(
+    "Routine NCD screening & vitals check"
+  );
+  const [visitLocation, setVisitLocation] =
+    useState("Home Visit - Household");
   const [visitNotes, setVisitNotes] = useState("");
 
-  // Section 3: Vitals
+  // ==========================================================
+  // SECTION 3: VITALS
+  // ==========================================================
+
   const [vitals, setVitals] = useState({
     bpSystolic: "",
     bpDiastolic: "",
@@ -53,39 +128,95 @@ function WorkerNewVisit() {
     spo2: "",
     temperature: "98.6",
     respiratoryRate: "18",
-    weightKg: ""
+    weightKg: "",
   });
 
-  // Section 4: Symptoms & Screening
+  // ==========================================================
+  // ML TRIAGE INPUTS
+  // ==========================================================
+
+  const [triageInputs, setTriageInputs] = useState({
+    arrivalMode: "walk-in",
+    mentalStatus: "alert",
+    chiefComplaint: "other",
+    priorEdVisits: 0,
+    priorAdmissions: 0,
+    activeMedications: 0,
+    comorbidities: 0,
+    gcsTotal: 15,
+    painScore: 0,
+  });
+
+  // ==========================================================
+  // SECTION 4: SYMPTOMS
+  // ==========================================================
+
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [symptomNotes, setSymptomNotes] = useState("");
   const [observations, setObservations] = useState("");
 
-  // Section 5: Assessment
+  // ==========================================================
+  // SECTION 5: ASSESSMENT + ML
+  // ==========================================================
+
   const [workerAssessment, setWorkerAssessment] = useState("");
 
-  // Section 6: Action Plan
+  const [triageResult, setTriageResult] = useState(null);
+  const [triageLoading, setTriageLoading] = useState(false);
+  const [triageError, setTriageError] = useState("");
+
+  // ==========================================================
+  // SECTION 6: ACTION PLAN
+  // ==========================================================
+
   const [actionAdvice, setActionAdvice] = useState(true);
   const [actionMedication, setActionMedication] = useState(false);
   const [medicationNotes, setMedicationNotes] = useState("");
-  const [followUpRequired, setFollowUpRequired] = useState(false);
-  const [followUpDate, setFollowUpDate] = useState("2026-09-29");
-  const [followUpReason, setFollowUpReason] = useState("Re-measure BP and check medication adherence");
-  const [referralRequired, setReferralRequired] = useState(false);
-  const [referralFacility, setReferralFacility] = useState("Shirur 24x7 Primary Health Centre");
-  const [referralSpecialty, setReferralSpecialty] = useState("General Medicine / OPD");
-  const [referralUrgency, setReferralUrgency] = useState("Routine");
+
+  const [followUpRequired, setFollowUpRequired] =
+    useState(false);
+
+  const [followUpDate, setFollowUpDate] =
+    useState("2026-09-29");
+
+  const [followUpReason, setFollowUpReason] = useState(
+    "Re-measure BP and check medication adherence"
+  );
+
+  const [referralRequired, setReferralRequired] =
+    useState(false);
+
+  const [referralFacility, setReferralFacility] = useState(
+    "Shirur 24x7 Primary Health Centre"
+  );
+
+  const [referralSpecialty, setReferralSpecialty] = useState(
+    "General Medicine / OPD"
+  );
+
+  const [referralUrgency, setReferralUrgency] =
+    useState("Routine");
+
   const [referralReason, setReferralReason] = useState("");
+
+  // ==========================================================
+  // SAVE STATE
+  // ==========================================================
 
   const [savedState, setSavedState] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Load cohort patients list
+  // ==========================================================
+  // LOAD PATIENT COHORT
+  // ==========================================================
+
   useEffect(() => {
     async function loadCohort() {
       try {
         const data = await getWorkerPatients();
+
         setPatients(data);
+
         if (!selectedPatientId && data.length > 0) {
           setSelectedPatientId(data[0].id);
         }
@@ -93,119 +224,329 @@ function WorkerNewVisit() {
         console.error("Failed to load patient cohort", err);
       }
     }
+
     loadCohort();
   }, [selectedPatientId]);
 
-  // Load selected patient profile details
+  // ==========================================================
+  // LOAD SELECTED PATIENT
+  // ==========================================================
+
   useEffect(() => {
     if (!selectedPatientId) return;
+
     async function loadSelected() {
       setLoadingPatient(true);
+
       try {
-        const data = await getWorkerPatientById(selectedPatientId);
+        const data =
+          await getWorkerPatientById(selectedPatientId);
+
+        console.log("ML PATIENT DATA:", data);
+
         setSelectedPatient(data);
+
         if (data.village) {
           setVisitLocation(`Home Visit - ${data.village}`);
         }
       } catch (err) {
-        console.error("Failed to load selected patient", err);
+        console.error(
+          "Failed to load selected patient",
+          err
+        );
       } finally {
         setLoadingPatient(false);
       }
     }
+
     loadSelected();
   }, [selectedPatientId]);
+
+  // ==========================================================
+  // SYMPTOMS
+  // ==========================================================
 
   const handleToggleSymptom = (symptom) => {
     if (symptom === "No Acute Symptoms") {
       setSelectedSymptoms(["No Acute Symptoms"]);
       return;
     }
+
     setSelectedSymptoms((prev) => {
-      const filtered = prev.filter((s) => s !== "No Acute Symptoms");
+      const filtered = prev.filter(
+        (s) => s !== "No Acute Symptoms"
+      );
+
       if (filtered.includes(symptom)) {
         return filtered.filter((s) => s !== symptom);
       }
+
       return [...filtered, symptom];
     });
   };
 
+  // ==========================================================
+  // VITALS
+  // ==========================================================
+
   const handleVitalChange = (field, value) => {
-    setVitals((prev) => ({ ...prev, [field]: value }));
+    setVitals((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
+
+  // ==========================================================
+  // ML INPUTS
+  // ==========================================================
+
+  const handleTriageInputChange = (field, value) => {
+    setTriageInputs((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // ==========================================================
+  // ML PREDICTION
+  // ==========================================================
+
+  const handleTriagePrediction = async () => {
+    if (!selectedPatient) {
+      setTriageError("Please select a patient first.");
+      return;
+    }
+
+    setTriageLoading(true);
+    setTriageError("");
+    setTriageResult(null);
+
+    try {
+      // UI stores Fahrenheit.
+      // Model expects Celsius.
+      const temperatureF =
+        Number(vitals.temperature) || 98.6;
+
+      const temperatureC =
+        (temperatureF - 32) * (5 / 9);
+
+      const prediction = await predictTriage({
+        age: Number(selectedPatient.age) || 0,
+
+        sex:
+          selectedPatient.gender === "Female"
+            ? "F"
+            : selectedPatient.gender === "Male"
+              ? "M"
+              : "Other",
+
+        arrival_mode: triageInputs.arrivalMode,
+
+        mental_status_triage:
+          triageInputs.mentalStatus,
+
+        chief_complaint_system:
+          triageInputs.chiefComplaint,
+
+        num_prior_ed_visits_12m:
+          Number(triageInputs.priorEdVisits) || 0,
+
+        num_prior_admissions_12m:
+          Number(triageInputs.priorAdmissions) || 0,
+
+        num_active_medications:
+          Number(triageInputs.activeMedications) || 0,
+
+        num_comorbidities:
+          Number(triageInputs.comorbidities) || 0,
+
+        systolic_bp:
+          Number(vitals.bpSystolic) || 120,
+
+        diastolic_bp:
+          Number(vitals.bpDiastolic) || 80,
+
+        heart_rate:
+          Number(vitals.pulse) || 76,
+
+        respiratory_rate:
+          Number(vitals.respiratoryRate) || 18,
+
+        temperature_c:
+          Number(temperatureC.toFixed(2)),
+
+        spo2:
+          Number(vitals.spo2) || 98,
+
+        gcs_total:
+          Number(triageInputs.gcsTotal) || 15,
+
+        pain_score:
+          Number(triageInputs.painScore) || 0,
+      });
+
+      console.log("ML TRIAGE RESULT:", prediction);
+
+      setTriageResult(prediction);
+    } catch (error) {
+      console.error(
+        "Triage prediction failed:",
+        error
+      );
+
+      setTriageError(
+        error.message ||
+          "Unable to get triage prediction."
+      );
+    } finally {
+      setTriageLoading(false);
+    }
+  };
+
+  // ==========================================================
+  // SAVE VISIT
+  // ==========================================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setSaving(true);
 
     const visitPayload = {
       patientId: selectedPatientId,
-      patientName: selectedPatient?.name || "Patient",
-      village: selectedPatient?.village || "Talwade",
+
+      patientName:
+        selectedPatient?.name || "Patient",
+
+      village:
+        selectedPatient?.village || "Talwade",
+
       visitDate,
       visitTime,
       reason: visitReason,
       location: visitLocation,
       notes: visitNotes,
+
       vitals: {
-        bpSystolic: Number(vitals.bpSystolic) || null,
-        bpDiastolic: Number(vitals.bpDiastolic) || null,
-        pulse: Number(vitals.pulse) || null,
-        bloodSugar: Number(vitals.bloodSugar) || null,
-        bloodSugarType: vitals.bloodSugarType,
-        spo2: Number(vitals.spo2) || null,
-        temperature: Number(vitals.temperature) || 98.6,
-        respiratoryRate: Number(vitals.respiratoryRate) || 18,
-        weightKg: Number(vitals.weightKg) || null
+        bpSystolic:
+          Number(vitals.bpSystolic) || null,
+
+        bpDiastolic:
+          Number(vitals.bpDiastolic) || null,
+
+        pulse:
+          Number(vitals.pulse) || null,
+
+        bloodSugar:
+          Number(vitals.bloodSugar) || null,
+
+        bloodSugarType:
+          vitals.bloodSugarType,
+
+        spo2:
+          Number(vitals.spo2) || null,
+
+        temperature:
+          Number(vitals.temperature) || 98.6,
+
+        respiratoryRate:
+          Number(vitals.respiratoryRate) || 18,
+
+        weightKg:
+          Number(vitals.weightKg) || null,
       },
+
       symptoms: selectedSymptoms,
+
       symptomNotes,
+
       observations,
+
       workerAssessment,
+
       actionsTaken: [
-        actionAdvice ? "Advice & Health Education" : null,
-        actionMedication ? `Medication: ${medicationNotes || "Verified"}` : null,
-        followUpRequired ? "Follow-up Scheduled" : null,
-        referralRequired ? "Referral Generated" : null
+        actionAdvice
+          ? "Advice & Health Education"
+          : null,
+
+        actionMedication
+          ? `Medication: ${
+              medicationNotes || "Verified"
+            }`
+          : null,
+
+        followUpRequired
+          ? "Follow-up Scheduled"
+          : null,
+
+        referralRequired
+          ? "Referral Generated"
+          : null,
       ].filter(Boolean),
+
       treatmentGiven: [
-        actionAdvice ? "Health education provided" : null,
-        medicationNotes ? medicationNotes : null
+        actionAdvice
+          ? "Health education provided"
+          : null,
+
+        medicationNotes
+          ? medicationNotes
+          : null,
       ]
         .filter(Boolean)
         .join("; "),
+
       followUp: {
         required: followUpRequired,
         dueDate: followUpDate,
-        reason: followUpReason
+        reason: followUpReason,
       },
+
       referral: {
         required: referralRequired,
         facilityName: referralFacility,
         specialty: referralSpecialty,
         urgency: referralUrgency,
-        reason: referralReason || visitReason
-      }
+        reason:
+          referralReason || visitReason,
+      },
     };
 
     try {
       await recordWorkerVisit(visitPayload);
+
       setSavedState(true);
+
       setTimeout(() => {
-        navigate(`/worker/patients/${selectedPatientId}`);
+        navigate(
+          `/worker/patients/${selectedPatientId}`
+        );
       }, 1400);
     } catch (err) {
-      console.error("Failed to save visit record", err);
+      console.error(
+        "Failed to save visit record",
+        err
+      );
     } finally {
       setSaving(false);
     }
   };
 
+  // ==========================================================
+  // UI
+  // ==========================================================
+
   return (
     <div className="worker-dashboard">
+
       {/* BACK BUTTON */}
+
       <Link
-        to={selectedPatientId ? `/worker/patients/${selectedPatientId}` : "/worker/patients"}
+        to={
+          selectedPatientId
+            ? `/worker/patients/${selectedPatientId}`
+            : "/worker/patients"
+        }
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -214,509 +555,1117 @@ function WorkerNewVisit() {
           marginBottom: "16px",
           textDecoration: "none",
           fontSize: "13px",
-          fontWeight: 600
+          fontWeight: 600,
         }}
       >
-        <ArrowLeft style={{ width: "16px", height: "16px" }} />
-        {selectedPatientId ? t("worker.backToPatientProfile", "Back to Patient Profile") : t("worker.backToPatientsRegistry", "Back to Patients Registry")}
+        <ArrowLeft
+          style={{
+            width: "16px",
+            height: "16px",
+          }}
+        />
+
+        {selectedPatientId
+          ? t(
+              "worker.backToPatientProfile",
+              "Back to Patient Profile"
+            )
+          : t(
+              "worker.backToPatientsRegistry",
+              "Back to Patients Registry"
+            )}
       </Link>
+
+      {/* PAGE HEADER */}
 
       <header className="worker-page-header">
         <div>
-          <span className="worker-eyebrow">{t("worker.fieldClinicalWorkflowEyebrow", "Field Clinical Workflow")}</span>
-          <h1>{t("worker.recordNewPatientVisitTitle", "Record New Patient Visit")}</h1>
+
+          <span className="worker-eyebrow">
+            {t(
+              "worker.fieldClinicalWorkflowEyebrow",
+              "Field Clinical Workflow"
+            )}
+          </span>
+
+          <h1>
+            {t(
+              "worker.recordNewPatientVisitTitle",
+              "Record New Patient Visit"
+            )}
+          </h1>
+
           <p>
-            {t("worker.recordNewPatientVisitDesc", "Document community screening vitals, symptom screening, observations, and care actions for this patient visit.")}
+            {t(
+              "worker.recordNewPatientVisitDesc",
+              "Document community screening vitals, symptom screening, observations, and care actions for this patient visit."
+            )}
           </p>
+
         </div>
       </header>
+
+      {/* SAVED STATE */}
 
       {savedState ? (
         <div
           className="worker-panel"
-          style={{ maxWidth: "680px", textAlign: "center", padding: "50px 20px" }}
+          style={{
+            maxWidth: "680px",
+            textAlign: "center",
+            padding: "50px 20px",
+          }}
         >
           <CheckCircle2
             style={{
               width: "52px",
               height: "52px",
               color: "var(--primary-color)",
-              margin: "0 auto 16px"
+              margin: "0 auto 16px",
             }}
           />
-          <h2>{t("worker.visitSavedSuccessTitle", "Visit Record Saved Successfully!")}</h2>
-          <p style={{ color: "var(--text-secondary)", marginTop: "8px", fontSize: "14px" }}>
-            {t("worker.visitSavedSuccessDesc", { name: selectedPatient?.name, id: selectedPatientId }, `Continuity log, scheduled visit status, and care records updated for ${selectedPatient?.name} (${selectedPatientId}).`)}
+
+          <h2>
+            {t(
+              "worker.visitSavedSuccessTitle",
+              "Visit Record Saved Successfully!"
+            )}
+          </h2>
+
+          <p
+            style={{
+              color: "var(--text-secondary)",
+              marginTop: "8px",
+              fontSize: "14px",
+            }}
+          >
+            {t(
+              "worker.visitSavedSuccessDesc",
+              {
+                name: selectedPatient?.name,
+                id: selectedPatientId,
+              },
+              `Continuity log, scheduled visit status, and care records updated for ${selectedPatient?.name} (${selectedPatientId}).`
+            )}
           </p>
-          <p style={{ color: "var(--text-secondary)", fontSize: "12px", marginTop: "4px" }}>
-            {t("worker.redirectingToProfile", "Redirecting to Patient Profile...")}
+
+          <p
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "12px",
+              marginTop: "4px",
+            }}
+          >
+            {t(
+              "worker.redirectingToProfile",
+              "Redirecting to Patient Profile..."
+            )}
           </p>
         </div>
       ) : (
+
         <form
           onSubmit={handleSubmit}
           style={{
             display: "flex",
             flexDirection: "column",
             gap: "20px",
-            maxWidth: "920px"
+            maxWidth: "920px",
           }}
         >
-          {/* ==========================================================
+
+          {/* ======================================================
               SECTION 1: PATIENT IDENTIFICATION
-          ========================================================== */}
+          ====================================================== */}
+
           <div className="worker-panel">
+
             <div className="worker-panel-header">
+
               <div>
-                <span className="worker-section-label">{t("worker.section1Title", "Section 1 of 6")}</span>
-                <h2>{t("worker.patientIdentification", "Patient Identification")}</h2>
+
+                <span className="worker-section-label">
+                  {t(
+                    "worker.section1Title",
+                    "Section 1 of 6"
+                  )}
+                </span>
+
+                <h2>
+                  {t(
+                    "worker.patientIdentification",
+                    "Patient Identification"
+                  )}
+                </h2>
+
               </div>
+
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+              }}
+            >
+
               <div>
+
                 <label
                   style={{
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    marginBottom: "6px"
+                    marginBottom: "6px",
                   }}
                 >
-                  {t("worker.selectAssignedPatient", "Select Assigned Patient")}
+                  {t(
+                    "worker.selectAssignedPatient",
+                    "Select Assigned Patient"
+                  )}
                 </label>
+
                 <select
                   value={selectedPatientId}
-                  onChange={(e) => setSelectedPatientId(e.target.value)}
+                  onChange={(e) =>
+                    setSelectedPatientId(
+                      e.target.value
+                    )
+                  }
                   style={{
                     width: "100%",
                     padding: "10px 12px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
                     fontSize: "13px",
-                    outline: "none"
+                    outline: "none",
                   }}
                 >
+
                   {patients.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.id} — {p.name} ({p.age}y, {p.gender}, {p.village}) • Risk: {p.riskCategory}
+                    <option
+                      key={p.id}
+                      value={p.id}
+                    >
+                      {p.id} — {p.name} ({p.age}y,{" "}
+                      {p.gender}, {p.village}) • Risk:{" "}
+                      {p.riskCategory}
                     </option>
                   ))}
+
                 </select>
+
               </div>
 
-              {/* SELECTED PATIENT SUMMARY BANNER */}
-              {selectedPatient && !loadingPatient && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "12px 14px",
-                    borderRadius: "8px",
-                    background: "var(--bg-secondary)",
-                    border: "1px solid var(--border-color)",
-                    fontSize: "12px",
-                    flexWrap: "wrap",
-                    gap: "10px"
-                  }}
-                >
-                  <div>
-                    <strong style={{ fontSize: "13px" }}>
-                      {selectedPatient.name} ({selectedPatient.id})
-                    </strong>
-                    <span style={{ color: "var(--text-secondary)", marginLeft: "8px" }}>
-                      {selectedPatient.age}y • {selectedPatient.gender} • {selectedPatient.village}
-                    </span>
-                    <div style={{ marginTop: "3px", color: "var(--text-secondary)", fontSize: "11px" }}>
-                      {t("worker.careContextLabel", "Care Context:")} {selectedPatient.chronicConditions?.join(", ") || t("worker.routineGeneralHealth", "Routine")}
-                    </div>
-                  </div>
+              {/* PATIENT SUMMARY */}
 
-                  <span
+              {selectedPatient &&
+                !loadingPatient && (
+                  <div
                     style={{
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      padding: "2px 8px",
-                      borderRadius: "999px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent:
+                        "space-between",
+                      padding: "12px 14px",
+                      borderRadius: "8px",
                       background:
-                        selectedPatient.riskCategory === "High Risk"
-                          ? "rgba(220, 38, 38, 0.12)"
-                          : "var(--primary-light)",
-                      color:
-                        selectedPatient.riskCategory === "High Risk"
-                          ? "#dc2626"
-                          : "var(--primary-color)"
+                        "var(--bg-secondary)",
+                      border:
+                        "1px solid var(--border-color)",
+                      fontSize: "12px",
+                      flexWrap: "wrap",
+                      gap: "10px",
                     }}
                   >
-                    {selectedPatient.riskCategory}
-                  </span>
-                </div>
-              )}
+
+                    <div>
+
+                      <strong
+                        style={{
+                          fontSize: "13px",
+                        }}
+                      >
+                        {selectedPatient.name} (
+                        {selectedPatient.id})
+                      </strong>
+
+                      <span
+                        style={{
+                          color:
+                            "var(--text-secondary)",
+                          marginLeft: "8px",
+                        }}
+                      >
+                        {selectedPatient.age}y •{" "}
+                        {selectedPatient.gender} •{" "}
+                        {selectedPatient.village}
+                      </span>
+
+                      <div
+                        style={{
+                          marginTop: "3px",
+                          color:
+                            "var(--text-secondary)",
+                          fontSize: "11px",
+                        }}
+                      >
+                        {t(
+                          "worker.careContextLabel",
+                          "Care Context:"
+                        )}{" "}
+                        {selectedPatient
+                          .chronicConditions
+                          ?.join(", ") ||
+                          t(
+                            "worker.routineGeneralHealth",
+                            "Routine"
+                          )}
+                      </div>
+
+                    </div>
+
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        padding: "2px 8px",
+                        borderRadius: "999px",
+                        background:
+                          selectedPatient.riskCategory ===
+                          "High Risk"
+                            ? "rgba(220, 38, 38, 0.12)"
+                            : "var(--primary-light)",
+                        color:
+                          selectedPatient.riskCategory ===
+                          "High Risk"
+                            ? "#dc2626"
+                            : "var(--primary-color)",
+                      }}
+                    >
+                      {selectedPatient.riskCategory}
+                    </span>
+
+                  </div>
+                )}
+
             </div>
+
           </div>
 
-          {/* ==========================================================
+          {/* ======================================================
               SECTION 2: VISIT DETAILS
-          ========================================================== */}
+          ====================================================== */}
+
           <div className="worker-panel">
+
             <div className="worker-panel-header">
-              <div>
-                <span className="worker-section-label">{t("worker.section2Title", "Section 2 of 6")}</span>
-                <h2>{t("worker.visitDetailsTitle", "Visit Details")}</h2>
-              </div>
-              <Calendar style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.visitDateLabel", "Visit Date")}
-                </label>
-                <input
-                  type="date"
-                  value={visitDate}
-                  onChange={(e) => setVisitDate(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "9px 12px",
-                    borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
-                  }}
-                />
-              </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.visitTimeLabel", "Visit Time")}
-                </label>
-                <input
-                  type="text"
-                  value={visitTime}
-                  onChange={(e) => setVisitTime(e.target.value)}
-                  placeholder="e.g. 09:30 AM"
-                  style={{
-                    width: "100%",
-                    padding: "9px 12px",
-                    borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
-                  }}
-                />
+
+                <span className="worker-section-label">
+                  {t(
+                    "worker.section2Title",
+                    "Section 2 of 6"
+                  )}
+                </span>
+
+                <h2>
+                  {t(
+                    "worker.visitDetailsTitle",
+                    "Visit Details"
+                  )}
+                </h2>
+
               </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.locationContextLabel", "Location / Context")}
-                </label>
-                <input
-                  type="text"
-                  value={visitLocation}
-                  onChange={(e) => setVisitLocation(e.target.value)}
-                  placeholder="e.g. Home Visit - Talwade"
-                  style={{
-                    width: "100%",
-                    padding: "9px 12px",
-                    borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
-                  }}
-                />
-              </div>
+              <Calendar
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  color:
+                    "var(--primary-color)",
+                }}
+              />
 
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.purposeReasonLabel", "Purpose / Reason for Visit")}
-                </label>
-                <input
-                  type="text"
-                  value={visitReason}
-                  onChange={(e) => setVisitReason(e.target.value)}
-                  placeholder="e.g. Blood pressure monitoring, IFA supply check, Post-referral follow-up"
-                  style={{
-                    width: "100%",
-                    padding: "9px 12px",
-                    borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
-                  }}
-                />
-              </div>
-
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.shortVisitNotesLabel", "Short Visit Notes")}
-                </label>
-                <input
-                  type="text"
-                  value={visitNotes}
-                  onChange={(e) => setVisitNotes(e.target.value)}
-                  placeholder={t("worker.shortVisitNotesPlaceholder", "Context or remarks for this home encounter...")}
-                  style={{
-                    width: "100%",
-                    padding: "9px 12px",
-                    borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* ==========================================================
-              SECTION 3: VITALS SCREENING
-          ========================================================== */}
-          <div className="worker-panel">
-            <div className="worker-panel-header">
-              <div>
-                <span className="worker-section-label">{t("worker.section3Title", "Section 3 of 6")}</span>
-                <h2>{t("worker.vitalSignsScreeningTitle", "Vital Signs Screening")}</h2>
-              </div>
-              <Heart style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
             </div>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "14px"
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: "14px",
               }}
             >
-              {/* BLOOD PRESSURE */}
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.bloodPressureSystolicDiastolic", "Blood Pressure (Systolic / Diastolic)")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.visitDateLabel",
+                    "Visit Date"
+                  )}
                 </label>
-                <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+
+                <input
+                  type="date"
+                  value={visitDate}
+                  onChange={(e) =>
+                    setVisitDate(e.target.value)
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
+                  }}
+                />
+
+              </div>
+
+              <div>
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.visitTimeLabel",
+                    "Visit Time"
+                  )}
+                </label>
+
+                <input
+                  type="text"
+                  value={visitTime}
+                  onChange={(e) =>
+                    setVisitTime(e.target.value)
+                  }
+                  placeholder="e.g. 09:30 AM"
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
+                  }}
+                />
+
+              </div>
+
+              <div>
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.locationContextLabel",
+                    "Location / Context"
+                  )}
+                </label>
+
+                <input
+                  type="text"
+                  value={visitLocation}
+                  onChange={(e) =>
+                    setVisitLocation(e.target.value)
+                  }
+                  placeholder="e.g. Home Visit - Talwade"
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
+                  }}
+                />
+
+              </div>
+
+              <div
+                style={{
+                  gridColumn: "1 / -1",
+                }}
+              >
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.purposeReasonLabel",
+                    "Purpose / Reason for Visit"
+                  )}
+                </label>
+
+                <input
+                  type="text"
+                  value={visitReason}
+                  onChange={(e) =>
+                    setVisitReason(e.target.value)
+                  }
+                  placeholder="e.g. Blood pressure monitoring, IFA supply check, Post-referral follow-up"
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
+                  }}
+                />
+
+              </div>
+
+              <div
+                style={{
+                  gridColumn: "1 / -1",
+                }}
+              >
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.shortVisitNotesLabel",
+                    "Short Visit Notes"
+                  )}
+                </label>
+
+                <input
+                  type="text"
+                  value={visitNotes}
+                  onChange={(e) =>
+                    setVisitNotes(e.target.value)
+                  }
+                  placeholder={t(
+                    "worker.shortVisitNotesPlaceholder",
+                    "Context or remarks for this home encounter..."
+                  )}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
+                  }}
+                />
+
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* ======================================================
+              SECTION 3: VITALS
+          ====================================================== */}
+
+          <div className="worker-panel">
+
+            <div className="worker-panel-header">
+
+              <div>
+
+                <span className="worker-section-label">
+                  {t(
+                    "worker.section3Title",
+                    "Section 3 of 6"
+                  )}
+                </span>
+
+                <h2>
+                  {t(
+                    "worker.vitalSignsScreeningTitle",
+                    "Vital Signs Screening"
+                  )}
+                </h2>
+
+              </div>
+
+              <Heart
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  color:
+                    "var(--primary-color)",
+                }}
+              />
+
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "14px",
+              }}
+            >
+
+              {/* BP */}
+
+              <div>
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.bloodPressureSystolicDiastolic",
+                    "Blood Pressure (Systolic / Diastolic)"
+                  )}
+                </label>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "6px",
+                    alignItems: "center",
+                  }}
+                >
+
                   <input
                     type="number"
                     placeholder="120"
                     value={vitals.bpSystolic}
-                    onChange={(e) => handleVitalChange("bpSystolic", e.target.value)}
+                    onChange={(e) =>
+                      handleVitalChange(
+                        "bpSystolic",
+                        e.target.value
+                      )
+                    }
                     style={{
                       width: "100%",
                       padding: "8px 10px",
                       borderRadius: "8px",
-                      border: "1px solid var(--border-color)",
-                      background: "var(--bg-secondary)",
-                      color: "var(--text-primary)",
-                      fontSize: "13px"
+                      border:
+                        "1px solid var(--border-color)",
+                      background:
+                        "var(--bg-secondary)",
+                      color:
+                        "var(--text-primary)",
+                      fontSize: "13px",
                     }}
                   />
-                  <span style={{ color: "var(--text-secondary)" }}>/</span>
+
+                  <span
+                    style={{
+                      color:
+                        "var(--text-secondary)",
+                    }}
+                  >
+                    /
+                  </span>
+
                   <input
                     type="number"
                     placeholder="80"
                     value={vitals.bpDiastolic}
-                    onChange={(e) => handleVitalChange("bpDiastolic", e.target.value)}
+                    onChange={(e) =>
+                      handleVitalChange(
+                        "bpDiastolic",
+                        e.target.value
+                      )
+                    }
                     style={{
                       width: "100%",
                       padding: "8px 10px",
                       borderRadius: "8px",
-                      border: "1px solid var(--border-color)",
-                      background: "var(--bg-secondary)",
-                      color: "var(--text-primary)",
-                      fontSize: "13px"
+                      border:
+                        "1px solid var(--border-color)",
+                      background:
+                        "var(--bg-secondary)",
+                      color:
+                        "var(--text-primary)",
+                      fontSize: "13px",
                     }}
                   />
-                  <span style={{ fontSize: "10px", color: "var(--text-secondary)" }}>mmHg</span>
+
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color:
+                        "var(--text-secondary)",
+                    }}
+                  >
+                    mmHg
+                  </span>
+
                 </div>
+
               </div>
 
               {/* BLOOD SUGAR */}
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.bloodGlucoseType", "Blood Glucose & Type")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.bloodGlucoseType",
+                    "Blood Glucose & Type"
+                  )}
                 </label>
-                <div style={{ display: "flex", gap: "6px" }}>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "6px",
+                  }}
+                >
+
                   <input
                     type="number"
                     placeholder="110"
                     value={vitals.bloodSugar}
-                    onChange={(e) => handleVitalChange("bloodSugar", e.target.value)}
+                    onChange={(e) =>
+                      handleVitalChange(
+                        "bloodSugar",
+                        e.target.value
+                      )
+                    }
                     style={{
                       width: "60%",
                       padding: "8px 10px",
                       borderRadius: "8px",
-                      border: "1px solid var(--border-color)",
-                      background: "var(--bg-secondary)",
-                      color: "var(--text-primary)",
-                      fontSize: "13px"
+                      border:
+                        "1px solid var(--border-color)",
+                      background:
+                        "var(--bg-secondary)",
+                      color:
+                        "var(--text-primary)",
+                      fontSize: "13px",
                     }}
                   />
+
                   <select
                     value={vitals.bloodSugarType}
-                    onChange={(e) => handleVitalChange("bloodSugarType", e.target.value)}
+                    onChange={(e) =>
+                      handleVitalChange(
+                        "bloodSugarType",
+                        e.target.value
+                      )
+                    }
                     style={{
                       width: "40%",
                       padding: "8px 6px",
                       borderRadius: "8px",
-                      border: "1px solid var(--border-color)",
-                      background: "var(--bg-secondary)",
-                      color: "var(--text-primary)",
-                      fontSize: "12px"
+                      border:
+                        "1px solid var(--border-color)",
+                      background:
+                        "var(--bg-secondary)",
+                      color:
+                        "var(--text-primary)",
+                      fontSize: "12px",
                     }}
                   >
-                    <option value="Random">{t("worker.glucoseTypeRandom", "Random")}</option>
-                    <option value="Fasting">{t("worker.glucoseTypeFasting", "Fasting")}</option>
-                    <option value="PP">{t("worker.glucoseTypePostMeal", "Post-Meal")}</option>
+
+                    <option value="Random">
+                      {t(
+                        "worker.glucoseTypeRandom",
+                        "Random"
+                      )}
+                    </option>
+
+                    <option value="Fasting">
+                      {t(
+                        "worker.glucoseTypeFasting",
+                        "Fasting"
+                      )}
+                    </option>
+
+                    <option value="PP">
+                      {t(
+                        "worker.glucoseTypePostMeal",
+                        "Post-Meal"
+                      )}
+                    </option>
+
                   </select>
+
                 </div>
+
               </div>
 
-              {/* PULSE / HEART RATE */}
+              {/* PULSE */}
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.pulseHeartRate", "Pulse / Heart Rate (bpm)")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.pulseHeartRate",
+                    "Pulse / Heart Rate (bpm)"
+                  )}
                 </label>
+
                 <input
                   type="number"
                   placeholder="76"
                   value={vitals.pulse}
-                  onChange={(e) => handleVitalChange("pulse", e.target.value)}
+                  onChange={(e) =>
+                    handleVitalChange(
+                      "pulse",
+                      e.target.value
+                    )
+                  }
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
                   }}
                 />
+
               </div>
 
               {/* SPO2 */}
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.oxygenSaturation", "Oxygen Saturation SpO2 (%)")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.oxygenSaturation",
+                    "Oxygen Saturation SpO2 (%)"
+                  )}
                 </label>
+
                 <input
                   type="number"
                   placeholder="98"
                   value={vitals.spo2}
-                  onChange={(e) => handleVitalChange("spo2", e.target.value)}
+                  onChange={(e) =>
+                    handleVitalChange(
+                      "spo2",
+                      e.target.value
+                    )
+                  }
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
                   }}
                 />
+
               </div>
 
               {/* TEMPERATURE */}
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.bodyTemperature", "Body Temperature (°F)")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.bodyTemperature",
+                    "Body Temperature (°F)"
+                  )}
                 </label>
+
                 <input
                   type="number"
                   step="0.1"
                   placeholder="98.6"
                   value={vitals.temperature}
-                  onChange={(e) => handleVitalChange("temperature", e.target.value)}
+                  onChange={(e) =>
+                    handleVitalChange(
+                      "temperature",
+                      e.target.value
+                    )
+                  }
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
                   }}
                 />
+
               </div>
 
               {/* RESPIRATORY RATE */}
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.respiratoryRate", "Respiratory Rate (breaths/min)")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.respiratoryRate",
+                    "Respiratory Rate (breaths/min)"
+                  )}
                 </label>
+
                 <input
                   type="number"
                   placeholder="18"
                   value={vitals.respiratoryRate}
-                  onChange={(e) => handleVitalChange("respiratoryRate", e.target.value)}
+                  onChange={(e) =>
+                    handleVitalChange(
+                      "respiratoryRate",
+                      e.target.value
+                    )
+                  }
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
                   }}
                 />
+
               </div>
 
               {/* WEIGHT */}
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.weightKgLabel", "Weight (kg)")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.weightKgLabel",
+                    "Weight (kg)"
+                  )}
                 </label>
+
                 <input
                   type="number"
                   step="0.5"
                   placeholder="65"
                   value={vitals.weightKg}
-                  onChange={(e) => handleVitalChange("weightKg", e.target.value)}
+                  onChange={(e) =>
+                    handleVitalChange(
+                      "weightKg",
+                      e.target.value
+                    )
+                  }
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
                   }}
                 />
+
               </div>
+
             </div>
+
           </div>
 
-          {/* ==========================================================
-              SECTION 4: SYMPTOMS & FIELD SCREENING
-          ========================================================== */}
+          {/* ======================================================
+              SECTION 4: SYMPTOMS
+          ====================================================== */}
+
           <div className="worker-panel">
+
             <div className="worker-panel-header">
+
               <div>
-                <span className="worker-section-label">{t("worker.section4Title", "Section 4 of 6")}</span>
-                <h2>{t("worker.symptomsFieldScreeningTitle", "Symptoms & Field Screening")}</h2>
+
+                <span className="worker-section-label">
+                  {t(
+                    "worker.section4Title",
+                    "Section 4 of 6"
+                  )}
+                </span>
+
+                <h2>
+                  {t(
+                    "worker.symptomsFieldScreeningTitle",
+                    "Symptoms & Field Screening"
+                  )}
+                </h2>
+
               </div>
-              <Activity style={{ width: "16px", height: "16px", color: "var(--primary-color)" }} />
+
+              <Activity
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  color:
+                    "var(--primary-color)",
+                }}
+              />
+
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+              }}
+            >
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "8px" }}>
-                  {t("worker.reportedSymptomsRedFlags", "Reported Symptoms / Red Flags (Select all applicable)")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "8px",
+                  }}
+                >
+                  {t(
+                    "worker.reportedSymptomsRedFlags",
+                    "Reported Symptoms / Red Flags (Select all applicable)"
+                  )}
                 </label>
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                  }}
+                >
+
                   {symptomOptions.map((symp) => {
-                    const isSelected = selectedSymptoms.includes(symp.id);
+
+                    const isSelected =
+                      selectedSymptoms.includes(
+                        symp.id
+                      );
+
                     return (
                       <button
                         key={symp.id}
                         type="button"
-                        onClick={() => handleToggleSymptom(symp.id)}
+                        onClick={() =>
+                          handleToggleSymptom(
+                            symp.id
+                          )
+                        }
                         style={{
                           padding: "6px 12px",
                           borderRadius: "8px",
@@ -729,370 +1678,1491 @@ function WorkerNewVisit() {
                           background: isSelected
                             ? "var(--primary-color)"
                             : "var(--bg-secondary)",
-                          color: isSelected ? "white" : "var(--text-primary)",
-                          transition: "all 0.15s ease"
+                          color: isSelected
+                            ? "white"
+                            : "var(--text-primary)",
+                          transition:
+                            "all 0.15s ease",
                         }}
                       >
                         {symp.label}
                       </button>
                     );
                   })}
+
                 </div>
+
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.additionalSymptomDetails", "Additional Symptom Details")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.additionalSymptomDetails",
+                    "Additional Symptom Details"
+                  )}
                 </label>
+
                 <input
                   type="text"
                   value={symptomNotes}
-                  onChange={(e) => setSymptomNotes(e.target.value)}
-                  placeholder={t("worker.symptomDetailsPlaceholder", "Duration, severity, onset, triggers...")}
+                  onChange={(e) =>
+                    setSymptomNotes(
+                      e.target.value
+                    )
+                  }
+                  placeholder={t(
+                    "worker.symptomDetailsPlaceholder",
+                    "Duration, severity, onset, triggers..."
+                  )}
                   style={{
                     width: "100%",
                     padding: "9px 12px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
                   }}
                 />
+
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.workerScreeningObservations", "Worker Screening Observations")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.workerScreeningObservations",
+                    "Worker Screening Observations"
+                  )}
                 </label>
+
                 <textarea
                   rows="2"
                   value={observations}
-                  onChange={(e) => setObservations(e.target.value)}
-                  placeholder={t("worker.observationsPlaceholder", "General appearance, medication stock check, dietary compliance, fluid intake...")}
+                  onChange={(e) =>
+                    setObservations(
+                      e.target.value
+                    )
+                  }
+                  placeholder={t(
+                    "worker.observationsPlaceholder",
+                    "General appearance, medication stock check, dietary compliance, fluid intake..."
+                  )}
                   style={{
                     width: "100%",
                     padding: "9px 12px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
                   }}
                 />
+
               </div>
+
             </div>
+
           </div>
 
-          {/* ==========================================================
-              SECTION 5: ASSESSMENT & FUTURE ML TRIAGE PLACEHOLDER
-          ========================================================== */}
+          {/* ======================================================
+              SECTION 5: WORKER ASSESSMENT + ML
+          ====================================================== */}
+
           <div className="worker-panel">
+
             <div className="worker-panel-header">
+
               <div>
-                <span className="worker-section-label">{t("worker.section5Title", "Section 5 of 6")}</span>
-                <h2>{t("worker.workerAssessmentTitle", "Worker Assessment")}</h2>
+
+                <span className="worker-section-label">
+                  {t(
+                    "worker.section5Title",
+                    "Section 5 of 6"
+                  )}
+                </span>
+
+                <h2>
+                  {t(
+                    "worker.workerAssessmentTitle",
+                    "Worker Assessment"
+                  )}
+                </h2>
+
               </div>
+
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+              }}
+            >
+
+              {/* WORKER ASSESSMENT */}
+
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-                  {t("worker.clinicalNotesImpressions", "Field Worker Clinical Notes & Impressions")}
+
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {t(
+                    "worker.clinicalNotesImpressions",
+                    "Field Worker Clinical Notes & Impressions"
+                  )}
                 </label>
+
                 <textarea
                   rows="2"
                   value={workerAssessment}
-                  onChange={(e) => setWorkerAssessment(e.target.value)}
-                  placeholder={t("worker.assessmentPlaceholder", "Summary of current episode, adherence evaluation, recovery progression...")}
+                  onChange={(e) =>
+                    setWorkerAssessment(
+                      e.target.value
+                    )
+                  }
+                  placeholder={t(
+                    "worker.assessmentPlaceholder",
+                    "Summary of current episode, adherence evaluation, recovery progression..."
+                  )}
                   style={{
                     width: "100%",
                     padding: "9px 12px",
                     borderRadius: "8px",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px"
+                    border:
+                      "1px solid var(--border-color)",
+                    background:
+                      "var(--bg-secondary)",
+                    color:
+                      "var(--text-primary)",
+                    fontSize: "13px",
                   }}
                 />
+
               </div>
 
-              {/* FUTURE ML TRIAGE ASSESSMENT INTEGRATION POINT */}
+              {/* ==================================================
+                  ML TRIAGE
+              ================================================== */}
+
               <div
                 style={{
-                  padding: "14px 16px",
+                  padding: "16px",
                   borderRadius: "10px",
-                  border: "1px dashed var(--border-color)",
-                  background: "var(--bg-secondary)",
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "10px"
+                  border:
+                    "1px solid var(--border-color)",
+                  background:
+                    "var(--bg-secondary)",
                 }}
               >
-                <Sparkles style={{ width: "18px", height: "18px", color: "var(--primary-color)", marginTop: "2px", flexShrink: 0 }} />
-                <div>
-                  <strong style={{ fontSize: "12px", display: "block" }}>
-                    {t("worker.mlTriagePlaceholderTitle", "Clinical Triage Model Assessment Module (Integration Placeholder)")}
-                  </strong>
-                  <p style={{ margin: "3px 0 0", fontSize: "11px", color: "var(--text-secondary)", lineHeight: 1.4 }}>
-                    {t("worker.mlTriagePlaceholderDesc", "The ML-assisted acuity scoring engine (XGBoost triage model) will connect to this section via triage.api.js upon model contract finalization. No automated prediction is claimed during this prototype skeleton phase.")}
-                  </p>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    marginBottom: "14px",
+                  }}
+                >
+
+                  <Sparkles
+                    style={{
+                      width: "18px",
+                      height: "18px",
+                      color:
+                        "var(--primary-color)",
+                    }}
+                  />
+
+                  <div>
+
+                    <strong
+                      style={{
+                        fontSize: "13px",
+                        display: "block",
+                      }}
+                    >
+                      AI-Assisted Clinical Triage
+                    </strong>
+
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color:
+                          "var(--text-secondary)",
+                      }}
+                    >
+                      XGBoost-based prototype
+                      decision-support assessment
+                    </span>
+
+                  </div>
+
                 </div>
+
+                {/* ML INPUTS */}
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(200px, 1fr))",
+                    gap: "12px",
+                  }}
+                >
+
+                  {/* ARRIVAL MODE */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Arrival Mode
+                    </label>
+
+                    <select
+                      value={
+                        triageInputs.arrivalMode
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "arrivalMode",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <option value="walk-in">
+                        Walk-in
+                      </option>
+
+                      <option value="ambulance">
+                        Ambulance
+                      </option>
+
+                      <option value="brought_by_family">
+                        Brought by Family
+                      </option>
+
+                      <option value="helicopter">
+                        Helicopter
+                      </option>
+
+                      <option value="police">
+                        Police
+                      </option>
+
+                      <option value="transfer">
+                        Transfer
+                      </option>
+                    </select>
+
+                  </div>
+
+                  {/* MENTAL STATUS */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Mental Status
+                    </label>
+
+                    <select
+                      value={
+                        triageInputs.mentalStatus
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "mentalStatus",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <option value="alert">
+                        Alert
+                      </option>
+
+                      <option value="agitated">
+                        Agitated
+                      </option>
+
+                      <option value="confused">
+                        Confused
+                      </option>
+
+                      <option value="drowsy">
+                        Drowsy
+                      </option>
+
+                      <option value="unresponsive">
+                        Unresponsive
+                      </option>
+                    </select>
+
+                  </div>
+
+                  {/* CHIEF COMPLAINT */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Chief Complaint System
+                    </label>
+
+                    <select
+                      value={
+                        triageInputs.chiefComplaint
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "chiefComplaint",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <option value="other">
+                        Other
+                      </option>
+
+                      <option value="ENT">
+                        ENT
+                      </option>
+
+                      <option value="cardiovascular">
+                        Cardiovascular
+                      </option>
+
+                      <option value="dermatological">
+                        Dermatological
+                      </option>
+
+                      <option value="endocrine">
+                        Endocrine
+                      </option>
+
+                      <option value="gastrointestinal">
+                        Gastrointestinal
+                      </option>
+
+                      <option value="genitourinary">
+                        Genitourinary
+                      </option>
+
+                      <option value="infectious">
+                        Infectious
+                      </option>
+
+                      <option value="musculoskeletal">
+                        Musculoskeletal
+                      </option>
+
+                      <option value="neurological">
+                        Neurological
+                      </option>
+
+                      <option value="ophthalmic">
+                        Ophthalmic
+                      </option>
+
+                      <option value="psychiatric">
+                        Psychiatric
+                      </option>
+
+                      <option value="respiratory">
+                        Respiratory
+                      </option>
+
+                      <option value="trauma">
+                        Trauma
+                      </option>
+                    </select>
+
+                  </div>
+
+                  {/* PRIOR ED */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Prior ED Visits (12 months)
+                    </label>
+
+                    <input
+                      type="number"
+                      min="0"
+                      value={
+                        triageInputs.priorEdVisits
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "priorEdVisits",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    />
+
+                  </div>
+
+                  {/* PRIOR ADMISSIONS */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Prior Admissions (12 months)
+                    </label>
+
+                    <input
+                      type="number"
+                      min="0"
+                      value={
+                        triageInputs.priorAdmissions
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "priorAdmissions",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    />
+
+                  </div>
+
+                  {/* ACTIVE MEDICATIONS */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Active Medications
+                    </label>
+
+                    <input
+                      type="number"
+                      min="0"
+                      value={
+                        triageInputs.activeMedications
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "activeMedications",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    />
+
+                  </div>
+
+                  {/* COMORBIDITIES */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Number of Comorbidities
+                    </label>
+
+                    <input
+                      type="number"
+                      min="0"
+                      value={
+                        triageInputs.comorbidities
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "comorbidities",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    />
+
+                  </div>
+
+                  {/* GCS */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      GCS Total
+                    </label>
+
+                    <input
+                      type="number"
+                      min="3"
+                      max="15"
+                      value={
+                        triageInputs.gcsTotal
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "gcsTotal",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    />
+
+                  </div>
+
+                  {/* PAIN SCORE */}
+
+                  <div>
+
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Pain Score
+                    </label>
+
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={
+                        triageInputs.painScore
+                      }
+                      onChange={(e) =>
+                        handleTriageInputChange(
+                          "painScore",
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border:
+                          "1px solid var(--border-color)",
+                        background:
+                          "var(--card-bg)",
+                        color:
+                          "var(--text-primary)",
+                        fontSize: "12px",
+                      }}
+                    />
+
+                  </div>
+
+                </div>
+
+                {/* RUN BUTTON */}
+
+                <button
+                  type="button"
+                  onClick={
+                    handleTriagePrediction
+                  }
+                  disabled={
+                    triageLoading ||
+                    !selectedPatient
+                  }
+                  style={{
+                    marginTop: "16px",
+                    padding: "10px 16px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background:
+                      "var(--primary-color)",
+                    color: "white",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    cursor: triageLoading
+                      ? "wait"
+                      : "pointer",
+                    opacity: triageLoading
+                      ? 0.7
+                      : 1,
+                  }}
+                >
+                  {triageLoading
+                    ? "Running Triage Model..."
+                    : "Run AI Triage Assessment"}
+                </button>
+
+                {/* ERROR */}
+
+                {triageError && (
+                  <p
+                    style={{
+                      marginTop: "10px",
+                      fontSize: "12px",
+                      color: "#dc2626",
+                    }}
+                  >
+                    {triageError}
+                  </p>
+                )}
+
+                {/* RESULT */}
+
+                {triageResult && (
+                  <div
+                    style={{
+                      marginTop: "14px",
+                      padding: "12px",
+                      borderRadius: "8px",
+                      border:
+                        "1px solid var(--border-color)",
+                      background:
+                        "var(--card-bg)",
+                    }}
+                  >
+
+                    <strong
+                      style={{
+                        fontSize: "13px",
+                      }}
+                    >
+                      Predicted Triage Acuity:{" "}
+                      {
+                        triageResult.triage_acuity
+                      }
+                    </strong>
+
+                    <p
+                      style={{
+                        margin:
+                          "5px 0 0",
+                        fontSize: "11px",
+                        color:
+                          "var(--text-secondary)",
+                      }}
+                    >
+                      Prototype
+                      decision-support
+                      result. This
+                      prediction is not
+                      a clinical
+                      diagnosis.
+                    </p>
+
+                  </div>
+                )}
+
               </div>
+
             </div>
+
           </div>
 
-          {/* ==========================================================
-              SECTION 6: ACTION PLAN (ADVICE, FOLLOW-UP, REFERRAL)
-          ========================================================== */}
+          {/* ======================================================
+              SECTION 6: ACTION PLAN
+          ====================================================== */}
+
           <div className="worker-panel">
+
             <div className="worker-panel-header">
+
               <div>
-                <span className="worker-section-label">{t("worker.section6Title", "Section 6 of 6")}</span>
-                <h2>{t("worker.actionPlanTitle", "Action Plan & Care Continuity")}</h2>
+
+                <span className="worker-section-label">
+                  {t(
+                    "worker.section6Title",
+                    "Section 6 of 6"
+                  )}
+                </span>
+
+                <h2>
+                  {t(
+                    "worker.actionPlanTitle",
+                    "Action Plan & Care Continuity"
+                  )}
+                </h2>
+
               </div>
+
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {/* ACTION: ADVICE */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+              }}
+            >
+
+              {/* ADVICE */}
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+
                 <input
                   type="checkbox"
                   id="actAdvice"
                   checked={actionAdvice}
-                  onChange={(e) => setActionAdvice(e.target.checked)}
+                  onChange={(e) =>
+                    setActionAdvice(
+                      e.target.checked
+                    )
+                  }
                 />
-                <label htmlFor="actAdvice" style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                  {t("worker.actionAdviceLabel", "Provide Health Education & Dietary Advice (Salt restriction, hydration, rest)")}
+
+                <label
+                  htmlFor="actAdvice"
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {t(
+                    "worker.actionAdviceLabel",
+                    "Provide Health Education & Dietary Advice (Salt restriction, hydration, rest)"
+                  )}
                 </label>
+
               </div>
 
-              {/* ACTION: MEDICATION */}
+              {/* MEDICATION */}
+
               <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+
                   <input
                     type="checkbox"
                     id="actMed"
                     checked={actionMedication}
-                    onChange={(e) => setActionMedication(e.target.checked)}
+                    onChange={(e) =>
+                      setActionMedication(
+                        e.target.checked
+                      )
+                    }
                   />
-                  <label htmlFor="actMed" style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                    {t("worker.actionMedicationLabel", "Medication Verification & Supply (IFA / Calcium distribution, adherence check)")}
+
+                  <label
+                    htmlFor="actMed"
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {t(
+                      "worker.actionMedicationLabel",
+                      "Medication Verification & Supply (IFA / Calcium distribution, adherence check)"
+                    )}
                   </label>
+
                 </div>
+
                 {actionMedication && (
                   <input
                     type="text"
                     value={medicationNotes}
-                    onChange={(e) => setMedicationNotes(e.target.value)}
-                    placeholder={t("worker.medicationNotesPlaceholder", "e.g. Distributed 30 IFA tablets, verified daily Amlodipine 5mg compliance")}
+                    onChange={(e) =>
+                      setMedicationNotes(
+                        e.target.value
+                      )
+                    }
+                    placeholder={t(
+                      "worker.medicationNotesPlaceholder",
+                      "e.g. Distributed 30 IFA tablets, verified daily Amlodipine 5mg compliance"
+                    )}
                     style={{
                       marginTop: "6px",
                       width: "100%",
                       padding: "8px 12px",
                       borderRadius: "8px",
-                      border: "1px solid var(--border-color)",
-                      background: "var(--bg-secondary)",
-                      color: "var(--text-primary)",
-                      fontSize: "12px"
+                      border:
+                        "1px solid var(--border-color)",
+                      background:
+                        "var(--bg-secondary)",
+                      color:
+                        "var(--text-primary)",
+                      fontSize: "12px",
                     }}
                   />
                 )}
+
               </div>
 
-              {/* ACTION: FOLLOW-UP REQUIRED */}
-              <div style={{ padding: "12px", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {/* FOLLOW UP */}
+
+              <div
+                style={{
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background:
+                    "var(--bg-secondary)",
+                  border:
+                    "1px solid var(--border-color)",
+                }}
+              >
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+
                   <input
                     type="checkbox"
                     id="actFollowUp"
-                    checked={followUpRequired}
-                    onChange={(e) => setFollowUpRequired(e.target.checked)}
+                    checked={
+                      followUpRequired
+                    }
+                    onChange={(e) =>
+                      setFollowUpRequired(
+                        e.target.checked
+                      )
+                    }
                   />
-                  <label htmlFor="actFollowUp" style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                    {t("worker.actionFollowUpLabel", "Schedule Post-Screening Follow-up")}
+
+                  <label
+                    htmlFor="actFollowUp"
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {t(
+                      "worker.actionFollowUpLabel",
+                      "Schedule Post-Screening Follow-up"
+                    )}
                   </label>
+
                 </div>
 
                 {followUpRequired && (
-                  <div style={{ marginTop: "10px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      display: "grid",
+                      gridTemplateColumns:
+                        "1fr 1fr",
+                      gap: "10px",
+                    }}
+                  >
+
                     <div>
-                      <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                        {t("worker.followUpDueDateLabel", "Follow-up Due Date")}
+
+                      <label
+                        style={{
+                          display: "block",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          marginBottom: "3px",
+                        }}
+                      >
+                        {t(
+                          "worker.followUpDueDateLabel",
+                          "Follow-up Due Date"
+                        )}
                       </label>
+
                       <input
                         type="date"
                         value={followUpDate}
-                        onChange={(e) => setFollowUpDate(e.target.value)}
+                        onChange={(e) =>
+                          setFollowUpDate(
+                            e.target.value
+                          )
+                        }
                         style={{
                           width: "100%",
                           padding: "8px 10px",
                           borderRadius: "6px",
-                          border: "1px solid var(--border-color)",
-                          background: "var(--card-bg)",
-                          color: "var(--text-primary)",
-                          fontSize: "12px"
+                          border:
+                            "1px solid var(--border-color)",
+                          background:
+                            "var(--card-bg)",
+                          color:
+                            "var(--text-primary)",
+                          fontSize: "12px",
                         }}
                       />
+
                     </div>
+
                     <div>
-                      <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                        {t("worker.followUpPurposeLabel", "Follow-up Purpose")}
+
+                      <label
+                        style={{
+                          display: "block",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          marginBottom: "3px",
+                        }}
+                      >
+                        {t(
+                          "worker.followUpPurposeLabel",
+                          "Follow-up Purpose"
+                        )}
                       </label>
+
                       <input
                         type="text"
                         value={followUpReason}
-                        onChange={(e) => setFollowUpReason(e.target.value)}
-                        placeholder={t("worker.followUpPurposePlaceholder", "e.g. Re-check BP, verify symptom resolution")}
+                        onChange={(e) =>
+                          setFollowUpReason(
+                            e.target.value
+                          )
+                        }
+                        placeholder={t(
+                          "worker.followUpPurposePlaceholder",
+                          "e.g. Re-check BP, verify symptom resolution"
+                        )}
                         style={{
                           width: "100%",
                           padding: "8px 10px",
                           borderRadius: "6px",
-                          border: "1px solid var(--border-color)",
-                          background: "var(--card-bg)",
-                          color: "var(--text-primary)",
-                          fontSize: "12px"
+                          border:
+                            "1px solid var(--border-color)",
+                          background:
+                            "var(--card-bg)",
+                          color:
+                            "var(--text-primary)",
+                          fontSize: "12px",
                         }}
                       />
+
                     </div>
+
                   </div>
                 )}
+
               </div>
 
-              {/* ACTION: REFERRAL REQUIRED */}
-              <div style={{ padding: "12px", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {/* REFERRAL */}
+
+              <div
+                style={{
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background:
+                    "var(--bg-secondary)",
+                  border:
+                    "1px solid var(--border-color)",
+                }}
+              >
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+
                   <input
                     type="checkbox"
                     id="actReferral"
-                    checked={referralRequired}
-                    onChange={(e) => setReferralRequired(e.target.checked)}
+                    checked={
+                      referralRequired
+                    }
+                    onChange={(e) =>
+                      setReferralRequired(
+                        e.target.checked
+                      )
+                    }
                   />
-                  <label htmlFor="actReferral" style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                    {t("worker.actionReferralLabel", "Escalate & Refer to Primary Health Centre / Hospital")}
+
+                  <label
+                    htmlFor="actReferral"
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {t(
+                      "worker.actionReferralLabel",
+                      "Escalate & Refer to Primary Health Centre / Hospital"
+                    )}
                   </label>
+
                 </div>
 
                 {referralRequired && (
-                  <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                      <div>
-                        <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                          {t("worker.targetFacilityLabel", "Target Facility")}
-                        </label>
-                        <select
-                          value={referralFacility}
-                          onChange={(e) => setReferralFacility(e.target.value)}
-                          style={{
-                            width: "100%",
-                            padding: "8px 10px",
-                            borderRadius: "6px",
-                            border: "1px solid var(--border-color)",
-                            background: "var(--card-bg)",
-                            color: "var(--text-primary)",
-                            fontSize: "12px"
-                          }}
-                        >
-                          <option value="Shirur 24x7 Primary Health Centre">Shirur 24x7 Primary Health Centre</option>
-                          <option value="District Hospital, Pune">District Hospital, Pune</option>
-                          <option value="Talwade Sub-Health Centre">Talwade Sub-Health Centre</option>
-                        </select>
-                      </div>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      display: "flex",
+                      flexDirection:
+                        "column",
+                      gap: "10px",
+                    }}
+                  >
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "1fr 1fr",
+                        gap: "10px",
+                      }}
+                    >
+
+                      {/* FACILITY */}
 
                       <div>
-                        <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                          {t("worker.urgencyLevelLabel", "Urgency Level")}
-                        </label>
-                        <select
-                          value={referralUrgency}
-                          onChange={(e) => setReferralUrgency(e.target.value)}
+
+                        <label
                           style={{
-                            width: "100%",
-                            padding: "8px 10px",
-                            borderRadius: "6px",
-                            border: "1px solid var(--border-color)",
-                            background: "var(--card-bg)",
-                            color: "var(--text-primary)",
-                            fontSize: "12px"
+                            display: "block",
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            marginBottom: "3px",
                           }}
                         >
-                          <option value="Routine">{t("worker.urgencyRoutineOption", "Routine (Within 7 Days)")}</option>
-                          <option value="Urgent">{t("worker.urgencyUrgentOption", "Urgent (Within 24-48 Hours)")}</option>
-                          <option value="Emergency">{t("worker.urgencyEmergencyOption", "Emergency (Immediate)")}</option>
+                          {t(
+                            "worker.targetFacilityLabel",
+                            "Target Facility"
+                          )}
+                        </label>
+
+                        <select
+                          value={
+                            referralFacility
+                          }
+                          onChange={(e) =>
+                            setReferralFacility(
+                              e.target.value
+                            )
+                          }
+                          style={{
+                            width: "100%",
+                            padding:
+                              "8px 10px",
+                            borderRadius:
+                              "6px",
+                            border:
+                              "1px solid var(--border-color)",
+                            background:
+                              "var(--card-bg)",
+                            color:
+                              "var(--text-primary)",
+                            fontSize:
+                              "12px",
+                          }}
+                        >
+
+                          <option value="Shirur 24x7 Primary Health Centre">
+                            Shirur 24x7 Primary Health Centre
+                          </option>
+
+                          <option value="District Hospital, Pune">
+                            District Hospital,
+                            Pune
+                          </option>
+
+                          <option value="Talwade Sub-Health Centre">
+                            Talwade
+                            Sub-Health
+                            Centre
+                          </option>
+
                         </select>
+
                       </div>
+
+                      {/* URGENCY */}
+
+                      <div>
+
+                        <label
+                          style={{
+                            display: "block",
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            marginBottom: "3px",
+                          }}
+                        >
+                          {t(
+                            "worker.urgencyLevelLabel",
+                            "Urgency Level"
+                          )}
+                        </label>
+
+                        <select
+                          value={
+                            referralUrgency
+                          }
+                          onChange={(e) =>
+                            setReferralUrgency(
+                              e.target.value
+                            )
+                          }
+                          style={{
+                            width: "100%",
+                            padding:
+                              "8px 10px",
+                            borderRadius:
+                              "6px",
+                            border:
+                              "1px solid var(--border-color)",
+                            background:
+                              "var(--card-bg)",
+                            color:
+                              "var(--text-primary)",
+                            fontSize:
+                              "12px",
+                          }}
+                        >
+
+                          <option value="Routine">
+                            {t(
+                              "worker.urgencyRoutineOption",
+                              "Routine (Within 7 Days)"
+                            )}
+                          </option>
+
+                          <option value="Urgent">
+                            {t(
+                              "worker.urgencyUrgentOption",
+                              "Urgent (Within 24-48 Hours)"
+                            )}
+                          </option>
+
+                          <option value="Emergency">
+                            {t(
+                              "worker.urgencyEmergencyOption",
+                              "Emergency (Immediate)"
+                            )}
+                          </option>
+
+                        </select>
+
+                      </div>
+
                     </div>
 
-                    <div>
-                      <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                        {t("worker.specialtyDeptRequired", "Specialty / Department Required")}
-                      </label>
-                      <input
-                        type="text"
-                        value={referralSpecialty}
-                        onChange={(e) => setReferralSpecialty(e.target.value)}
-                        placeholder={t("worker.specialtyPlaceholder", "e.g. Internal Medicine, Obstetrics, Cardiology")}
-                        style={{
-                          width: "100%",
-                          padding: "8px 10px",
-                          borderRadius: "6px",
-                          border: "1px solid var(--border-color)",
-                          background: "var(--card-bg)",
-                          color: "var(--text-primary)",
-                          fontSize: "12px"
-                        }}
-                      />
-                    </div>
+                    {/* SPECIALTY */}
 
                     <div>
-                      <label style={{ display: "block", fontSize: "11px", fontWeight: 600, marginBottom: "3px" }}>
-                        {t("worker.reasonForFacilityReferral", "Reason for Facility Referral")}
+
+                      <label
+                        style={{
+                          display: "block",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          marginBottom: "3px",
+                        }}
+                      >
+                        {t(
+                          "worker.specialtyDeptRequired",
+                          "Specialty / Department Required"
+                        )}
                       </label>
+
                       <input
                         type="text"
-                        value={referralReason}
-                        onChange={(e) => setReferralReason(e.target.value)}
-                        placeholder={t("worker.referralReasonPlaceholder", "e.g. Uncontrolled high systolic BP, abnormal glucose, specialist review needed")}
+                        value={
+                          referralSpecialty
+                        }
+                        onChange={(e) =>
+                          setReferralSpecialty(
+                            e.target.value
+                          )
+                        }
+                        placeholder={t(
+                          "worker.specialtyPlaceholder",
+                          "e.g. Internal Medicine, Obstetrics, Cardiology"
+                        )}
                         style={{
                           width: "100%",
-                          padding: "8px 10px",
-                          borderRadius: "6px",
-                          border: "1px solid var(--border-color)",
-                          background: "var(--card-bg)",
-                          color: "var(--text-primary)",
-                          fontSize: "12px"
+                          padding:
+                            "8px 10px",
+                          borderRadius:
+                            "6px",
+                          border:
+                            "1px solid var(--border-color)",
+                          background:
+                            "var(--card-bg)",
+                          color:
+                            "var(--text-primary)",
+                          fontSize:
+                            "12px",
                         }}
                       />
+
                     </div>
+
+                    {/* REFERRAL REASON */}
+
+                    <div>
+
+                      <label
+                        style={{
+                          display: "block",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          marginBottom: "3px",
+                        }}
+                      >
+                        {t(
+                          "worker.reasonForFacilityReferral",
+                          "Reason for Facility Referral"
+                        )}
+                      </label>
+
+                      <input
+                        type="text"
+                        value={
+                          referralReason
+                        }
+                        onChange={(e) =>
+                          setReferralReason(
+                            e.target.value
+                          )
+                        }
+                        placeholder={t(
+                          "worker.referralReasonPlaceholder",
+                          "e.g. Uncontrolled high systolic BP, abnormal glucose, specialist review needed"
+                        )}
+                        style={{
+                          width: "100%",
+                          padding:
+                            "8px 10px",
+                          borderRadius:
+                            "6px",
+                          border:
+                            "1px solid var(--border-color)",
+                          background:
+                            "var(--card-bg)",
+                          color:
+                            "var(--text-primary)",
+                          fontSize:
+                            "12px",
+                        }}
+                      />
+
+                    </div>
+
                   </div>
                 )}
+
               </div>
+
             </div>
+
           </div>
 
-          {/* ==========================================================
+          {/* ======================================================
               SECTION 7: SAVE ACTIONS
-          ========================================================== */}
+          ====================================================== */}
+
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
               gap: "12px",
-              paddingTop: "10px"
+              paddingTop: "10px",
             }}
           >
+
             <Link
-              to={selectedPatientId ? `/worker/patients/${selectedPatientId}` : "/worker/patients"}
+              to={
+                selectedPatientId
+                  ? `/worker/patients/${selectedPatientId}`
+                  : "/worker/patients"
+              }
               style={{
                 padding: "11px 18px",
                 borderRadius: "10px",
-                border: "1px solid var(--border-color)",
-                background: "var(--card-bg)",
-                color: "var(--text-primary)",
+                border:
+                  "1px solid var(--border-color)",
+                background:
+                  "var(--card-bg)",
+                color:
+                  "var(--text-primary)",
                 fontSize: "13px",
                 fontWeight: 600,
-                textDecoration: "none"
+                textDecoration: "none",
               }}
             >
               {t("common.cancel", "Cancel")}
@@ -1104,7 +3174,8 @@ function WorkerNewVisit() {
               style={{
                 padding: "11px 24px",
                 borderRadius: "10px",
-                background: "var(--primary-color)",
+                background:
+                  "var(--primary-color)",
                 color: "white",
                 border: "none",
                 fontSize: "13px",
@@ -1112,12 +3183,22 @@ function WorkerNewVisit() {
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "6px"
+                gap: "6px",
               }}
             >
-              {saving ? t("worker.savingVisitRecordBtn", "Saving Visit Record...") : t("worker.saveVisitRecordBtn", "Save Visit Record")}
+              {saving
+                ? t(
+                    "worker.savingVisitRecordBtn",
+                    "Saving Visit Record..."
+                  )
+                : t(
+                    "worker.saveVisitRecordBtn",
+                    "Save Visit Record"
+                  )}
             </button>
+
           </div>
+
         </form>
       )}
     </div>

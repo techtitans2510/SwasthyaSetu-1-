@@ -1,11 +1,21 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import joblib
 import xgboost as xgb
 
 app = FastAPI(title="SwasthyaSetu ML Service")
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load model and preprocessing pipeline once when the service starts
 model = xgb.XGBClassifier()
