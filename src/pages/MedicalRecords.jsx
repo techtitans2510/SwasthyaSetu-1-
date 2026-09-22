@@ -16,7 +16,10 @@ import {
   ArrowRight,
   Activity,
   AlertCircle,
-  FolderOpen
+  FolderOpen,
+  Calendar,
+  Check,
+  Cloud,
 } from "lucide-react";
 
 function MedicalRecords() {
