@@ -1,0 +1,64 @@
+{
+    "target": "triage_acuity",
+    "classes": [
+        1,
+        2,
+        3,
+        4,
+        5
+    ],
+    "input_features": [
+        "age",
+        "sex",
+        "arrival_mode",
+        "mental_status_triage",
+        "chief_complaint_system",
+        "num_prior_ed_visits_12m",
+        "num_prior_admissions_12m",
+        "num_active_medications",
+        "num_comorbidities",
+        "systolic_bp",
+        "diastolic_bp",
+        "heart_rate",
+        "respiratory_rate",
+        "temperature_c",
+        "spo2",
+        "gcs_total",
+        "pain_score"
+    ],
+    "categorical_features": [
+        "sex",
+        "arrival_mode",
+        "mental_status_triage",
+        "chief_complaint_system"
+    ],
+    "numerical_features": [
+        "age",
+        "num_prior_ed_visits_12m",
+        "num_prior_admissions_12m",
+        "num_active_medications",
+        "num_comorbidities",
+        "systolic_bp",
+        "diastolic_bp",
+        "heart_rate",
+        "respiratory_rate",
+        "temperature_c",
+        "spo2",
+        "gcs_total",
+        "pain_score"
+    ],
+    "training_rows": 3000,
+    "validation_rows": 8000,
+    "test_rows": 8000,
+    "best_configuration": {
+        "name": "deeper",
+        "n_estimators": 150,
+        "max_depth": 5,
+        "learning_rate": 0.05
+    },
+    "validation_macro_f1": 0.8291868093066773,
+    "final_test_accuracy": 0.814625,
+    "final_test_macro_f1": 0.8352180184459164,
+    "model_type": "XGBoost multiclass classifier",
+    "note": "Prototype decision-support model trained on synthetic Triagegeist data. Not clinically validated."
+}
