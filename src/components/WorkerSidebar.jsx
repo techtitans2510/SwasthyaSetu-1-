@@ -14,7 +14,7 @@ import {
   ListChecks,
   Sun,
   Moon,
-  LogOut
+  LogOut,
 } from "lucide-react";
 
 function WorkerSidebar() {
@@ -26,33 +26,33 @@ function WorkerSidebar() {
     {
       to: "/worker/dashboard",
       label: t("dashboard", "Dashboard"),
-      icon: LayoutDashboard
+      icon: LayoutDashboard,
     },
     {
       to: "/worker/patients",
       label: t("myPatients", "My Patients"),
-      icon: Users
+      icon: Users,
     },
     {
       to: "/worker/visits",
       label: t("scheduledVisits", "Scheduled Visits"),
-      icon: CalendarDays
+      icon: CalendarDays,
     },
     {
       to: "/worker/visits/new",
       label: t("newVisit", "New Visit"),
-      icon: ClipboardPlus
+      icon: ClipboardPlus,
     },
     {
       to: "/worker/referrals",
       label: t("referrals", "Referrals"),
-      icon: GitBranch
+      icon: GitBranch,
     },
     {
       to: "/worker/follow-ups",
       label: t("followUps", "Follow-ups"),
-      icon: ListChecks
-    }
+      icon: ListChecks,
+    },
   ];
 
   const workerRole =
@@ -74,46 +74,41 @@ function WorkerSidebar() {
           </div>
 
           <div className="brand-text">
-            <span className="brand-title">{t("appName", "SwasthyaSetu")}</span>
-            <span className="brand-subtitle">{t("taglineWorker", "Field Care Portal")}</span>
+            <span className="brand-title">
+              {t("appName", "SwasthyaSetu")}
+            </span>
+            <span className="brand-subtitle">
+              {t("taglineWorker", "Field Care Portal")}
+            </span>
           </div>
         </div>
 
         {/* Worker Profile */}
         <div className="worker-profile">
           <div className="worker-avatar">
-            {(user?.name || "W")
-              .charAt(0)
-              .toUpperCase()}
+            {(user?.name || "W").charAt(0).toUpperCase()}
           </div>
 
           <div>
-            <strong>
-              {user?.name || "Field Worker"}
-            </strong>
-
+            <strong>{user?.name || "Field Worker"}</strong>
             <span>{workerRole}</span>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="worker-nav">
-          {links.map(
-            ({ to, label, icon: Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `worker-nav-item ${
-                    isActive ? "active" : ""
-                  }`
-                }
-              >
-                <Icon />
-                <span>{label}</span>
-              </NavLink>
-            )
-          )}
+          {links.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `worker-nav-item ${isActive ? "active" : ""}`
+              }
+            >
+              <Icon />
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
       </div>
 
@@ -156,7 +151,6 @@ function WorkerSidebar() {
           onClick={logout}
         >
           <LogOut />
-
           <span>{t("signOut", "Sign Out")}</span>
         </button>
       </div>
@@ -164,4 +158,4 @@ function WorkerSidebar() {
   );
 }
 
-export default WorkerSidebar;
+export default WorkerSidebar;
