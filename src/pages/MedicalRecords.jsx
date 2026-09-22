@@ -25,7 +25,7 @@ import {
 function MedicalRecords() {
   const { records, loading, error } = useMedicalRecords();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, formatDate } = useLanguage();
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -54,14 +54,6 @@ function MedicalRecords() {
       return matchesCategory && matchesSearch;
     });
   }, [records, search, category]);
-
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
 
   const getRecordIcon = (type) => {
     switch (type) {
@@ -206,28 +198,28 @@ function MedicalRecords() {
                 <div className="record-top-badge-row">
                   <div className="record-type-pill">
                     {getRecordIcon(record.type)}
-                    <span>{record.type}</span>
+                    <span>{t(record.type)}</span>
                   </div>
                   <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-secondary)" }}>
                     ID: {record.id}
                   </span>
                 </div>
 
-                <h3 className="record-title-heading">{record.title}</h3>
-                <p className="record-desc-text">{record.description}</p>
+                <h3 className="record-title-heading">{t(record.title)}</h3>
+                <p className="record-desc-text">{t(record.description)}</p>
 
                 <div className="record-meta-info-grid">
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <User className="w-3.5 h-3.5 text-primary-color" />
-                    <span>{t("records.doctorLabel", "Doctor:")} <strong>{record.doctor}</strong></span>
+                    <span>{t("records.doctorLabel", "Doctor:")} <strong>{t(record.doctor)}</strong></span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <Building2 className="w-3.5 h-3.5 text-secondary-color" />
-                    <span>{t("records.facilityLabel", "Facility:")} <strong>{record.facility}</strong></span>
+                    <span>{t("records.facilityLabel", "Facility:")} <strong>{t(record.facility)}</strong></span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <Calendar className="w-3.5 h-3.5 text-muted-color" />
-                    <span>{t("records.dateLabel", "Date:")} <strong>{formatDate(record.recordDate)}</strong></span>
+                    <span>{t("records.dateLabel", "Date:")} <strong>{formatDate(record.recordDate, { day: "2-digit", month: "short", year: "numeric" })}</strong></span>
                   </div>
                 </div>
               </div>

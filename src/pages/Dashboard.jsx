@@ -31,7 +31,7 @@ import {
 function Dashboard() {
   const { user } = useAuth();
   const { dashboard, loading, error } = useDashboard();
-  const { t } = useLanguage();
+  const { t, formatDate } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [medTaken, setMedTaken] = useState(false);
 
@@ -63,8 +63,9 @@ function Dashboard() {
 
   const { patient, stats, upcomingAppointment } = dashboard;
 
-  const rawName = user?.name || patient?.name || t("patient", "Patient");
-  const displayName = rawName.trim().split(/\s+/)[0] || rawName;
+  const rawName = user?.name || patient?.name || "Patient";
+  const localizedName = t(rawName);
+  const displayName = localizedName.trim().split(/\s+/)[0] || localizedName;
 
   const currentHour = new Date().getHours();
   const timeGreeting =
@@ -83,13 +84,13 @@ function Dashboard() {
   };
 
   const formattedApptDate = upcomingAppointment?.date
-    ? new Date(upcomingAppointment.date).toLocaleDateString("en-IN", {
+    ? formatDate(upcomingAppointment.date, {
         weekday: "long",
         day: "numeric",
         month: "short",
         year: "numeric"
       })
-    : "Friday, 24 Oct";
+    : "";
 
   return (
     <div className="dashboard-page-container">
@@ -165,7 +166,7 @@ function Dashboard() {
                   </span>
                   <span className="meta-item">
                     <Building2 className="w-4 h-4 text-primary-color" />
-                    {upcomingAppointment.facility}
+                    {t(upcomingAppointment.facility)}
                   </span>
                 </div>
               </div>
@@ -422,7 +423,7 @@ function Dashboard() {
                 <div>
                   <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-color)" }}>{t("patientDashboard.reminder1Title", "Appointment Confirmed")}</div>
                   <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                    {t("patientDashboard.reminder1Desc", { doctor: upcomingAppointment.doctor })}
+                    {t("patientDashboard.reminder1Desc", { doctor: t(upcomingAppointment.doctor) })}
                   </div>
                 </div>
               </div>
@@ -489,13 +490,13 @@ function Dashboard() {
                   <span style={{ fontSize: "var(--text-xs)", fontWeight: "700", textTransform: "uppercase", color: "var(--primary-color)" }}>{t("patientDashboard.primaryHealthCentreLabel", "Primary Health Centre")}</span>
                   <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "var(--radius-full)", background: "var(--surface-tint)", color: "white", fontWeight: "700" }}>{t("patientDashboard.openNowLabel", "Open Now")}</span>
                 </div>
-                <span style={{ fontSize: "var(--text-sm)", fontWeight: "700", color: "var(--text-color)" }}>{upcomingAppointment.facility}</span>
+                <span style={{ fontSize: "var(--text-sm)", fontWeight: "700", color: "var(--text-color)" }}>{t(upcomingAppointment.facility)}</span>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginTop: "2px" }}>
                   <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>{t("patientDashboard.puneDistrictGrid", "Pune District Grid")}</span>
                   <a
                     href="tel:+912137252100"
                     className="btn-call-desk"
-                    aria-label={`${t("patientDashboard.callDesk", "Call Desk")} - ${upcomingAppointment.facility}`}
+                    aria-label={`${t("patientDashboard.callDesk", "Call Desk")} - ${t(upcomingAppointment.facility)}`}
                   >
                     <PhoneCall className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>{t("patientDashboard.callDesk", "Call Desk")}</span>

@@ -100,7 +100,7 @@ function WorkerNewReferral() {
               >
                 {patients.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.id} - {p.name} ({p.village}, {p.riskCategory})
+                    {p.id} - {t(p.name)} ({t(p.village)}, {t(p.riskCategory)})
                   </option>
                 ))}
               </select>
@@ -114,10 +114,10 @@ function WorkerNewReferral() {
                   onChange={(e) => setFacilityName(e.target.value)}
                   style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid var(--border-color)", background: "var(--card-bg)", color: "var(--text-primary)" }}
                 >
-                  <option value="Shirur 24x7 Primary Health Centre">Shirur 24x7 Primary Health Centre</option>
-                  <option value="District Hospital, Pune">District Hospital, Pune</option>
-                  <option value="Talwade Sub-Health Centre">Talwade Sub-Health Centre</option>
-                  <option value="Sassoon General Hospital">Sassoon General Hospital</option>
+                  <option value="Shirur 24x7 Primary Health Centre">{t("Shirur 24x7 Primary Health Centre")}</option>
+                  <option value="District Hospital, Pune">{t("District Hospital, Pune")}</option>
+                  <option value="Talwade Sub-Health Centre">{t("Talwade Sub-Health Centre")}</option>
+                  <option value="Sassoon General Hospital">{t("Sassoon General Hospital")}</option>
                 </select>
               </div>
 

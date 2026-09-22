@@ -123,7 +123,7 @@ function WorkerReferralDetails() {
         <div>
           <span className="worker-eyebrow">{t("worker.referralCaseEyebrow", { id: referral.id })}</span>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginTop: "4px" }}>
-            <h1 style={{ margin: 0 }}>{referral.patientName}</h1>
+            <h1 style={{ margin: 0 }}>{t(referral.patientName)}</h1>
             <span
               style={{
                 display: "inline-flex",
@@ -139,7 +139,7 @@ function WorkerReferralDetails() {
               }}
             >
               <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: statusConfig.color }} />
-              {statusConfig.label}
+              {t(statusConfig.label)}
             </span>
 
             <span
@@ -157,14 +157,14 @@ function WorkerReferralDetails() {
               }}
             >
               {isUrgent && <AlertCircle style={{ width: "12px", height: "12px" }} />}
-              Urgency: {referral.urgency}
+              {t("worker.urgencyLabel", "Urgency:")} {t(referral.urgency)}
             </span>
           </div>
           <p style={{ marginTop: "6px" }}>
             {t("worker.referredOnDate", {
               date: referral.createdDate || referral.referralDate,
-              specialty: referral.serviceRequired || referral.specialtyRequired,
-              facility: referral.destinationFacility || referral.facilityName
+              specialty: t(referral.serviceRequired || referral.specialtyRequired),
+              facility: t(referral.destinationFacility || referral.facilityName)
             })}
           </p>
         </div>
@@ -227,10 +227,10 @@ function WorkerReferralDetails() {
           <Info style={{ width: "20px", height: "20px", color: statusConfig.color, marginTop: "2px", flexShrink: 0 }} />
           <div>
             <strong style={{ fontSize: "13px", color: statusConfig.color, display: "block" }}>
-              {t("worker.currentReferralState", { state: statusConfig.label })}
+              {t("worker.currentReferralState", { state: t(statusConfig.label) })}
             </strong>
             <p style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--text-primary)", lineHeight: 1.5 }}>
-              {statusConfig.nextActionGuidance}
+              {t(statusConfig.nextActionGuidance)}
             </p>
           </div>
         </div>
@@ -259,7 +259,7 @@ function WorkerReferralDetails() {
                 </strong>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600 }}>
                   <Building2 style={{ width: "15px", height: "15px", color: "var(--primary-color)" }} />
-                  {referral.destinationFacility || referral.facilityName}
+                  {t(referral.destinationFacility || referral.facilityName)}
                 </div>
               </div>
 
@@ -267,14 +267,14 @@ function WorkerReferralDetails() {
                 <strong style={{ display: "block", fontSize: "11px", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "3px" }}>
                   {t("worker.specialtyDeptRequired")}
                 </strong>
-                <div>{referral.serviceRequired || referral.specialtyRequired}</div>
+                <div>{t(referral.serviceRequired || referral.specialtyRequired)}</div>
               </div>
 
               <div>
                 <strong style={{ display: "block", fontSize: "11px", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "3px" }}>
                   {t("worker.reasonForReferralLabel")}
                 </strong>
-                <div style={{ lineHeight: 1.5 }}>{referral.reason}</div>
+                <div style={{ lineHeight: 1.5 }}>{t(referral.reason)}</div>
               </div>
 
               <div>
@@ -289,7 +289,7 @@ function WorkerReferralDetails() {
                   <strong style={{ display: "block", fontSize: "11px", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "3px" }}>
                     {t("worker.ashaNotesLabel")}
                   </strong>
-                  <div style={{ lineHeight: 1.5 }}>{referral.notes}</div>
+                  <div style={{ lineHeight: 1.5 }}>{t(referral.notes)}</div>
                 </div>
               )}
             </div>
@@ -310,7 +310,7 @@ function WorkerReferralDetails() {
                 <strong style={{ display: "block", fontSize: "11px", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "3px" }}>
                   {t("worker.facilityAcknowledgementStatusLabel")}
                 </strong>
-                <div>{referral.acknowledgementStatus || t("worker.awaitingFacilityReviewStatus")}</div>
+                <div>{t(referral.acknowledgementStatus || "Awaiting facility review")}</div>
               </div>
 
               {referral.outcome ? (
@@ -318,7 +318,7 @@ function WorkerReferralDetails() {
                   <strong style={{ display: "block", fontSize: "11px", textTransform: "uppercase", color: "#16a34a", marginBottom: "3px" }}>
                     {t("worker.dischargeOutcomeReportTitle")}
                   </strong>
-                  <div style={{ color: "var(--text-primary)", lineHeight: 1.5 }}>{referral.outcome}</div>
+                  <div style={{ color: "var(--text-primary)", lineHeight: 1.5 }}>{t(referral.outcome)}</div>
                 </div>
               ) : (
                 <div style={{ padding: "12px", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)" }}>
@@ -424,7 +424,7 @@ function WorkerReferralDetails() {
                           color: stepCfg.color
                         }}
                       >
-                        {stepCfg.label}
+                        {t(stepCfg.label)}
                       </span>
                       <span style={{ fontSize: "10px", color: "var(--text-secondary)" }}>
                         {step.timestamp}
@@ -432,12 +432,12 @@ function WorkerReferralDetails() {
                     </div>
 
                     <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                      <strong>{step.actor}</strong> {step.role ? `• ${step.role}` : ""}
+                      <strong>{t(step.actor)}</strong> {step.role ? `• ${t(step.role)}` : ""}
                     </div>
 
                     {step.note && (
                       <p style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--text-primary)", lineHeight: 1.4 }}>
-                        {step.note}
+                        {t(step.note)}
                       </p>
                     )}
                   </div>

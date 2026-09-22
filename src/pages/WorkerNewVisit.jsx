@@ -246,7 +246,7 @@ function WorkerNewVisit() {
           />
           <h2>{t("worker.visitSavedSuccessTitle", "Visit Record Saved Successfully!")}</h2>
           <p style={{ color: "var(--text-secondary)", marginTop: "8px", fontSize: "14px" }}>
-            {t("worker.visitSavedSuccessDesc", { name: selectedPatient?.name, id: selectedPatientId }, `Continuity log, scheduled visit status, and care records updated for ${selectedPatient?.name} (${selectedPatientId}).`)}
+            {t("worker.visitSavedSuccessDesc", { name: t(selectedPatient?.name), id: selectedPatientId }, `Continuity log, scheduled visit status, and care records updated for ${t(selectedPatient?.name)} (${selectedPatientId}).`)}
           </p>
           <p style={{ color: "var(--text-secondary)", fontSize: "12px", marginTop: "4px" }}>
             {t("worker.redirectingToProfile", "Redirecting to Patient Profile...")}
@@ -301,7 +301,7 @@ function WorkerNewVisit() {
                 >
                   {patients.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.id} — {p.name} ({p.age}y, {p.gender}, {p.village}) • Risk: {p.riskCategory}
+                      {p.id} — {t(p.name)} ({p.age}y, {t(p.gender)}, {t(p.village)}) • {t("worker.riskLevelLabel", "Risk:")} {t(p.riskCategory)}
                     </option>
                   ))}
                 </select>
@@ -325,13 +325,13 @@ function WorkerNewVisit() {
                 >
                   <div>
                     <strong style={{ fontSize: "13px" }}>
-                      {selectedPatient.name} ({selectedPatient.id})
+                      {t(selectedPatient.name)} ({selectedPatient.id})
                     </strong>
                     <span style={{ color: "var(--text-secondary)", marginLeft: "8px" }}>
-                      {selectedPatient.age}y • {selectedPatient.gender} • {selectedPatient.village}
+                      {selectedPatient.age}y • {t(selectedPatient.gender)} • {t(selectedPatient.village)}
                     </span>
                     <div style={{ marginTop: "3px", color: "var(--text-secondary)", fontSize: "11px" }}>
-                      {t("worker.careContextLabel", "Care Context:")} {selectedPatient.chronicConditions?.join(", ") || t("worker.routineGeneralHealth", "Routine")}
+                      {t("worker.careContextLabel", "Care Context:")} {selectedPatient.chronicConditions ? selectedPatient.chronicConditions.map((c) => t(c)).join(", ") : t("worker.routineGeneralHealth", "Routine")}
                     </div>
                   </div>
 
@@ -351,7 +351,7 @@ function WorkerNewVisit() {
                           : "var(--primary-color)"
                     }}
                   >
-                    {selectedPatient.riskCategory}
+                    {t(selectedPatient.riskCategory)}
                   </span>
                 </div>
               )}
@@ -993,9 +993,9 @@ function WorkerNewVisit() {
                             fontSize: "12px"
                           }}
                         >
-                          <option value="Shirur 24x7 Primary Health Centre">Shirur 24x7 Primary Health Centre</option>
-                          <option value="District Hospital, Pune">District Hospital, Pune</option>
-                          <option value="Talwade Sub-Health Centre">Talwade Sub-Health Centre</option>
+                          <option value="Shirur 24x7 Primary Health Centre">{t("Shirur 24x7 Primary Health Centre")}</option>
+                          <option value="District Hospital, Pune">{t("District Hospital, Pune")}</option>
+                          <option value="Talwade Sub-Health Centre">{t("Talwade Sub-Health Centre")}</option>
                         </select>
                       </div>
 

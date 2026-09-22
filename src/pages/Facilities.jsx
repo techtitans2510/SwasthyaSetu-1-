@@ -189,7 +189,7 @@ function Facilities() {
                       borderRadius: "var(--radius-sm)"
                     }}
                   >
-                    {facility.type}
+                    {t(facility.type)}
                   </span>
 
                   <span className={`facility-status-pill ${facility.openNow ? "open" : "closed"}`}>
@@ -200,13 +200,13 @@ function Facilities() {
 
                 {/* Facility Name & Location */}
                 <h3 style={{ fontSize: "19px", fontWeight: "800", color: "var(--text-color)" }}>
-                  {facility.name}
+                  {t(facility.name)}
                 </h3>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "10px", fontSize: "13px", color: "var(--text-secondary)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <MapPin className="w-4 h-4 text-primary-color shrink-0" />
-                    <span>{facility.address}</span>
+                    <span>{t(facility.address)}</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <Navigation className="w-4 h-4 text-secondary-color shrink-0" />
@@ -218,7 +218,7 @@ function Facilities() {
                 <div className="facility-services-cloud">
                   {facility.services.slice(0, 4).map((service) => (
                     <span className="service-tag-pill" key={service}>
-                      ✓ {service}
+                      ✓ {t(service)}
                     </span>
                   ))}
                   {facility.services.length > 4 && (

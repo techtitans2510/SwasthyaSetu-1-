@@ -120,7 +120,7 @@ export function AiAssistant() {
     sender: "assistant",
     timestamp: new Date(),
     text: user?.name
-      ? t("aiAssistant.greetingNamed", { name: user.name })
+      ? t("aiAssistant.greetingNamed", { name: t(user.name) })
       : t("aiAssistant.greetingDefault", "Namaste! I am your SwasthyaSetu AI navigation guide. Where would you like to navigate today?"),
     actions: []
   };

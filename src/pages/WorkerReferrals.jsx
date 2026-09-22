@@ -109,7 +109,7 @@ function WorkerReferrals() {
             background: config.color
           }}
         />
-        {config.label}
+        {t(config.label)}
       </span>
     );
   };
@@ -132,7 +132,7 @@ function WorkerReferrals() {
         }}
       >
         {isUrgent && <AlertCircle style={{ width: "11px", height: "11px" }} />}
-        {urgency}
+        {t(urgency)}
       </span>
     );
   };
@@ -434,10 +434,10 @@ function WorkerReferrals() {
                         }}
                       >
                         <User style={{ width: "13px", height: "13px" }} />
-                        {ref.patientName} ({ref.patientId})
+                        {t(ref.patientName)} ({ref.patientId})
                       </Link>
                       <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                        {ref.patientAge ? `${ref.patientAge}y • ` : ""}{ref.patientGender ? `${ref.patientGender} • ` : ""}{ref.village || "Talwade"}
+                        {ref.patientAge ? `${ref.patientAge}y • ` : ""}{ref.patientGender ? `${t(ref.patientGender)} • ` : ""}{t(ref.village || "Talwade")}
                       </div>
                     </div>
                   </div>
@@ -450,10 +450,10 @@ function WorkerReferrals() {
                     <div style={{ marginTop: "3px", fontSize: "12px" }}>
                       <strong style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
                         <Building2 style={{ width: "13px", height: "13px", color: "var(--primary-color)" }} />
-                        {ref.destinationFacility || ref.facilityName}
+                        {t(ref.destinationFacility || ref.facilityName)}
                       </strong>
                       <div style={{ color: "var(--text-secondary)", fontSize: "11px", marginTop: "2px" }}>
-                        Service: {ref.serviceRequired || ref.specialtyRequired || "General OPD"}
+                        {t("worker.serviceLabel", "Service:")} {t(ref.serviceRequired || ref.specialtyRequired || "General OPD")}
                       </div>
                     </div>
                   </div>
@@ -466,7 +466,7 @@ function WorkerReferrals() {
                     <div style={{ marginTop: "3px", fontSize: "12px" }}>
                       <strong>{ref.referringWorker || "Ananya Sharma (ASHA-001)"}</strong>
                       <div style={{ color: "var(--text-secondary)", fontSize: "11px", marginTop: "2px" }}>
-                        Catchment: {ref.village || "Talwade Sub-Centre"}
+                        {t("worker.catchmentAreaLabel", "Catchment:")} {t(ref.village || "Talwade Sub-Centre")}
                       </div>
                     </div>
                   </div>
@@ -475,15 +475,15 @@ function WorkerReferrals() {
                 {/* ROW 3: REASON & OUTCOME */}
                 <div style={{ fontSize: "12px" }}>
                   <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{t("worker.clinicalReasonLabel")} </span>
-                  <span>{ref.reason}</span>
+                  <span>{t(ref.reason)}</span>
                   {ref.outcome && (
                     <div style={{ marginTop: "4px", color: "#16a34a", fontSize: "11px" }}>
-                      <strong>{t("worker.outcomeLabel")} </strong> {ref.outcome}
+                      <strong>{t("worker.outcomeLabel")} </strong> {t(ref.outcome)}
                     </div>
                   )}
                   {ref.notes && (
                     <div style={{ marginTop: "3px", color: "var(--text-secondary)", fontSize: "11px" }}>
-                      <strong>{t("worker.ashaNotesLabel")} </strong> {ref.notes}
+                      <strong>{t("worker.ashaNotesLabel")} </strong> {t(ref.notes)}
                     </div>
                   )}
                 </div>

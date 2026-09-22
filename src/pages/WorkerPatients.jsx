@@ -304,7 +304,7 @@ function WorkerPatients() {
                             fontWeight: 700
                           }}
                         >
-                          {patient.name}
+                          {t(patient.name)}
                         </h3>
 
                         <span
@@ -339,7 +339,7 @@ function WorkerPatients() {
                               : "var(--primary-color)"
                           }}
                         >
-                          {patient.riskCategory}
+                          {t(patient.riskCategory)}
                         </span>
                       </div>
 
@@ -355,7 +355,7 @@ function WorkerPatients() {
                         }}
                       >
                         <span>
-                          {patient.age} {t("worker.yrs", "yrs")} • {patient.gender} • {t("worker.blood", "Blood:")}{" "}
+                          {patient.age} {t("worker.yrs", "yrs")} • {t(patient.gender)} • {t("worker.blood", "Blood:")}{" "}
                           {patient.bloodGroup || "O+"}
                         </span>
 
@@ -369,7 +369,7 @@ function WorkerPatients() {
                           }}
                         >
                           <MapPin style={{ width: "13px", height: "13px" }} />
-                          {patient.village} ({patient.address})
+                          {t(patient.village)} ({t(patient.address)})
                         </span>
                       </div>
                     </div>
@@ -444,7 +444,7 @@ function WorkerPatients() {
                       {t("worker.careContextLabel", "Care Context:")}
                     </span>
                     <span style={{ fontWeight: 500 }}>
-                      {patient.chronicConditions?.join(", ") || t("worker.routineGeneralHealth", "Routine General Health")}
+                      {patient.chronicConditions?.map((c) => t(c)).join(", ") || t("worker.routineGeneralHealth", "Routine General Health")}
                     </span>
 
                     {/* TAGS */}
@@ -460,7 +460,7 @@ function WorkerPatients() {
                           color: "var(--text-secondary)"
                         }}
                       >
-                        {tag}
+                        {t(tag)}
                       </span>
                     ))}
                   </div>
@@ -504,7 +504,7 @@ function WorkerPatients() {
                       <Building2 style={{ width: "12px", height: "12px" }} />
                       {t("worker.primaryFacilityLabel", "Primary Facility:")}{" "}
                       <strong style={{ color: "var(--text-primary)" }}>
-                        {patient.primaryFacility || "Shirur 24x7 PHC"}
+                        {t(patient.primaryFacility) || t("Shirur 24x7 Primary Health Centre")}
                       </strong>
                     </div>
                   </div>

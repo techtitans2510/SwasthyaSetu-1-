@@ -10,27 +10,44 @@ const LanguageContext = createContext(null);
  * Helper to retrieve a nested property via dot notation (e.g., "nav.home")
  * or directly at the top level (e.g., "home").
  */
+/**
+ * Helper to retrieve a nested property via dot notation (e.g., "nav.home")
+ * or directly at the top level (e.g., "home"), with fallback to terms / domain dictionary.
+ */
 function resolvePath(obj, path) {
   if (!obj || typeof obj !== "object" || !path) return undefined;
 
-  // Direct top-level lookup
+  // 1. Direct top-level lookup
   if (Object.prototype.hasOwnProperty.call(obj, path)) {
     return obj[path];
   }
 
-  // Nested dot-notation lookup (e.g. "nav.home")
-  const segments = path.split(".");
-  let current = obj;
+  // 2. Nested dot-notation lookup (e.g. "nav.home")
+  if (typeof path === "string" && path.includes(".")) {
+    const segments = path.split(".");
+    let current = obj;
+    let found = true;
 
-  for (const segment of segments) {
-    if (current && typeof current === "object" && segment in current) {
-      current = current[segment];
-    } else {
-      return undefined;
+    for (const segment of segments) {
+      if (current && typeof current === "object" && segment in current) {
+        current = current[segment];
+      } else {
+        found = false;
+        break;
+      }
+    }
+
+    if (found && current !== undefined) {
+      return current;
     }
   }
 
-  return current;
+  // 3. Lookup in 'terms' dictionary (for mock data and domain entities)
+  if (obj.terms && typeof obj.terms === "object" && Object.prototype.hasOwnProperty.call(obj.terms, path)) {
+    return obj.terms[path];
+  }
+
+  return undefined;
 }
 
 /**
@@ -83,12 +100,15 @@ export function LanguageProvider({ children }) {
    *   t("bookAppointment")
    *   t("nav.home")
    *   t("patientDashboard.morningGreeting")
+   *   t("Hypertension")
+   *   t("Primary Health Centre")
    *   t("custom.key", "Default Fallback Text")
    *   t("welcomeUser", { name: "Aarush" })
    */
   const t = useCallback(
     (key, fallbackOrParams, maybeParams) => {
-      if (!key) return "";
+      if (!key && key !== 0) return "";
+      const stringKey = typeof key === "string" ? key : String(key);
 
       let fallbackText = "";
       let params = null;
@@ -106,16 +126,16 @@ export function LanguageProvider({ children }) {
       const defaultDict = translations[DEFAULT_LANGUAGE];
 
       // 1. Try resolving in currently selected language
-      let value = resolvePath(activeDict, key);
+      let value = resolvePath(activeDict, stringKey);
 
       // 2. If not found or empty, fallback to English
       if (value === undefined || value === null) {
-        value = resolvePath(defaultDict, key);
+        value = resolvePath(defaultDict, stringKey);
       }
 
       // 3. If still not found, use provided explicit fallback string or key name
       if (value === undefined || value === null) {
-        value = fallbackText || key;
+        value = fallbackText || stringKey;
       }
 
       // 4. If value is a string and parameters were provided, interpolate
@@ -123,7 +143,18 @@ export function LanguageProvider({ children }) {
         return interpolate(value, params);
       }
 
-      return typeof value === "string" ? value : String(value || key);
+      return typeof value === "string" ? value : String(value ?? stringKey);
+    },
+    [language]
+  );
+
+  const formatDate = useCallback(
+    (date, options = {}) => {
+      if (!date) return "";
+      const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
+      if (isNaN(d.getTime())) return String(date);
+      const localeCode = language === "mr" ? "mr-IN" : language === "hi" ? "hi-IN" : "en-IN";
+      return d.toLocaleDateString(localeCode, options);
     },
     [language]
   );
@@ -140,11 +171,12 @@ export function LanguageProvider({ children }) {
       language,
       setLanguage,
       t,
+      formatDate,
       translateDynamicText,
       languages: SUPPORTED_LANGUAGES,
       defaultLanguage: DEFAULT_LANGUAGE
     }),
-    [language, setLanguage, t, translateDynamicText]
+    [language, setLanguage, t, formatDate, translateDynamicText]
   );
 
   return (
@@ -152,8 +184,8 @@ export function LanguageProvider({ children }) {
       {children}
     </LanguageContext.Provider>
   );
-
 }
 
 export default LanguageContext;
+
 
